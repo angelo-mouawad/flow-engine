@@ -4,72 +4,74 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDate;
 
-@Table(name = "flow_definition")
 @Entity
+@Table(name = flow_definition")
 public class FlowDefinition {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
+
     @NotNull
     @Size(min = 1)
-    private List<String> processes = new ArrayList<>();
+    private Process[] processes;
+
     @NotNull
     @Size(min = 1)
-    private List<String> flowInstances = new ArrayList<>();
-    private Date createdAt;
-    private Date updatedAt;
+    private FlowInstance[] flowInstances;
 
-    public FlowDefinition() {}
+    @NotNull
+    private LocalDate createdAt;
 
-    public FlowDefinition(Date createdAt, List<String> flowInstances, List<String> processes, Date updatedAt) {
-        setCreatedAt(createdAt);
-        setFlowInstances(flowInstances);
-        setProcesses(processes);
-        setUpdatedAt(updatedAt);
-    }
+    @NotNull
+    private LocalDate updatedAt;
 
-    public Date getCreatedAt() {
-        return createdAt;
-    }
+    protected FlowDefinition() {}
 
-    public void setCreatedAt(Date createdAt) {
+    public FlowDefinition(@NotNull @Size(min = 1) Process[] processes, FlowInstance[] flowInstances, LocalDate createdAt) {
+        this.processes = processes;
+        this.flowInstances = flowInstances;
         this.createdAt = createdAt;
     }
 
-    public List<String> getFlowInstances() {
-        return flowInstances;
-    }
-
-    public void setFlowInstances(List<String> flowInstances) {
-        this.flowInstances = flowInstances;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
+     public void setId(long id) {
         this.id = id;
     }
 
-    public List<String> getProcesses() {
-        return processes;
-    }
-
-    public void setProcesses(List<String> processes) {
+    public void setProcesses(Process[] processes) {
         this.processes = processes;
     }
 
-    public Date getUpdatedAt() {
-        return updatedAt;
+    public void setFlowInstances(FlowInstance[] flowInstances) {
+        this.flowInstances = flowInstances;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(LocalDate updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public Process[] getProcesses() {
+        return processes;
+    }
+
+    public LocalDate getCreatedAt() {
+        return createdAt;
+    }
+
+    public FlowInstance[] getFlowInstances() {
+        return flowInstances;
+    }
+
+    public LocalDate getUpdatedAt() {
+        return updatedAt;
     }
 }
