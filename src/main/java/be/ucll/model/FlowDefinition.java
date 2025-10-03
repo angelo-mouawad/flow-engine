@@ -1,9 +1,12 @@
 package be.ucll.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Table(name = "flow_definition")
 @Entity
@@ -12,44 +15,38 @@ public class FlowDefinition {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String employee;
-    private Date absenseUntil;
-    private LocalTime from;
-    private LocalTime until;
-    private String remarks;
+    @NotNull
+    @Size(min = 1)
+    private List<String> processes = new ArrayList<>();
+    @NotNull
+    @Size(min = 1)
+    private List<String> flowInstances = new ArrayList<>();
+    private Date createdAt;
+    private Date updatedAt;
 
     public FlowDefinition() {}
 
-    public FlowDefinition(Date absenseUntil, String employee, LocalTime from, String remarks, LocalTime until) {
-        setAbsenseUntil(absenseUntil);
-        setEmployee(employee);
-        setFrom(from);
-        setRemarks(remarks);
-        setUntil(until);
+    public FlowDefinition(Date createdAt, List<String> flowInstances, List<String> processes, Date updatedAt) {
+        setCreatedAt(createdAt);
+        setFlowInstances(flowInstances);
+        setProcesses(processes);
+        setUpdatedAt(updatedAt);
     }
 
-    public Date getAbsenseUntil() {
-        return absenseUntil;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
-    public void setAbsenseUntil(Date absenseUntil) {
-        this.absenseUntil = absenseUntil;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public String getEmployee() {
-        return employee;
+    public List<String> getFlowInstances() {
+        return flowInstances;
     }
 
-    public void setEmployee(String employee) {
-        this.employee = employee;
-    }
-
-    public LocalTime getFrom() {
-        return from;
-    }
-
-    public void setFrom(LocalTime from) {
-        this.from = from;
+    public void setFlowInstances(List<String> flowInstances) {
+        this.flowInstances = flowInstances;
     }
 
     public Long getId() {
@@ -60,19 +57,19 @@ public class FlowDefinition {
         this.id = id;
     }
 
-    public String getRemarks() {
-        return remarks;
+    public List<String> getProcesses() {
+        return processes;
     }
 
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
+    public void setProcesses(List<String> processes) {
+        this.processes = processes;
     }
 
-    public LocalTime getUntil() {
-        return until;
+    public Date getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUntil(LocalTime until) {
-        this.until = until;
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
