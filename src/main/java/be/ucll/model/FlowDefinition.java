@@ -1,103 +1,77 @@
 package be.ucll.model;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-//Class Definition
+import java.time.LocalDate;
+
+@Entity
+@Table(name = flow_definition")
 public class FlowDefinition {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String employee;
-    private LocalDateTime absenceUntil;
-    private float absenceDuration;
-    private LocalDateTime from;
-    private LocalDateTime until;
-    private String remarks;
-    private Status status;
 
-    public enum Status {
-        PENDING,
-        IN_PROGRESS,
-        APPROVED,
-        DENIED
+    @NotNull
+    @Size(min = 1)
+    private Process[] processes;
+
+    @NotNull
+    @Size(min = 1)
+    private FlowInstance[] flowInstances;
+
+    @NotNull
+    private LocalDate createdAt;
+
+    @NotNull
+    private LocalDate updatedAt;
+
+    protected FlowDefinition() {}
+
+    public FlowDefinition(@NotNull @Size(min = 1) Process[] processes, FlowInstance[] flowInstances, LocalDate createdAt) {
+        this.processes = processes;
+        this.flowInstances = flowInstances;
+        this.createdAt = createdAt;
     }
 
-    public void setId(long id) {
+     public void setId(long id) {
         this.id = id;
     }
 
-    public void setEmployee(String employee) {
-        this.employee = employee;
+    public void setProcesses(Process[] processes) {
+        this.processes = processes;
     }
 
-    public void setAbsenceUntil(LocalDateTime absenceUntil) {
-        this.absenceUntil = absenceUntil;
+    public void setFlowInstances(FlowInstance[] flowInstances) {
+        this.flowInstances = flowInstances;
     }
 
-    public void setAbsenceDuration(float absenceDuration) {
-        this.absenceDuration = absenceDuration;
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public void setFrom(LocalDateTime from) {
-        this.from = from;
-    }
-
-    public void setUntil(LocalDateTime until) {
-        this.until = until;
-    }
-
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public float getAbsenceDuration() {
-        return absenceDuration;
-    }
-
-    public String getEmployee() {
-        return employee;
-    }
-
-    public LocalDateTime getAbsenceUntil() {
-        return absenceUntil;
-    }
-
-    public LocalDateTime getFrom() {
-        return from;
-    }
-
-    public LocalDateTime getUntil() {
-        return until;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public String getRemarks() {
-        return remarks;
+    public void setUpdatedAt(LocalDate updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public long getId() {
         return id;
     }
 
-    //Constructor
-    public FlowDefinition(long id, String employee, LocalDateTime absenceUntil,
-                          float absenceDuration, LocalDateTime from, LocalDateTime until,
-                          String remarks, Status status) {
-        this.id = id;
-        this.employee = employee;
-        this.absenceUntil = absenceUntil;
-        this.absenceDuration = absenceDuration;
-        this.from = from;
-        this.until = until;
-        this.remarks = remarks;
-        this.status = status;
+    public Process[] getProcesses() {
+        return processes;
     }
 
+    public LocalDate getCreatedAt() {
+        return createdAt;
+    }
 
+    public FlowInstance[] getFlowInstances() {
+        return flowInstances;
+    }
+
+    public LocalDate getUpdatedAt() {
+        return updatedAt;
+    }
 }
