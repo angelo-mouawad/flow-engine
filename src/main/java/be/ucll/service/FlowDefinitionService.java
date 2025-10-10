@@ -20,4 +20,8 @@ public class FlowDefinitionService {
     public List<FlowDefinition> findAllFlowDefinitions() {
         return flowDefinitionRepository.findAll();
     }
+
+    public FlowDefinition addFlowDefinition(FlowDefinition flowDefinition) {
+        return flowDefinitionRepository.save(flowDefinition);
+    }
 }
