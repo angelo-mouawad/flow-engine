@@ -1,6 +1,12 @@
 @import 'tailwindcss';
 
 @theme{
-  --color-mainbg : #00122e;
-  --color-maintxt: #ffffff;
+  --color-mainbg : #f2f6fe;
+  --color-primary : #ffffff;
+  --color-secondary : #000000;
+  --color-sidebarbg: #35373b;
+  --color-sidebarprimary: #ffc533;
+  --color-sidebarsecondary: #cbd2dc;
+  --color-additional: #808080;
+  --color-sidebarhighlight: #5B5D60;
 }
