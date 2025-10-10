@@ -1,26 +1,22 @@
 package be.ucll.model;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection = "FlowInstance")
 public class FlowInstance {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     private FlowDefinition flowDefinition;
     private Process currentProcess;
     private List<Process> processes = new ArrayList<>();
     private Date createdAt;
     private Date updatedAt;
-
-    protected FlowInstance() {
-    }
 
     public FlowInstance(Date createdAt, Process currentProcess, FlowDefinition flowDefinition, List<Process> processes, Date updatedAt) {
         setCreatedAt(createdAt);
@@ -54,11 +50,11 @@ public class FlowInstance {
         this.flowDefinition = flowDefinition;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -1,26 +1,26 @@
 package be.ucll.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "Trigger")
 public class Trigger {
-    private Long id;
-    private Type type;
+    @Id
+    private String id;
+    private TriggerType type;
     private FlowDefinition[] flowDefinitions;
 
-    public enum Type {
-        //SOMETHING
-    }
-
-    // Constructors, getters, and setters are usually needed
-    public Trigger(Long id, Type type, FlowDefinition[] flowDefinitions) {
+    public Trigger(String id, TriggerType type, FlowDefinition[] flowDefinitions) {
         this.id = id;
         this.type = type;
         this.flowDefinitions = flowDefinitions;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public Type getType() {
+    public TriggerType getType() {
         return type;
     }
 
