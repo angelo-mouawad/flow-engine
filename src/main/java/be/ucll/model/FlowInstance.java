@@ -12,13 +12,17 @@ public class FlowInstance {
 
     @Id
     private String id;
+    private String title;
+    private String description;
     private FlowDefinition flowDefinition;
     private Process currentProcess;
     private List<Process> processes = new ArrayList<>();
     private Date createdAt;
     private Date updatedAt;
 
-    public FlowInstance(Date createdAt, Process currentProcess, FlowDefinition flowDefinition, List<Process> processes, Date updatedAt) {
+    public FlowInstance(String title, String description, Date createdAt, Process currentProcess, FlowDefinition flowDefinition, List<Process> processes, Date updatedAt) {
+        setTitle(title);
+        setDescription(description);
         setCreatedAt(createdAt);
         setCurrentProcess(currentProcess);
         setFlowDefinition(flowDefinition);
@@ -26,8 +30,24 @@ public class FlowInstance {
         setUpdatedAt(updatedAt);
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public Date getCreatedAt() {
         return createdAt;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setCreatedAt(Date createdAt) {
