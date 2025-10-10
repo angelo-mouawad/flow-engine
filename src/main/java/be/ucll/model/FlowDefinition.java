@@ -1,41 +1,27 @@
 package be.ucll.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-
 import java.time.LocalDate;
 
-@Entity
-@Table(name = flow_definition")
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "FlowDefinition")
 public class FlowDefinition {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @NotNull
-    @Size(min = 1)
+    private String id;
     private Process[] processes;
-
-    @NotNull
-    @Size(min = 1)
     private FlowInstance[] flowInstances;
-
-    @NotNull
     private LocalDate createdAt;
-
-    @NotNull
     private LocalDate updatedAt;
 
-    protected FlowDefinition() {}
-
-    public FlowDefinition(@NotNull @Size(min = 1) Process[] processes, FlowInstance[] flowInstances, LocalDate createdAt) {
+    public FlowDefinition(Process[] processes, FlowInstance[] flowInstances, LocalDate createdAt) {
         this.processes = processes;
         this.flowInstances = flowInstances;
         this.createdAt = createdAt;
     }
 
-     public void setId(long id) {
+     public void setId(String id) {
         this.id = id;
     }
 
@@ -55,7 +41,7 @@ public class FlowDefinition {
         this.updatedAt = updatedAt;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
