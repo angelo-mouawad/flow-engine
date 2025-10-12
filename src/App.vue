@@ -1,7 +1,5 @@
 <script setup lang="ts">
-  import FlowDefinitionForm from './views/FlowDefinitionForm.vue';
   import SideBar from './components/SideBar.vue';
-  import FlowDetails from './views/FlowDetails.vue';
 
 </script>
 
