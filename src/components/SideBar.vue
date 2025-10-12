@@ -16,8 +16,11 @@ const selectOption = (index: number) => {
 
 onMounted(async () => {
   await router.isReady();
-  const currentPath = router.currentRoute.value.path;
-  const index = paths.indexOf(currentPath);
+
+  const path = router.currentRoute.value.path;
+
+  //e.g: returns "/flow-definitions" from /flow-definitions/new
+  const index = paths.indexOf(`/${path.split('/')[1]}`);
   if (index !== -1) {
     activeIndex.value = index;
   }

@@ -7,7 +7,7 @@ const routes = [
   { path: '/', name: 'Home', component: WelcomeGrid },
   { path: '/flow-definitions', name: 'FlowDefinitions', component: FlowDetails, props: { isDefinition: true }},
   { path: '/flow-instances', name: 'FlowInstances', component: FlowDetails, props: { isDefinition: false }},
-  { path: '/flow-definitions-new', name: 'FlowDefinitionsNew', component: FlowDefinitionForm  },
+  { path: '/flow-definitions/new', name: 'FlowDefinitionsNew', component: FlowDefinitionForm  },
 ];
 
 const router = createRouter({
