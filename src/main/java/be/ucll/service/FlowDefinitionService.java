@@ -22,6 +22,12 @@ public class FlowDefinitionService {
     }
 
     public FlowDefinition addFlowDefinition(FlowDefinition flowDefinition) {
-        return flowDefinitionRepository.save(flowDefinition);
+        
+        return flowDefinitionRepository.save(
+                new FlowDefinition(
+                    flowDefinition.getTitle(), 
+                    flowDefinition.getDescription(), 
+                    flowDefinition.getProcesses()
+                ));
     }
 }
