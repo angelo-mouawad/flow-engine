@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const activeIndex = ref<number>(0);
 const menuItems = ['HOME', 'FLOW DEFINITIONS', 'FLOW INSTANCES', 'SETTINGS'];
 
 const yellowBar = 'before:content-[\'\'] before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-sidebarprimary';
 
-const selectOption = (index: number)=>{
-    activeIndex.value = index;
+const paths = ['/', '/flow-definitions', '/flow-instances', '/settings'];
 
-    //TODO: route to url
-}
+const selectOption = (index: number) => {
+  activeIndex.value = index;
+  router.push(paths[index] as string);
+};
+
 </script>
 
 <template>

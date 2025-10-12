@@ -19,7 +19,9 @@
             placeholder="Search" 
             class="border rounded-md px-3 py-1 text-sm focus:outline-none"
             />
-            <button class="rounded-md px-4 py-1 bg-yellow-500 text-sm font-medium border">+ New flow</button>
+            <RouterLink to="/flow-definitions-new" >
+                <button class="rounded-md px-4 py-1 bg-yellow-500 text-sm font-medium border cursor-pointer hover:bg-yellow-600">+ New flow</button>
+            </RouterLink>
         </div>
 
         <div class="overflow-x-auto rounded-md">
