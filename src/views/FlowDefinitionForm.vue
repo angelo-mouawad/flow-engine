@@ -1,13 +1,13 @@
 <script setup lang="ts">
-    
+
 </script>
 
 <template>
     <div class="rounded-md border p-5">
         <h1 class="font-extrabold text-4xl pt-5">Create New Flow Definition</h1>
-        <div class="flex items-center justify-between mb-2">
-            <RouterLink to="/flow-definitions" >< Return To Flow Definitions</RouterLink>
-        </div>
+        <RouterLink to="/flow-definitions" class="flex items-center justify-between mb-2">
+            Return To Flow Definitions
+        </RouterLink>
         <p class="font-bold ">Basic Information</p>
         <hr>
         <form class="mt-5 flex flex-direction flex-wrap space-y-4">
@@ -17,10 +17,10 @@
                         Flow Name
                     </label>
                     <input
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="flowName"
-                        type="text"
-                        placeholder="Enter flow name"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    id="flowName"
+                    type="text"
+                    placeholder="Enter flow name"
                     />
                 </div>
                 <div>
@@ -30,7 +30,7 @@
                     <select
                         id="flowType"
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    >
+                        >
                         <option class="text-gray-700 " value="">Select flow type</option>
                         <option class="text-gray-700 " value="type1">Type 1</option>
                         <option class="text-gray-700 " value="type2">Type 2</option>
@@ -47,7 +47,7 @@
                     id="description"
                     rows="4"
                     placeholder="Describe what this flow does"
-                ></textarea>
+                    ></textarea>
             </div>
         </form>
         <p class="font-bold ">Basic Information</p>
@@ -55,14 +55,14 @@
         <div class="rounded-md border p-5 bg-[#f5f5f5]">
             <p class="font-bold text-gray-700">Step 1</p>
             <label class="block text-sm font-bold mb-2 pt-5" for="stepName">
-                    Step Name
-                </label>
-                <input
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    id="stepName"
-                    type="text"
-                    placeholder="e.g., Manager Approval"
-                />
+                Step Name
+            </label>
+            <input
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="stepName"
+            type="text"
+            placeholder="e.g., Manager Approval"
+            />
             <div class="mb-4 grid grid-cols-2 gap-4 w-full pt-5">
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="stepType">
@@ -71,7 +71,7 @@
                     <select
                         id="flowType"
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    >
+                        >
                         <option class="text-gray-700 " value="">Select type</option>
                         <option class="text-gray-700 " value="type1">Type 1</option>
                         <option class="text-gray-700 " value="type2">Type 2</option>
@@ -85,14 +85,14 @@
                     <select
                         id="flowType"
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    >
+                        >
                         <option class="text-gray-700 " value="">Select role</option>
                         <option class="text-gray-700 " value="type1">Type 1</option>
                         <option class="text-gray-700 " value="type2">Type 2</option>
                         <option class="text-gray-700 " value="type3">Type 3</option>
                     </select>
                 </div>
-                
+
             </div>
             <div class="mb-4 w-full">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
@@ -103,7 +103,7 @@
                     id="description"
                     rows="4"
                     placeholder="Enter flow description"
-                ></textarea>
+                    ></textarea>
             </div>
         </div>
         <a href="">
@@ -113,9 +113,9 @@
         </a>
         <hr class="mt-5">
         <div class="p-5 flex justify-center gap-[2.6rem]">
-            <button class="bg-white hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded-md shadow h-13 w-32 text-xl">
+            <RouterLink to="/flow-definitions" class="bg-white hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded-md shadow h-13 w-32 text-xl">
                 Cancel
-            </button>
+            </RouterLink>
             <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 border border-black-700 rounded-md h-13 w-40 text-xl">
                 Save as Draft
             </button>

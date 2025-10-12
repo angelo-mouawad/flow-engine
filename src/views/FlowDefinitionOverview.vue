@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { onMounted } from 'vue';
-    import FlowDetails from './FlowDetails.vue';
+    import FlowDetails from '../components/FlowDetails.vue';
 
     onMounted(()=>{
         

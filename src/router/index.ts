@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import WelcomeGrid from '../views/WelcomeGrid.vue';
 import FlowDefinitionForm from '../views/FlowDefinitionForm.vue';
-import FlowDetails from '../views/FlowDetails.vue';
+import FlowDetails from '../components/FlowDetails.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: WelcomeGrid },
