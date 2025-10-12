@@ -29,7 +29,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <aside class="h-screen bg-sidebarbg py-5 shadow-md flex flex-col items-center">
+    <aside class="sticky h-screen w-50 inset-y-0 bg-sidebarbg py-5 shadow-md flex flex-col items-center">
         <img src="/images/logo.png" alt="Logo" class="w-24 mx-auto block"/>
         <hr class="text-sidebarsecondary mt-4 w-full" />
 
