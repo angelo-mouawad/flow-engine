@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import type { FlowDefinition } from "../types";
 
 const props = defineProps(["isDefinition"]);
@@ -7,8 +7,8 @@ const props = defineProps(["isDefinition"]);
 const definitions = ref<FlowDefinition[]>([]);
 const searchText = ref<string>("");
 
-// hardcoded as example
-onMounted(() => {
+const loadData = () => {
+  // hardcoded flow definitions as example -> TO DELETE
   if (props.isDefinition) {
     definitions.value = [
       {
@@ -26,8 +26,23 @@ onMounted(() => {
         createdAt: new Date("2025-02-20"),
       },
     ];
+  } else {
+    definitions.value = [];
   }
+
+  searchText.value = "";
+};
+
+onMounted(() => {
+  loadData();
 });
+
+watch(
+  () => props.isDefinition,
+  () => {
+    loadData();
+  }
+);
 
 const filteredDefinitions = computed(() => {
   if (!searchText.value) {
