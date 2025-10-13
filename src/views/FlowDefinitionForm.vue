@@ -6,7 +6,7 @@
     <div class="rounded-md border p-5">
         <h1 class="font-extrabold text-4xl pt-5">Create New Flow Definition</h1>
         <RouterLink to="/flow-definitions" class="flex items-center justify-between mb-2">
-            Return To Flow Definitions
+            &lt; Return To Flow Definitions
         </RouterLink>
         <p class="font-bold ">Basic Information</p>
         <hr>
@@ -113,7 +113,7 @@
         </a>
         <hr class="mt-5">
         <div class="p-5 flex justify-center gap-[2.6rem]">
-            <RouterLink to="/flow-definitions" class="bg-white hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded-md shadow h-13 w-32 text-xl">
+            <RouterLink to="/flow-definitions" class="bg-white hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded-md shadow h-13 w-32 text-xl flex items-center justify-center">
                 Cancel
             </RouterLink>
             <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 border border-black-700 rounded-md h-13 w-40 text-xl">
