@@ -196,7 +196,6 @@ const handleSaveDraft = () => {};
           </div>
         </div>
 
-        <!-- Step Description -->
         <div class="mb-4 w-full">
           <label class="block text-gray-700 text-sm font-bold mb-2"
             >Description</label
@@ -209,7 +208,7 @@ const handleSaveDraft = () => {};
           ></textarea>
         </div>
       </div>
-      <!-- Add Step button -->
+
       <button
         @click="addNextStep"
         type="button"
