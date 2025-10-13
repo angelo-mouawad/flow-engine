@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
-import type { FlowDefinition } from "../types";
+import type { FlowDefinition, FlowInstance } from "../types";
 
 const props = defineProps(["isDefinition"]);
 
@@ -16,6 +16,7 @@ const loadData = () => {
         title: "Basic Absence Approval",
         description: "Employee submits absence → Manager approves",
         processes: [],
+        flowInstances: [],
         createdAt: new Date("2025-01-15"),
       },
       {
@@ -23,6 +24,7 @@ const loadData = () => {
         title: "Multi-Level Absence Approval",
         description: "Employee submits → Team Lead approves → HR validates",
         processes: [],
+        flowInstances: ["test", "test2"],
         createdAt: new Date("2025-02-20"),
       },
     ];
@@ -68,9 +70,9 @@ const formatDate = (date?: Date) => {
   });
 };
 
-const formatProcesses = (processes: any[]) => {
-  if (processes && processes.length > 0) {
-    return processes.length;
+const formatInstances = (flowInstances: FlowInstance[]) => {
+  if (flowInstances && flowInstances.length > 0) {
+    return flowInstances.length;
   }
   return "—";
 };
@@ -134,7 +136,7 @@ const formatProcesses = (processes: any[]) => {
             <tr class="text-left text-white bg-[#111]">
               <th class="px-4 py-2 font-medium">Name</th>
               <th class="px-4 py-2 font-medium">Description</th>
-              <th class="px-4 py-2 font-medium">Process</th>
+              <th class="px-4 py-2 font-medium">Instances</th>
               <th class="px-4 py-2 font-medium">Created At</th>
             </tr>
           </thead>
@@ -146,7 +148,9 @@ const formatProcesses = (processes: any[]) => {
             >
               <td class="px-4 py-2">{{ def.title }}</td>
               <td class="px-4 py-2">{{ def.description }}</td>
-              <td class="px-4 py-2">{{ formatProcesses(def.processes) }}</td>
+              <td class="px-4 py-2">
+                {{ formatInstances(def.flowInstances ?? []) }}
+              </td>
               <td class="px-4 py-2">{{ formatDate(def.createdAt) }}</td>
             </tr>
 
