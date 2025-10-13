@@ -160,6 +160,9 @@ const formatInstances = (flowInstances: FlowInstance[]) => {
           </tbody>
         </table>
       </div>
+      <div class="mt-2 text-sm text-gray-500">
+        Total: {{ filteredDefinitions.length }}
+      </div>
     </div>
   </div>
 </template>

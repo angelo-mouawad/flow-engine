@@ -11,3 +11,11 @@ export type FlowDefinition = {
 export type FlowInstance = {};
 
 export type Process = {};
+
+export type Step = {
+  id: number;
+  name: string;
+  type: string;
+  role: string;
+  description: string;
+};
