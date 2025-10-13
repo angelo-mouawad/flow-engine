@@ -2,29 +2,31 @@
 import { computed, onMounted, ref } from "vue";
 import type { FlowDefinition } from "../types";
 
-defineProps(["isDefinition"]);
+const props = defineProps(["isDefinition"]);
 
 const definitions = ref<FlowDefinition[]>([]);
 const searchText = ref<string>("");
 
 // hardcoded as example
 onMounted(() => {
-  definitions.value = [
-    {
-      id: "1",
-      title: "Basic Absence Approval",
-      description: "Employee submits absence → Manager approves",
-      processes: [],
-      createdAt: new Date("2025-01-15"),
-    },
-    {
-      id: "2",
-      title: "Multi-Level Absence Approval",
-      description: "Employee submits → Team Lead approves → HR validates",
-      processes: [],
-      createdAt: new Date("2025-02-20"),
-    },
-  ];
+  if (props.isDefinition) {
+    definitions.value = [
+      {
+        id: "1",
+        title: "Basic Absence Approval",
+        description: "Employee submits absence → Manager approves",
+        processes: [],
+        createdAt: new Date("2025-01-15"),
+      },
+      {
+        id: "2",
+        title: "Multi-Level Absence Approval",
+        description: "Employee submits → Team Lead approves → HR validates",
+        processes: [],
+        createdAt: new Date("2025-02-20"),
+      },
+    ];
+  }
 });
 
 const filteredDefinitions = computed(() => {
