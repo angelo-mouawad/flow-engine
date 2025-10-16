@@ -9,7 +9,7 @@ COPY pom.xml .
 COPY src ./src
 SHELL ["/bin/bash", "-c"]
 
-RUN echo $'MONGODB_URI==mongodb://glackit:REDACTED@glackit-mongo-wpp-team-30.apps.okd.ucll.cloud:27017 \n\
+RUN echo $'MONGODB_URI=mongodb://glackit:REDACTED@glackit-mongo-wpp-team-30.apps.okd.ucll.cloud:27017 \n\
 MONGODB_DATABASE=flowEngine \n\
 SPRING_PROFILES_ACTIVE=prod' > .env
 
