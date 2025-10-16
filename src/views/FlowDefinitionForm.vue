@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import type { Step } from "../types";
+import type { Process } from "../types";
 
 const router = useRouter();
 
-const steps = ref<Step[]>([
+const steps = ref<Process[]>([
   {
     id: 1,
     name: "",
@@ -36,11 +36,6 @@ const goBackToFlowDef = () => {
   router.push("/flow-definitions");
 };
 
-// to implement
-const handleSave = () => {};
-
-// to implement
-const handleSaveDraft = () => {};
 </script>
 
 <template>
@@ -130,7 +125,7 @@ const handleSaveDraft = () => {};
         class="rounded-md border p-5 bg-[#f5f5f5] mb-4"
       >
         <div class="flex justify-between items-center mb-4">
-          <p class="font-bold text-gray-700">Step {{ index + 1 }}</p>
+          <p class="font-bold text-gray-700">Process {{ index + 1 }}</p>
 
           <button
             v-if="steps.length > 1"
@@ -156,7 +151,7 @@ const handleSaveDraft = () => {};
         </div>
 
         <label class="block text-sm font-bold mb-2" for="stepName"
-          >Step Name</label
+          >Process Name</label
         >
         <input
           v-model="step.name"
@@ -168,7 +163,7 @@ const handleSaveDraft = () => {};
         <div class="mb-4 grid grid-cols-2 gap-4 w-full pt-5">
           <div>
             <label class="block text-gray-700 text-sm font-bold mb-2"
-              >Step Type</label
+              >Process Type</label
             >
             <select
               v-model="step.type"
@@ -215,7 +210,7 @@ const handleSaveDraft = () => {};
         class="w-full rounded-lg border-2 border-dashed border-gray-300 py-4 text-center hover:border-yellow-500 hover:bg-yellow-50 group mt-2 cursor-pointer"
       >
         <span class="font-semibold text-gray-600 group-hover:text-gray-900"
-          >+ Add Step</span
+          >+ Add Process</span
         >
       </button>
 
