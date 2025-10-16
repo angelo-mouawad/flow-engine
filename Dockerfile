@@ -25,6 +25,7 @@ WORKDIR /app
 
 # Copy the built JAR file from the previous stage to the container
 COPY --from=build /app/target/examen-BE-1.0-SNAPSHOT.jar .
+COPY --from=build /app/.env .
 
 # Set the command to run the application
 CMD ["java", "-jar", "examen-BE-1.0-SNAPSHOT.jar"]
