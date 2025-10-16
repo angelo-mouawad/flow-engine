@@ -14,6 +14,7 @@ MONGODB_DATABASE=flowEngine \n\
 SPRING_PROFILES_ACTIVE=prod' > .env
 
 # Build the application using Maven
+RUN mvn install
 RUN mvn clean package spring-boot:repackage -DskipTests
 
 # Use an official OpenJDK image as the base image
