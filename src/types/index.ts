@@ -1,17 +1,40 @@
 export type FlowDefinition = {
-  id?: string;
+  id: string;
   title: string;
   description: string;
   processes: Process[];
-  flowInstances?: FlowInstance[];
-  createdAt?: Date;
-  updatedAt?: Date;
+  flowInstances: FlowInstance[];
+  updatedAt: Date;
 };
 
-export type FlowInstance = {};
+export type Status = 'PENDING' | 'ACTIVE' | 'SUCCESS' | 'FAILURE'
+
+export type FlowInstance = {
+  id: string;
+  flowDefinition: FlowDefinition;
+  title: string;
+  status: Status;
+  currentProcess: Process;
+  updatedAt: Date;
+};
+
+export type TriggerType = 'MANUAL' | 'POST'
+
+export type Trigger = {
+  id: string;
+  type: TriggerType;
+}
+
+export type Step = {
+  id: number;
+  name: string;
+  type: string;
+  role: string;
+  description: string;
+};
 
 export type Process = {
-  id: number;
+  id: string;
   name: string;
   type: string;
   role: string;

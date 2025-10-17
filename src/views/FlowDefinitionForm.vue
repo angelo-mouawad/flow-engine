@@ -7,18 +7,18 @@ const router = useRouter();
 
 const steps = ref<Process[]>([
   {
-    id: 1,
+    id: '1',
     name: "",
     type: "",
     role: "",
     description: "",
   },
 ]);
-let nextStepId = 2;
+let nextStepId = "2";
 
 const addNextStep = () => {
   steps.value.push({
-    id: nextStepId++,
+    id: (Number(nextStepId) + 1).toString(),
     name: "",
     type: "",
     role: "",
@@ -26,7 +26,7 @@ const addNextStep = () => {
   });
 };
 
-const deleteStep = (stepId: number) => {
+const deleteStep = (stepId: string) => {
   if (steps.value.length > 1) {
     steps.value = steps.value.filter((step) => step.id !== stepId);
   }
