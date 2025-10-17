@@ -4,7 +4,7 @@ import Header from "./components/Header.vue";
 </script>
 
 <template>
-  <main class="flex min-h-screen bg-[var(--color-mainbg)]">
+  <main class="flex min-h-screen bg-color-mainbg">
     <SideBar />
     <div class="flex flex-1 flex-col">
       <div class="sticky top-0">
