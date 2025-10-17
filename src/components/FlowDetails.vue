@@ -1,81 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
-import type { FlowDefinition, FlowInstance } from "../types";
+import { watch } from "vue";
+import FlowDefinitionsTable from "./FlowDefinitionsTable.vue";
+import FlowInstancesTable from "./FlowInstancesTable.vue";
 
 const props = defineProps(["isDefinition"]);
 
-const definitions = ref<FlowDefinition[]>([]);
-const searchText = ref<string>("");
 
-const loadData = () => {
-  // hardcoded flow definitions as example -> TO DELETE
-  if (props.isDefinition) {
-    definitions.value = [
-      {
-        id: "1",
-        title: "Basic Absence Approval",
-        description: "Employee submits absence → Manager approves",
-        processes: [],
-        flowInstances: [],
-        createdAt: new Date("2025-01-15"),
-      },
-      {
-        id: "2",
-        title: "Multi-Level Absence Approval",
-        description: "Employee submits → Team Lead approves → HR validates",
-        processes: [],
-        flowInstances: ["test", "test2"],
-        createdAt: new Date("2025-02-20"),
-      },
-    ];
-  } else {
-    definitions.value = [];
-  }
-
-  searchText.value = "";
-};
-
-onMounted(() => {
-  loadData();
-});
-
-watch(
-  () => props.isDefinition,
-  () => {
-    loadData();
-  }
-);
-
-const filteredDefinitions = computed(() => {
-  if (!searchText.value) {
-    return definitions.value;
-  }
-
-  const search = searchText.value.toLowerCase();
-
-  return definitions.value.filter(
-    (def) =>
-      def.title.toLowerCase().includes(search) ||
-      def.description.toLowerCase().includes(search)
-  );
-});
-
-// we can change to a different format
-const formatDate = (date?: Date) => {
-  if (!date) return "—";
-  return new Date(date).toLocaleDateString("en-GB", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-};
-
-const formatInstances = (flowInstances: FlowInstance[]) => {
-  if (flowInstances && flowInstances.length > 0) {
-    return flowInstances.length;
-  }
-  return "—";
-};
 </script>
 
 <template>
@@ -101,7 +31,6 @@ const formatInstances = (flowInstances: FlowInstance[]) => {
             />
           </svg>
           <input
-            v-model="searchText"
             type="text"
             placeholder="Search"
             class="border rounded-md pl-9 px-3 py-1 text-sm focus:outline-none"
@@ -131,37 +60,11 @@ const formatInstances = (flowInstances: FlowInstance[]) => {
       </div>
 
       <div class="overflow-x-auto rounded-md shadow-sm border">
-        <table class="w-full border-collapse text-sm">
-          <thead>
-            <tr class="text-left text-white bg-[#111]">
-              <th class="px-4 py-2 font-medium">Name</th>
-              <th class="px-4 py-2 font-medium">Description</th>
-              <th class="px-4 py-2 font-medium">Instances</th>
-              <th class="px-4 py-2 font-medium">Created At</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            <tr
-              class="cursor-pointer hover:bg-gray-100"
-              v-for="def in filteredDefinitions"
-              :key="def.id"
-            >
-              <td class="px-4 py-2">{{ def.title }}</td>
-              <td class="px-4 py-2">{{ def.description }}</td>
-              <td class="px-4 py-2">
-                {{ formatInstances(def.flowInstances ?? []) }}
-              </td>
-              <td class="px-4 py-2">{{ formatDate(def.createdAt) }}</td>
-            </tr>
-
-            <tr v-if="filteredDefinitions.length === 0">
-              <td class="px-4 py-2 text-left text-gray-500">No flow found</td>
-            </tr>
-          </tbody>
-        </table>
+        <FlowDefinitionsTable v-if="isDefinition" />
+        <FlowInstancesTable v-if="!isDefinition" />
       </div>
       <div class="mt-2 text-sm text-gray-500">
-        Total: {{ filteredDefinitions.length }}
+        <!-- Total: {{ definitions.length }} -->
       </div>
     </div>
   </div>
