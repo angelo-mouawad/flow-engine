@@ -1,36 +1,19 @@
 <script setup lang="ts">
-import NotificationBar from '../components/NotificationBar.vue'
-import NotificationModal from '../components/NotificationModal.vue'
-import { ref } from 'vue'
+import NotificationBar from "../components/NotificationBar.vue";
 
 const gridElements = [
   "Flow Definitions",
   "Flow Instances",
   "Diagram",
   "Something",
-]
-
-const notifModal = ref<InstanceType<typeof NotificationModal>>()
-
-const openModal = () => {
-  notifModal.value?.openModal()
-}
+];
 </script>
 
 <template>
   <NotificationBar />
 
-  <NotificationModal ref="notifModal" />
-
-  <button
-    @click="openModal"
-    class="fixed top-6 right-6 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-700"
-  >
-    🛎 Notifications
-  </button>
-
   <div class="w-full p-5 rounded-md">
-    <div class="rounded-lg border bg-white p-6">
+    <div class="rounded-lg border border-gray-300 bg-white p-6 shadow-sm">
       <p class="font-bold text-center text-[2rem] pb-5">Welcome Manager</p>
       <div class="grid grid-cols-2 gap-4">
         <div

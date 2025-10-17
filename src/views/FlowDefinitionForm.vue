@@ -35,12 +35,11 @@ const deleteStep = (stepId: string) => {
 const goBackToFlowDef = () => {
   router.push("/flow-definitions");
 };
-
 </script>
 
 <template>
   <div class="w-full max-w-4xl mx-auto">
-    <div class="rounded-md border bg-white p-5">
+    <div class="rounded-md border bg-white p-5 border-gray-300 shadow-sm">
       <h1 class="font-extrabold text-4xl pt-5">Create New Flow Definition</h1>
 
       <button
