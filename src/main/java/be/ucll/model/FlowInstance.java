@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import be.ucll.exception.DomainException;
@@ -17,10 +18,14 @@ public class FlowInstance {
 
     @Id
     private ObjectId id;
+
     @NotNull
+    @DBRef
     private FlowDefinition flowDefinition;
+
     @NotBlank
     private String title;
+
     @NotNull
     private Status status;
 
@@ -36,6 +41,10 @@ public class FlowInstance {
 
     public ObjectId getId() {
         return id;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public FlowDefinition getFlowDefinition() {

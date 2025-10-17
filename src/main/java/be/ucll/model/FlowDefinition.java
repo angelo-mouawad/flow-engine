@@ -2,10 +2,12 @@ package be.ucll.model;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import be.ucll.exception.DomainException;
@@ -22,22 +24,16 @@ public class FlowDefinition {
     @NotBlank
     private String description;
     @NotEmpty
+    @DBRef
     private List<Process> processes;
 
-    private List<FlowInstance> flowInstances;
+    private List<FlowInstance> flowInstances = new ArrayList<FlowInstance>();;
     private LocalDate updatedAt;
 
     public FlowDefinition(String title, String description, List<Process> processes) {
         setTitle(title);
         setDescription(description);
         setProcesses(processes);
-    }
-
-    public FlowInstance instantiate(String title){
-        FlowInstance newInstance = new FlowInstance(this, title); 
-        flowInstances.add(newInstance);
-
-        return newInstance;
     }
 
     public void setUpdatedAt(LocalDate updatedAt) {
