@@ -1,12 +1,7 @@
 import type { FlowDefinition } from "../types";
 
 const getFlowDefinitions = async () => {
-  const response = await fetch("http://localhost:8080/flowDefinition", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    }
-  })
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/flowDefinition`);
   return await response.json() as FlowDefinition[]
 }
 

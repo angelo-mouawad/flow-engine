@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import WelcomeGrid from '../views/WelcomeGrid.vue';
 import FlowDefinitionForm from '../views/FlowDefinitionForm.vue';
-import FlowDetails from '../components/FlowDetails.vue';
+import FlowDefinitionOverview from '../views/FlowDefinitionOverview.vue';
+import FlowInstancesOverview from '../views/FlowInstancesOverview.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: WelcomeGrid },
-  { path: '/flow-definitions', name: 'FlowDefinitions', component: FlowDetails, props: { isDefinition: true }},
-  { path: '/flow-instances', name: 'FlowInstances', component: FlowDetails, props: { isDefinition: false }},
+  { path: '/flow-definitions', name: 'FlowDefinitions', component: FlowDefinitionOverview},
+  { path: '/flow-instances', name: 'FlowInstances', component: FlowInstancesOverview},
   { path: '/flow-definitions/new', name: 'FlowDefinitionsNew', component: FlowDefinitionForm  },
 ];
 
