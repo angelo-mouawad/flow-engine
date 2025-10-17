@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/flowDefinition")
+@CrossOrigin("*")
 public class FlowDefinitionController {
     private FlowDefinitionService flowDefinitionService;
 
