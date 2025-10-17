@@ -1,27 +1,26 @@
 package be.ucll.model;
 
 import jakarta.validation.constraints.*;
+
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "Trigger")
 public class Trigger {
     @Id
-    private String id;
-
+    private ObjectId id;
     @NotNull
     private TriggerType type;
-
     @NotNull
     private FlowDefinition[] flowDefinitions;
 
-    public Trigger(String id, TriggerType type, FlowDefinition[] flowDefinitions) {
-        this.id = id;
+    public Trigger(TriggerType type, FlowDefinition[] flowDefinitions) {
         this.type = type;
         this.flowDefinitions = flowDefinitions;
     }
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 
