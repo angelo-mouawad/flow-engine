@@ -23,8 +23,8 @@ const sortFlowInstances = (key: 'title' | 'status' | 'flowDefinition' | 'updated
             if (a.title.toLowerCase() < b.title.toLowerCase()) result = -1;
             if (a.title.toLowerCase() > b.title.toLowerCase()) result = 1;
         } else if (key === 'status') {
-            const order = { PENDING: 0, ACTIVE: 1, SUCCESS: 2, FAILURE: 3 };
-            result = order[a.status] - order[b.status];
+            const order: Record<string, number> = { ACTIVE: 0, PENDING: 1, FAILED: 2 };
+            result = (order[a.status] ?? 99) - (order[b.status] ?? 99);
         } else if (key === 'flowDefinition') {
             if (a.flowDefinition.title.toLowerCase() < b.flowDefinition.title.toLowerCase()) result = -1;
             if (a.flowDefinition.title.toLowerCase() > b.flowDefinition.title.toLowerCase()) result = 1;
