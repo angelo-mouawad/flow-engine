@@ -61,7 +61,7 @@ onMounted(() => {
 
 <template>
   <div class="w-full">
-    <table class="w-full border-collapse text-sm">
+    <table class="w-full border-collapse text-sm" style="table-layout: fixed;">
       <thead>
         <tr class="text-left text-white bg-[#110]">
           <th
@@ -82,7 +82,7 @@ onMounted(() => {
               </span>
             </span>
           </th>
-          <th class="px-4 py-2 font-medium">Description</th>
+          <th class="px-4 py-2 font-medium" style="width: 40%">Description</th>
           <th
             class="px-4 py-2 font-medium select-none cursor-pointer"
             @click="sortFlowDefinitions('updatedAt')"
@@ -132,7 +132,7 @@ onMounted(() => {
           class="cursor-pointer hover:bg-gray-50 transition-colors"
         >
           <td class="px-4 py-2 font-medium">{{ def.title }}</td>
-          <td class="px-4 py-2 text-gray-600">{{ def.description || "—" }}</td>
+          <td class="px-4 py-2 text-gray-600 truncate" style="max-width: 320px">{{ def.description || "—" }}</td>
           <td class="px-4 py-2 text-gray-600">
             {{
               new Date(def.updatedAt).toLocaleDateString("en-GB", {
