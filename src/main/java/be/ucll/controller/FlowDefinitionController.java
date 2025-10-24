@@ -1,5 +1,6 @@
 package be.ucll.controller;
 
+import be.ucll.controller.dto.FlowDefinitionInput;
 import be.ucll.model.FlowDefinition;
 import be.ucll.service.FlowDefinitionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class FlowDefinitionController {
     }
 
     @PostMapping
-    public FlowDefinition addFlowDefinition(@RequestBody FlowDefinition flowDefinition) {
-        return flowDefinitionService.addFlowDefinition(flowDefinition);
+    public FlowDefinition addFlowDefinition(@RequestBody FlowDefinitionInput input) {
+        return flowDefinitionService.addFlowDefinition(input);
     }
 }
