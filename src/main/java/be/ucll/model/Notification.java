@@ -7,9 +7,9 @@ public class Notification extends Process {
 
   public NotificationType notifyBy;
 
-  public Notification(NotificationType notif){
+  public Notification(NotificationType notifyBy){
     super();
-    notifyBy = notif;    
+    this.notifyBy = notifyBy;    
   }
 
   @Override

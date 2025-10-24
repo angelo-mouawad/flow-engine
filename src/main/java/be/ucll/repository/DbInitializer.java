@@ -11,6 +11,7 @@ import be.ucll.model.Approval;
 import be.ucll.model.FlowDefinition;
 import be.ucll.model.FlowInstance;
 import be.ucll.model.Notification;
+import be.ucll.model.NotificationType;
 import be.ucll.model.Process;
 import be.ucll.model.strategies.NotifyByPopUp;
 import jakarta.annotation.PostConstruct;
@@ -41,10 +42,12 @@ public class DbInitializer {
       flowInstanceRepository.deleteAll();
       processRepository.deleteAll();
 
+      NotificationType popUp = new NotifyByPopUp();
+
       List<Process> processes = new ArrayList<>(List.of(
-            new Notification(new NotifyByPopUp()),
-            new Notification(new NotifyByPopUp()),
-            new Notification(new NotifyByPopUp()),
+            new Notification(popUp),
+            new Notification(popUp),
+            new Notification(popUp),
             new Approval(),
             new Approval()
             ));
