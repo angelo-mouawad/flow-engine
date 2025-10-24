@@ -1,41 +1,9 @@
 <script setup lang="ts">
     import type { FlowInstance} from "../types";
-    import { onMounted, ref} from "vue";
-    import definitions from "./FlowDefinitionsTable.vue";
+    import { ref } from "vue";
 
     const instances = ref<FlowInstance[]>([]);
 
-    const loadData = () => {
-        instances.value = [
-        {
-            id: '1',
-            flowDefinition: definitions.value[0]!,
-            title: 'Onboarding — John Doe',
-            status: "ACTIVE",
-            currentProcess: { id: '2', name: 'Assign Equipment', type: 'test', role: 'test', description: 'test' },
-            updatedAt: new Date('2025-10-10T09:30:00'),
-        },
-        {
-            id: '2',
-            flowDefinition: definitions.value[1]!,
-            title: 'Purchase Request #2415',
-            status: "PENDING",
-            currentProcess: { id: 'p4', name: 'Submit Request', type: 'test', role: 'test', description: 'test' },
-            updatedAt: new Date('2025-10-11T14:45:00'),
-        },
-        {
-            id: '3',
-            flowDefinition: definitions.value[2]!,
-            title: 'Feedback — ACME Corp',
-            status: 'SUCCESS',
-            currentProcess: { id: 'p9', name: 'Close Feedback', type: 'test', role: 'test', description: 'test' },
-            updatedAt: new Date('2025-10-12T11:00:00'),
-        },];
-    };
-
-    onMounted(() => {
-        loadData();
-        });
 </script>
 
 <template>
