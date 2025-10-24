@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 RUN npm ci
+RUN echo "VITE_API_URL=https://back-end-team30-wpp-team-30.apps.okd.ucll.cloud/" > .env
 COPY . .
 
 RUN npm run build

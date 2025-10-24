@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { watch } from "vue";
 import FlowDefinitionsTable from "./FlowDefinitionsTable.vue";
 import FlowInstancesTable from "./FlowInstancesTable.vue";
 
