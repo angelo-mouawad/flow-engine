@@ -54,7 +54,7 @@
             >
                 <td class="px-4 py-2">{{ inst.title }}</td>
                 <td class="px-4 py-2">{{ inst.status }}</td>
-                <td class="px-4 py-2">{{ inst.flowDefinition}}</td>
+                <td class="px-4 py-2">{{ inst.flowDefinition.title}}</td>
             </tr>
         </tbody>
     </table>
