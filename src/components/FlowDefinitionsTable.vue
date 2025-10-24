@@ -7,7 +7,7 @@ const loading = ref(false);
 const flowDefinitions = ref<FlowDefinition[]>([]);
 const error = ref<string | null>(null);
 
-const sortKey = ref<'title' | 'updatedAt'>('title');
+const sortKey = ref<'title' | 'updatedAt'>('updatedAt');
 const sortOrder = ref<'asc' | 'desc'>('asc');
 
 const sortFlowDefinitions = (key: 'title' | 'updatedAt') => {
@@ -57,34 +57,30 @@ onMounted(() => {
         <table class="w-full border-collapse text-sm">
             <thead>
                 <tr class="text-left text-white bg-[#111]">
-                    <th class="px-4 py-2 font-medium select-none">
+                    <th class="px-4 py-2 font-medium select-none cursor-pointer" @click="sortFlowDefinitions('title')">
                         Name
-                        <button
-                            class="ml-2 inline-flex items-center px-1 py-0.5 border border-gray-300 rounded hover:bg-gray-100 focus:outline-none"
-                            @click.stop="sortFlowDefinitions('title')"
-                            aria-label="Sort by name"
-                        >
-                            <span v-if="sortKey === 'title'">
-                                <span v-if="sortOrder === 'asc'">▲</span>
-                                <span v-else>▼</span>
+                        <span class="ml-2">
+                            <span class="ml-2 inline-block" style="width: 1.5em; text-align: left;">
+                                <span v-if="sortKey === 'title'">
+                                    <span v-if="sortOrder === 'asc'">▲</span>
+                                    <span v-else>▼</span>
+                                </span>
+                                <span v-else class="text-gray-400">▲▼</span>
                             </span>
-                            <span v-else class="text-gray-400">⇅</span>
-                        </button>
+                        </span>
                     </th>
                     <th class="px-4 py-2 font-medium">Description</th>
-                    <th class="px-4 py-2 font-medium select-none">
+                    <th class="px-4 py-2 font-medium select-none cursor-pointer" @click="sortFlowDefinitions('updatedAt')">
                         Last Updated
-                        <button
-                            class="ml-2 inline-flex items-center px-1 py-0.5 border border-gray-300 rounded hover:bg-gray-100 focus:outline-none"
-                            @click.stop="sortFlowDefinitions('updatedAt')"
-                            aria-label="Sort by last updated"
-                        >
-                            <span v-if="sortKey === 'updatedAt'">
-                                <span v-if="sortOrder === 'asc'">▲</span>
-                                <span v-else>▼</span>
+                        <span class="ml-2">
+                            <span class="ml-2 inline-block" style="width: 1.5em; text-align: left;">
+                                <span v-if="sortKey === 'updatedAt'">
+                                    <span v-if="sortOrder === 'asc'">▲</span>
+                                    <span v-else>▼</span>
+                                </span>
+                                <span v-else class="text-gray-400">▲▼</span>
                             </span>
-                            <span v-else class="text-gray-400">⇅</span>
-                        </button>
+                        </span>
                     </th>
                 </tr>
             </thead>
