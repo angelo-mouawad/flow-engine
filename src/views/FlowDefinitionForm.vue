@@ -2,28 +2,25 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import type { Process } from "../types";
+import NotificationProcess from "../components/NotificationProcess.vue";
 
 const router = useRouter();
 
-const steps = ref<Process[]>([
-  {
-    id: '1',
-    name: "",
-    type: "",
-    role: "",
-    description: "",
-  },
-]);
-let nextStepId = "2";
+const steps = ref<Process[]>([]);
 
-const addNextStep = () => {
+let nextStepId = "1";
+const showProcessMenu = ref(false);
+
+const addNotificationProcess = () => {
   steps.value.push({
-    id: (Number(nextStepId) + 1).toString(),
-    name: "",
-    type: "",
+    id: nextStepId, // use the current id
+    name: "Notification Process",
+    type: "notification",
     role: "",
     description: "",
   });
+  nextStepId = (Number(nextStepId) + 1).toString();
+  showProcessMenu.value = false;
 };
 
 const deleteStep = (stepId: string) => {
@@ -80,23 +77,6 @@ const goBackToFlowDef = () => {
               placeholder="Enter flow name"
             />
           </div>
-          <div>
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="flowType"
-            >
-              Flow Type
-            </label>
-            <select
-              id="flowType"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline cursor-pointer"
-            >
-              <option class="text-gray-700" value="">Select flow type</option>
-              <option class="text-gray-700" value="type1">Type 1</option>
-              <option class="text-gray-700" value="type2">Type 2</option>
-              <option class="text-gray-700" value="type3">Type 3</option>
-            </select>
-          </div>
         </div>
         <div class="mb-4 w-full">
           <label
@@ -112,106 +92,73 @@ const goBackToFlowDef = () => {
             placeholder="Describe what this flow does"
           ></textarea>
         </div>
-
-        <!-- Steps, maybe better to make a component?  -->
       </form>
+
       <p class="font-bold">Flow Steps</p>
-      <hr class="pb-5" />
+      <hr class="pb-5" v-if="steps.length" />
 
-      <div
-        v-for="(step, index) in steps"
-        :key="step.id"
-        class="rounded-md border p-5 bg-[#f5f5f5] mb-4"
-      >
-        <div class="flex justify-between items-center mb-4">
-          <p class="font-bold text-gray-700">Process {{ index + 1 }}</p>
-
-          <button
-            v-if="steps.length > 1"
-            @click="deleteStep(step.id)"
-            type="button"
-            class="flex items-center gap-1 text-red-500 hover:text-red-700 font-semibold text-sm transition-colors cursor-pointer"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
-            <span>Remove</span>
-          </button>
-        </div>
-
-        <label class="block text-sm font-bold mb-2" for="stepName"
-          >Process Name</label
+      <!-- Process Cards -->
+      <div v-if="steps.length > 0">
+        <div
+          v-for="(step, index) in steps"
+          :key="step.id"
+          class="rounded-md border p-5 bg-[#f5f5f5] mb-4"
         >
-        <input
-          v-model="step.name"
-          class="shadow border rounded w-full py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline"
-          type="text"
-          placeholder="e.g., Manager Approval"
-        />
-
-        <div class="mb-4 grid grid-cols-2 gap-4 w-full pt-5">
-          <div>
-            <label class="block text-gray-700 text-sm font-bold mb-2"
-              >Process Type</label
+          <div class="flex justify-between items-center mb-4">
+            <p class="font-bold text-gray-700">
+              {{ step.name || `Process ${index + 1}` }}
+            </p>
+            <button
+              v-if="steps.length > 1"
+              @click="deleteStep(step.id)"
+              type="button"
+              class="flex items-center gap-1 text-red-500 hover:text-red-700 font-semibold text-sm transition-colors cursor-pointer"
             >
-            <select
-              v-model="step.type"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline cursor-pointer"
-            >
-              <option value="">Select type</option>
-              <option value="approval">Approval</option>
-              <option value="review">Review</option>
-              <option value="notification">Notification</option>
-            </select>
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+              <span>Remove</span>
+            </button>
           </div>
-          <div>
-            <label class="block text-gray-700 text-sm font-bold mb-2"
-              >Assigned Role</label
-            >
-            <select
-              v-model="step.role"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline cursor-pointer"
-            >
-              <option value="">Select role</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Administrator</option>
-              <option value="hr">HR</option>
-            </select>
-          </div>
-        </div>
 
-        <div class="mb-4 w-full">
-          <label class="block text-gray-700 text-sm font-bold mb-2"
-            >Description</label
-          >
-          <textarea
-            v-model="step.description"
-            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline"
-            rows="4"
-            placeholder="Enter step description"
-          ></textarea>
+          <NotificationProcess v-if="step.type === 'notification'" :step="step" />
         </div>
       </div>
 
-      <button
-        @click="addNextStep"
-        type="button"
-        class="w-full rounded-lg border-2 border-dashed border-gray-300 py-4 text-center hover:border-yellow-500 hover:bg-yellow-50 group mt-2 cursor-pointer"
-      >
-        <span class="font-semibold text-gray-600 group-hover:text-gray-900"
-          >+ Add Process</span
+      <!-- Add Process Button + Dropdown -->
+      <div class="relative w-full">
+        <button
+          @click="showProcessMenu = !showProcessMenu"
+          type="button"
+          class="w-full rounded-lg border-2 border-dashed border-gray-300 py-4 text-center hover:border-yellow-500 hover:bg-yellow-50 group mt-2 cursor-pointer"
         >
-      </button>
+          <span class="font-semibold text-gray-600 group-hover:text-gray-900">
+            + Add Process
+          </span>
+        </button>
+
+        <div
+          v-if="showProcessMenu"
+          class="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg"
+        >
+          <button
+            @click="addNotificationProcess"
+            class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-yellow-100 transition-colors cursor-pointer"
+          >
+            Notification Process
+          </button>
+        </div>
+      </div>
 
       <hr class="mt-5" />
       <div class="p-5 flex justify-center gap-[2.6rem] mt-2">
