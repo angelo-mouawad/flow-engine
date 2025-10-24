@@ -51,9 +51,6 @@ onMounted(() => {
 
 <template>
     <div class="w-full">
-
-
-
         <table class="w-full border-collapse text-sm">
             <thead>
                 <tr class="text-left text-white bg-[#111]">
