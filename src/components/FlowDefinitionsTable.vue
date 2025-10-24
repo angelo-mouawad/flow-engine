@@ -2,6 +2,7 @@
 import type { FlowDefinition } from "../types";
 import { ref, onMounted } from "vue";
 import FlowDefinitionService from "../services/FlowDefinitionService";
+import deleteIcon from "/images/delete1.png.webp";
 
 const loading = ref(false);
 const flowDefinitions = ref<FlowDefinition[]>([]);
@@ -44,6 +45,11 @@ const fetchFlowDefinitions = async () => {
     }
 };
 
+const onRowIconClick = (def: FlowDefinition) => {
+    // Remove the clicked definition from the local array so the row disappears
+    flowDefinitions.value = flowDefinitions.value.filter(d => d.id !== def.id);
+};
+
 onMounted(() => {
     fetchFlowDefinitions();
 });
@@ -53,7 +59,7 @@ onMounted(() => {
     <div class="w-full">
         <table class="w-full border-collapse text-sm">
             <thead>
-                <tr class="text-left text-white bg-[#111]">
+                <tr class="text-left text-white bg-[#110]">
                     <th class="px-4 py-2 font-medium select-none cursor-pointer" @click="sortFlowDefinitions('title')">
                         Name
                         <span class="ml-2">
@@ -79,20 +85,26 @@ onMounted(() => {
                             </span>
                         </span>
                     </th>
+                    <th class="">
+                        
+                    </th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-                <div v-if="loading" class="flex items-center justify-center py-8">
-                    <div class="text-gray-600">Loading flow definitions...</div>
-                </div>
 
-                <div v-else-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                    <p class="font-medium">Error</p>
-                    <p class="text-sm">{{ error }}</p>
-                </div>
+                <div class="flex items-center justify-center">
+                    <div v-if="loading" class="flex items-center justify-center py-8">
+                        <div class="text-gray-600">Loading flow definitions...</div>
+                    </div>
 
-                <div v-else-if="flowDefinitions.length === 0" class="text-center py-8 text-gray-500">
-                    No flow definitions found.
+                    <div v-else-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                        <p class="font-medium">Error</p>
+                        <p class="text-sm">{{ error }}</p>
+                    </div>
+
+                    <div v-else-if="flowDefinitions.length === 0" class="text-center py-8 text-gray-500">
+                        No flow definitions found.
+                    </div>
                 </div>
                 <tr
                     v-for="def in flowDefinitions"
@@ -107,6 +119,15 @@ onMounted(() => {
                             month: 'long', 
                             day: 'numeric' 
                         }) }}
+                    </td>
+                    <td class="px-4 py-2 text-right">
+                        <button
+                            @click.stop="onRowIconClick(def)"
+                            class="inline-flex items-center p-1 rounded hover:bg-gray-100 focus:ring-2 focus:ring-blue-400"
+                            :aria-label="`Delete ${def.title}`"
+                        >
+                            <img :src="deleteIcon" alt="Delete" class="w-5 h-5"/>
+                        </button>
                     </td>
                 </tr>
             </tbody>
