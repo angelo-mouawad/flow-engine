@@ -14,7 +14,7 @@ import org.springframework.web.context.request.WebRequest;
 
 @RestController
 @RequestMapping("/")
-@CrossOrigin(origins = "http://localhost:8000")
+@CrossOrigin(origins = "*")
 public class StatusController {
 
     @GetMapping

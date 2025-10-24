@@ -34,6 +34,7 @@ public class FlowDefinition {
         setTitle(title);
         setDescription(description);
         setProcesses(processes);
+        setUpdatedAt(LocalDate.now());
     }
 
     public void setUpdatedAt(LocalDate updatedAt) {
