@@ -7,7 +7,7 @@ export type FlowDefinition = {
   updatedAt: Date;
 };
 
-export type Status = 'PENDING' | 'ACTIVE' | 'SUCCESS' | 'FAILURE'
+export type Status = 'PENDING' | 'ACTIVE' | 'SUCCESS' | 'FAILURE' | 'PAUSED'
 
 export type FlowInstance = {
   id: string;

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import WelcomeGrid from '../views/WelcomeGrid.vue';
+import WelcomeGrid from '../views/Dashboard.vue';
 import FlowDefinitionForm from '../views/FlowDefinitionForm.vue';
 import FlowDefinitionOverview from '../views/FlowDefinitionOverview.vue';
 import FlowInstancesOverview from '../views/FlowInstancesOverview.vue';
