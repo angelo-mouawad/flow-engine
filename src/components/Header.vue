@@ -2,6 +2,7 @@
 import { ref } from "vue";
 
 import NotificationModal from "../components/NotificationModal.vue";
+import UserSwitch from "./user/UserSwitch.vue";
 
 const notifModal = ref<InstanceType<typeof NotificationModal>>();
 
@@ -14,7 +15,7 @@ const openModal = () => {
   <NotificationModal ref="notifModal" />
 
   <header
-    class="w-full bg-white border-b border-gray-300 px-6 py-4 flex items-center justify-end shadow-sm"
+    class="w-full bg-white border-b border-gray-300 px-6 py-4 flex items-center justify-end shadow-sm h-25 gap-2"
   >
     <button
       @click="openModal"
@@ -23,5 +24,6 @@ const openModal = () => {
       <span class="text-xl">🛎</span>
       <span class="font-medium">Notifications</span>
     </button>
+    <UserSwitch @role-changed="$emit('role-changed', $event)"/>
   </header>
 </template>

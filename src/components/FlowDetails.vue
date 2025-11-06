@@ -36,10 +36,10 @@ const props = defineProps(["isDefinition"]);
 
         <RouterLink v-if="isDefinition" to="/flow-definitions/new">
           <button
-            class="rounded-md px-4 py-1 bg-yellow-500 text-sm font-medium border cursor-pointer hover:bg-yellow-600 flex items-center gap-2"
+            class="rounded-md px-4 py-1 bg-yellow-500 text-sm font-medium cursor-pointer hover:bg-yellow-600 flex items-center gap-2"
           >
             <svg
-              class="w-4 h-4"
+              class="w-4 h-4 text-gray-800"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -51,7 +51,7 @@ const props = defineProps(["isDefinition"]);
                 d="M12 4v16m8-8H4"
               />
             </svg>
-            <span>New flow</span>
+            <span class="text-gray-800">New flow</span>
           </button>
         </RouterLink>
       </div>

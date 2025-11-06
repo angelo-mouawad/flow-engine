@@ -1,12 +1,15 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia';
 import './style.css'
 import App from './App.vue'
 import router from './router/index.ts';
 
+// Toastification (notifications)
 import Toast, { POSITION } from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
 
-const app = createApp(App)
+const app = createApp(App);
+const pinia = createPinia();
 
 app.use(Toast, {
     position: POSITION.TOP_RIGHT,
@@ -16,5 +19,7 @@ app.use(Toast, {
     draggable: true,
     draggablePercent: 0.6,
 })
+
+app.use(pinia)
 
 app.use(router).mount('#app');

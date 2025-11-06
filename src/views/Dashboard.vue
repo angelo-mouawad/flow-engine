@@ -60,7 +60,7 @@ onMounted(() => {
 <template>
   <NotificationBar />
 
-  <div class="p-4 w-full">
+  <div class="p-4 w-full -mt-10">
     <div class="mb-8">
       <h2 class="pb-4 font-bold text-4xl">My Flows</h2>
 
@@ -78,7 +78,7 @@ onMounted(() => {
 
     <div class="mb-8">
       <h2 class="pb-4 font-bold text-4xl">Overview of Flow Instances</h2>
-      <div class="grid grid-cols-5 gap-4">
+      <div class="grid grid-cols-6 gap-auto">
         <StatsCard
           label="Total"
           :value="stats.total.toString()"
@@ -103,6 +103,11 @@ onMounted(() => {
           label="Paused"
           :value="stats.paused.toString()"
           color="#3b82f6"
+        />
+        <StatsCard
+          label="Success"
+          :value="stats.success.toString()"
+          color="#84cc16"
         />
       </div>
     </div>
