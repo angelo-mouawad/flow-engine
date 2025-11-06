@@ -37,7 +37,7 @@ const goBackToFlowDef = () => {
 <template>
   <div class="w-full max-w-4xl mx-auto">
     <div class="rounded-md border bg-white p-5 border-gray-300 shadow-sm">
-      <h1 class="font-extrabold text-4xl pt-5">Create New Flow Definition</h1>
+      <h2 class="font-bold text-4xl pt-5">Create New Flow Definition</h2>
 
       <button
         @click="goBackToFlowDef"
@@ -131,7 +131,10 @@ const goBackToFlowDef = () => {
             </button>
           </div>
 
-          <NotificationProcess v-if="step.type === 'notification'" :step="step" />
+          <NotificationProcess
+            v-if="step.type === 'notification'"
+            :step="step"
+          />
         </div>
       </div>
 

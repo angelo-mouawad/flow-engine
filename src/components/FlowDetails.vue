@@ -3,16 +3,14 @@ import FlowDefinitionsTable from "./FlowDefinitionsTable.vue";
 import FlowInstancesTable from "./FlowInstancesTable.vue";
 
 const props = defineProps(["isDefinition"]);
-
-
 </script>
 
 <template>
   <div class="w-full rounded-md p-5">
     <div class="rounded-lg border bg-white p-6 border-gray-300 shadow-sm">
-      <h1 class="font-extrabold text-4xl py-5">
+      <h2 class="font-bold text-4xl py-5">
         {{ isDefinition ? "Flow Definitions: " : "Flow Instances: " }}
-      </h1>
+      </h2>
 
       <div class="flex items-center justify-between mb-3 gap-4">
         <div class="relative flex-1 max-w-md">
