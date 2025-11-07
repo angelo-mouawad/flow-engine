@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import type { Process } from "../types";
-import NotificationProcess from "../components/NotificationProcess.vue";
+import ProcessSelection from "../components/Process.vue";
 
 const router = useRouter();
 
@@ -11,20 +11,17 @@ const steps = ref<Process[]>([]);
 let nextStepId = "1";
 const showProcessMenu = ref(false);
 
-const addNotificationProcess = () => {
+const addProcess = (type: string) => {
   steps.value.push({
     id: nextStepId, // use the current id
-    name: "Notification Process",
-    type: "notification",
-    role: "",
-    description: "",
+    type: type,
   });
   nextStepId = (Number(nextStepId) + 1).toString();
   showProcessMenu.value = false;
 };
 
 const deleteStep = (stepId: string) => {
-  if (steps.value.length > 1) {
+  if (steps.value.length > 0) {
     steps.value = steps.value.filter((step) => step.id !== stepId);
   }
 };
@@ -106,10 +103,10 @@ const goBackToFlowDef = () => {
         >
           <div class="flex justify-between items-center mb-4">
             <p class="font-bold text-gray-700">
-              {{ step.name || `Process ${index + 1}` }}
+              {{ step.type || `Process ${index + 1}` }}
             </p>
             <button
-              v-if="steps.length > 1"
+              v-if="steps.length > 0"
               @click="deleteStep(step.id)"
               type="button"
               class="flex items-center gap-1 text-red-500 hover:text-red-700 font-semibold text-sm transition-colors cursor-pointer"
@@ -131,8 +128,7 @@ const goBackToFlowDef = () => {
             </button>
           </div>
 
-          <NotificationProcess
-            v-if="step.type === 'notification'"
+          <ProcessSelection
             :step="step"
           />
         </div>
@@ -155,10 +151,16 @@ const goBackToFlowDef = () => {
           class="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg"
         >
           <button
-            @click="addNotificationProcess"
+            @click="addProcess('Notification')"
             class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-yellow-100 transition-colors cursor-pointer"
           >
             Notification Process
+          </button>
+                    <button
+            @click="addProcess('Request')"
+            class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-yellow-100 transition-colors cursor-pointer"
+          >
+            Request Process
           </button>
         </div>
       </div>

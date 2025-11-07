@@ -27,6 +27,5 @@ export type Trigger = {
 
 export type Process = {
   id: string;
-  title: string;
   type: string;
 };
