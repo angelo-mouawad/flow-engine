@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive, watch } from "vue";
-import type { Process } from "../types";
+import type { Process } from "../../types";
 
 const props = defineProps<{
   step: Process;

@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useNotificationStore } from '../stores/NotificationStore'
+import { useNotificationStore } from '../../stores/NotificationStore'
 
 const { notifications, removeNotification } = useNotificationStore()
 const isOpen = ref(false)
