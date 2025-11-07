@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import be.ucll.model.*;
-import be.ucll.model.Notification;
 import be.ucll.model.Process;
 import be.ucll.model.strategies.request.AbsenceRequestType;
+import be.ucll.service.FlowRunnerService;
 import jakarta.annotation.PostConstruct;
 
 @Component
@@ -25,6 +25,8 @@ public class DbInitializer {
     private ProcessRepository processRepository;
     @Autowired
     private RequestSubmissionRepository requestSubmissionRepository;
+    @Autowired
+    private FlowRunnerService flowRunnerService;
 
     @PostConstruct
     public void initialize(){
@@ -34,6 +36,11 @@ public class DbInitializer {
       processRepository.deleteAll();
       requestSubmissionRepository.deleteAll();
 
+      RequestData data = new RequestData();
+      data.setField("startDate", "2025-11-10");
+      data.setField("endDate", "2025-11-19");
+      data.setField("submittedBy", "Hamid");
+      data.setField("reason", "sickness");
 
       Process absence = new Request("Absence", new AbsenceRequestType());
       Process notification = new Notification("Absence", NotificationType.POPUP);
@@ -60,5 +67,7 @@ public class DbInitializer {
       List<FlowDefinition> fds = List.of(fd1, fd2);
 
       flowDefinitionRepository.saveAll(fds);
+
+      flowRunnerService.instantiateFlow(fd1.getTitle(), data.getAllFields());
     }
 }

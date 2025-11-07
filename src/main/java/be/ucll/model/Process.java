@@ -21,8 +21,16 @@ public abstract class Process {
 
     public abstract void execute();
 
-    public ObjectId getId() {
-        return id;
+    public String getId() {
+        return id.toString();
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getTitle() {
