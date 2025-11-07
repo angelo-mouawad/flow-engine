@@ -37,7 +37,7 @@ public class RequestApprovalService {
         submission.setProcessedAt(LocalDate.now());
         submission = requestSubmissionRepository.save(submission);
 
-        flowRunnerService.resumeFlow(submission.getFlowInstanceId());
+        flowRunnerService.resumeFlow(new ObjectId(submission.getFlowInstanceId()));
     }
 
     public void declineRequest(String requestId) {
@@ -52,6 +52,6 @@ public class RequestApprovalService {
         submission.setProcessedAt(LocalDate.now());
         requestSubmissionRepository.save(submission);
 
-        flowRunnerService.resumeFlow(submission.getFlowInstanceId());
+        flowRunnerService.resumeFlow(new ObjectId(submission.getFlowInstanceId()));
     }
 }

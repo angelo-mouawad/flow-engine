@@ -3,6 +3,7 @@ package be.ucll.model;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.time.LocalDate;
 
 @Document(collection = "RequestSubmission")
@@ -17,9 +18,9 @@ public class RequestSubmission {
     private LocalDate submittedAt;
     private LocalDate processedAt;
     
-    private ObjectId flowInstanceId;
-    public ObjectId getId() {
-        return id;
+    private String flowInstanceId;
+    public String getId() {
+        return id.toString();
     }
     
     public String getRequestType() {
@@ -62,11 +63,11 @@ public class RequestSubmission {
         this.processedAt = processedAt;
     }
     
-    public ObjectId getFlowInstanceId() {
+    public String getFlowInstanceId() {
         return flowInstanceId;
     }
     
-    public void setFlowInstanceId(ObjectId flowInstanceId) {
+    public void setFlowInstanceId(String flowInstanceId) {
         this.flowInstanceId = flowInstanceId;
     }
 }
