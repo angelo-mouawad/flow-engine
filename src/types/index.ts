@@ -9,6 +9,8 @@ export type FlowDefinition = {
 
 export type Status = 'PENDING' | 'ACTIVE' | 'SUCCESS' | 'FAILURE' | 'PAUSED'
 
+export type RequestType = 'ABSENCE_REQUEST'
+
 export type FlowInstance = {
   id: string;
   flowDefinition: FlowDefinition;
@@ -28,4 +30,23 @@ export type Trigger = {
 export type Process = {
   id: string;
   type: string;
+  role: string;
+  description: string;
 };
+
+export type AbsenceData = {
+  startDate: Date;
+  endDate: Date;
+  submittedBy: string;
+  reason: string;
+}
+
+export type RequestSubmission = {
+  id: string;
+  requestType: RequestType;
+  status: Status;
+  data: AbsenceData;
+  submittedAt: Date;
+  processedAt: Date;
+  flowInstanceId: string;
+}

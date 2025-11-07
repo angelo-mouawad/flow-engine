@@ -5,10 +5,10 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const activeIndex = ref<number>(0);
 const isReady = ref<boolean>(false);
-const menuItems = ["HOME", "FLOW DEFINITIONS", "FLOW INSTANCES", "SETTINGS"];
+const menuItems = ["HOME", "FLOW DEFINITIONS", "FLOW INSTANCES",  "MANAGE REQUESTS", "SETTINGS"];
 const yellowBar =
   "before:content-[''] before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-sidebarprimary";
-const paths = ["/", "/flow-definitions", "/flow-instances", "/settings"];
+const paths = ["/", "/flow-definitions", "/flow-instances", "/manage-requests", "/settings"];
 
 const selectOption = (index: number) => {
   activeIndex.value = index;
