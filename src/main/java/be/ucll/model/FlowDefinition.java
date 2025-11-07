@@ -26,15 +26,18 @@ public class FlowDefinition {
     @NotEmpty
     @DBRef
     private List<Process> processes;
+    @NotEmpty
+    private Trigger trigger;
 
     private List<FlowInstance> flowInstances = new ArrayList<FlowInstance>();;
     private LocalDate updatedAt;
 
-    public FlowDefinition(String title, String description, List<Process> processes) {
+    public FlowDefinition(String title, String description, List<Process> processes, Trigger trigger) {
         setTitle(title);
         setDescription(description);
         setProcesses(processes);
         setUpdatedAt(LocalDate.now());
+        setTrigger(trigger);
     }
 
     public void setUpdatedAt(LocalDate updatedAt) {
@@ -61,6 +64,10 @@ public class FlowDefinition {
         return flowInstances;
     }
 
+    public Trigger getTrigger() {
+        return trigger;
+    }
+
     public LocalDate getCreatedAt() {
         if (id == null) 
             throw new DomainException("Flow Definition not yet Created");
@@ -76,7 +83,7 @@ public class FlowDefinition {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.title = title.replace(" ", "-").toLowerCase();
     }
 
     public void setDescription(String description) {
@@ -89,5 +96,9 @@ public class FlowDefinition {
 
     public void setFlowInstances(List<FlowInstance> flowInstances) {
         this.flowInstances = flowInstances;
+    }
+
+    public void setTrigger(Trigger trigger) {
+        this.trigger = trigger;
     }
 }

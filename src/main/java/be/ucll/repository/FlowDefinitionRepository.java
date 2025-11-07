@@ -10,4 +10,5 @@ import be.ucll.model.FlowDefinition;
 public interface FlowDefinitionRepository extends MongoRepository<FlowDefinition, ObjectId>{
 
     public Optional<FlowDefinition> findById(ObjectId id);
+    public Optional<FlowDefinition> findByTitle(String title);
 }
