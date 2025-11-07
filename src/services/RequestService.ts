@@ -8,14 +8,14 @@ const getRequests = async () => {
 
 const approveRequest = async (requestId: string) => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/request/approve/${requestId}`, {
-    method: 'POST',
+    method: 'PUT',
   })
   return response.ok
 }
 
 const declineRequest = async (requestId: string) => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/request/decline/${requestId}`, {
-    method: 'POST',
+    method: 'PUT',
   })
   return response.ok
 }
