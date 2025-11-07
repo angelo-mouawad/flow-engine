@@ -43,7 +43,7 @@ public class DbInitializer {
       data.setField("reason", "sickness");
 
       Process absence = new Request("Absence", new AbsenceRequestType());
-      Process notification = new Notification("Absence", NotificationType.POPUP);
+      Process notification = new Notification("Notification", NotificationType.POPUP);
 
       List<Process> processes = new ArrayList<>(List.of(
                   absence,

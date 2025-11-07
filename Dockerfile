@@ -17,7 +17,7 @@ RUN mvn install
 RUN mvn clean package spring-boot:repackage -DskipTests
 
 # Use an official OpenJDK image as the base image
-FROM openjdk:21-jdk
+FROM eclipse-temurin:21-jdk
 
 # Set the working directory in the container
 WORKDIR /app
