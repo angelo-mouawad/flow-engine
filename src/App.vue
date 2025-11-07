@@ -4,7 +4,7 @@ import Header from "./components/Header.vue";
 import DisplayRole from "./components/user/DisplayRole.vue";
 import { ref } from 'vue';
 
-const currentRole = ref<'User' | 'Admin'>('User');
+const currentRole = ref<'User' | 'Manager'>('User');
 </script>
 
 <template>

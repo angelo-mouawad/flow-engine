@@ -5,12 +5,12 @@
   const isOpen = ref(false);
 
   const emit = defineEmits<{
-    (e: 'role-changed', role: 'User' | 'Admin'): void;
+    (e: 'role-changed', role: 'User' | 'Manager'): void;
   }>()
 
   const roleStore = useRoleStore();
 
-  const setRole = (role: 'User' | 'Admin') => {
+  const setRole = (role: 'User' | 'Manager') => {
     roleStore.setRole(role);
     isOpen.value = false;
     emit('role-changed', role)
@@ -61,10 +61,10 @@
             User
             </button>
             <button
-            @click="setRole('Admin')"
+            @click="setRole('Manager')"
             class="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
             >
-            Admin
+            Manager
             </button>
         </div>
         </div>

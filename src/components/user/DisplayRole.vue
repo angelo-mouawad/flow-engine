@@ -2,7 +2,7 @@
   import { defineProps } from 'vue';
 
   const props = defineProps<{
-    role: 'User' | 'Admin';
+    role: 'User' | 'Manager';
   }>();
 </script>  
 
