@@ -30,8 +30,7 @@ export type Trigger = {
 export type Process = {
   id: string;
   type: string;
-  role: string;
-  description: string;
+  title: string;
 };
 
 export type AbsenceData = {

@@ -21,6 +21,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const roleStore = useRoleStore();
+  console.log(from);
 
   if (to.meta.requiresAdmin && roleStore.role !== 'Manager') {
     alert('You do not have permission to access this page.');

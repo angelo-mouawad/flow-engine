@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useToast } from "vue-toastification";
-import { useNotificationStore } from "../stores/NotificationStore";
+import { useNotificationStore } from "../../stores/NotificationStore";
 
 const toast = useToast();
 const { addNotification } = useNotificationStore();

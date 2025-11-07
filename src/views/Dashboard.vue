@@ -10,7 +10,7 @@ import FlowInstanceService from "../services/FlowInstanceService";
 const flowInstances = ref<FlowInstance[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
-let pollInterval: number; // TODO - implement polling
+//let pollInterval: number; // TODO - implement polling
 
 const stats = computed(() => {
   const statuses: Record<Status, number> = {

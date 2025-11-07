@@ -2,7 +2,6 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import type { Process } from "../types";
-import NotificationProcess from "../components/notification/NotificationProcess.vue";
 import ProcessSelection from "../components/Process.vue";
 
 const router = useRouter();
@@ -16,6 +15,7 @@ const addProcess = (type: string) => {
   steps.value.push({
     id: nextStepId, // use the current id
     type: type,
+    title: "",
   });
   nextStepId = (Number(nextStepId) + 1).toString();
   showProcessMenu.value = false;

@@ -11,15 +11,14 @@ const emit = defineEmits<{
 }>();
 
 const local = reactive({
-  name: props.step?.name ?? "",
+  title: props.step?.title ?? "",
   type: props.step?.type ?? "",
-  description: props.step?.description ?? "",
 });
 
 watch(
-  () => local.name,
+  () => local.title,
   (val) => {
-    emit("update-step", { name: val });
+    emit("update-step", { title: val });
   }
 );
 watch(
@@ -28,20 +27,13 @@ watch(
     emit("update-step", { type: val });
   }
 );
-watch(
-  () => local.description,
-  (val) => {
-    emit("update-step", { description: val });
-  }
-);
 
 watch(
   () => props.step,
   (newStep) => {
     if (!newStep) return;
-    local.name = newStep.name ?? "";
+    local.title = newStep.title ?? "";
     local.type = newStep.type ?? "";
-    local.description = newStep.description ?? "";
   },
   { deep: true }
 );
@@ -55,7 +47,7 @@ watch(
         Notification Name
       </label>
       <input
-        v-model="local.name"
+        v-model="local.title"
         type="text"
         placeholder="e.g., Send Email Notification"
         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline"
@@ -76,19 +68,6 @@ watch(
         <option value="sms">SMS</option>
         <option value="popup">Popup</option>
       </select>
-    </div>
-
-    <!-- Description -->
-    <div>
-      <label class="block text-gray-700 text-sm font-bold mb-2">
-        Description
-      </label>
-      <textarea
-        v-model="local.description"
-        rows="4"
-        placeholder="Describe the purpose of this notification"
-        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline"
-      ></textarea>
     </div>
   </div>
 </template>
