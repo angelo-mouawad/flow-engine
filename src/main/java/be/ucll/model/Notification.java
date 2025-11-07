@@ -5,14 +5,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "Notification")
 public class Notification extends Process {
 
-  public NotificationType notifyBy;
+  public NotificationType type;
 
-  public Notification(NotificationType notifyBy){
-    super();
-    this.notifyBy = notifyBy;    
+  public Notification(String title, NotificationType type){
+      super(title);
+      this.type = type;
   }
 
   @Override
   public void execute() {
+      System.out.println("You've been NOTIFIED");
   }
 }
