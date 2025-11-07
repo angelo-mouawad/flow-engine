@@ -27,16 +27,17 @@ public class FlowInstance {
     private String title;
 
     @NotNull
-    private Status status;
+    private FlowStatus flowStatus;
 
-    private Process currentProcess;
+    private int step;
     private LocalDate updatedAt;
 
     public FlowInstance(FlowDefinition flowDefinition, String title) {
+        step = 0;
         setFlowDefinition(flowDefinition);
         setTitle(title);
-        setCurrentProcess(flowDefinition.getProcesses().get(0));
-        setStatus(Status.ACTIVE);
+        setFlowStatus(FlowStatus.ACTIVE);
+        setUpdatedAt(LocalDate.now());
     }
 
     public ObjectId getId() {
@@ -52,15 +53,23 @@ public class FlowInstance {
     }
 
     public Process getCurrentProcess() {
-        return currentProcess;
+        if(step >= flowDefinition.getProcesses().size()){
+            return null;
+        }
+
+        return flowDefinition.getProcesses().get(step);
+    }
+
+    public void nextProcess(){
+        step++;
     }
 
     public List<Process> getProcesses() {
         return flowDefinition.getProcesses();
     }
 
-    public Status getStatus() {
-        return status;
+    public FlowStatus getFlowStatus() {
+        return flowStatus;
     }
 
     public LocalDate getCreatedAt() {
@@ -84,10 +93,6 @@ public class FlowInstance {
         this.title = title;
     }
 
-    public void setCurrentProcess(Process currentProcess) {
-        this.currentProcess = currentProcess;
-    }
-
     public void setFlowDefinition(FlowDefinition flowDefinition) {
         if (flowDefinition == null) 
             throw new DomainException("Flow Instance requires a definition");
@@ -95,8 +100,8 @@ public class FlowInstance {
         this.flowDefinition = flowDefinition;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setFlowStatus(FlowStatus status) {
+        this.flowStatus = status;
     }
 
     public void setUpdatedAt(LocalDate updatedAt) {

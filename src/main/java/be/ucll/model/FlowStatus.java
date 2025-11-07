@@ -1,8 +1,8 @@
 package be.ucll.model;
 
-public enum Status {
-    PENDING,
+public enum FlowStatus {
     ACTIVE,
+    PENDING,
     SUCCESS,
     FAILURE
 }

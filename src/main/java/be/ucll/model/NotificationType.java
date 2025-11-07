@@ -1,5 +1,6 @@
 package be.ucll.model;
 
-public interface NotificationType {
-  public void sendNotification();
+public enum NotificationType{
+  POPUP,
+  EMAIL
 }

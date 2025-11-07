@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 
 import org.bson.types.ObjectId;
-import org.springframework.boot.actuate.health.Status;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,14 +13,24 @@ import be.ucll.exception.DomainException;
 public abstract class Process {
     @Id
     private ObjectId id;
-    private Status status;
+    private String title;
 
-    public Process(){ }
+    public Process(String title){ 
+        setTitle(title);
+    }
 
     public abstract void execute();
 
     public ObjectId getId() {
         return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public LocalDate getCreatedAt() {
