@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import FlowCard from "../components/dashboard/FlowCard.vue";
 import StatsCard from "../components/dashboard/StatsCard.vue";
 import FlowInstancesTable from "../components/FlowInstancesTable.vue";
-import NotificationBar from "../components/NotificationBar.vue";
+// import NotificationBar from "../components/notification/NotificationBar.vue";
 import type { FlowInstance, Status } from "../types";
 import FlowInstanceService from "../services/FlowInstanceService";
 
@@ -58,13 +58,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <NotificationBar />
+  <!-- <NotificationBar /> -->
 
-  <div class="p-4 w-full -mt-10">
+  <div class="p-4 w-full">
     <div class="mb-8">
       <h2 class="pb-4 font-bold text-4xl">My Flows</h2>
 
-      <div class="overflow-x-auto -mx-4 px-4">
+      <div class="overflow-x-auto">
         <div class="flex flex-row gap-4 pb-4">
           <div class="flex-shrink-0">
             <FlowCard :is-create-new="true" />
@@ -112,6 +112,8 @@ onMounted(() => {
       </div>
     </div>
 
-    <FlowInstancesTable class="bg-white rounded-lg shadow-lg" />
+    <div class="overflow-x-auto rounded-md bg-white">
+      <FlowInstancesTable />
+    </div>
   </div>
 </template>

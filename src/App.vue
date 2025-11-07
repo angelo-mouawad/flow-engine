@@ -4,7 +4,7 @@ import Header from "./components/Header.vue";
 import DisplayRole from "./components/user/DisplayRole.vue";
 import { ref } from 'vue';
 
-const currentRole = ref<'User' | 'Admin'>('User');
+const currentRole = ref<'User' | 'Manager'>('User');
 </script>
 
 <template>
@@ -15,7 +15,7 @@ const currentRole = ref<'User' | 'Admin'>('User');
         <Header @role-changed="currentRole = $event" />
       </div>
 
-      <DisplayRole :role="currentRole" class="pr-6"/>
+      <!-- <DisplayRole :role="currentRole" class="pr-6"/> -->
 
       <div class="flex-1 flex justify-center">
         <div class="w-full p-5 m-5 rounded-xl">
