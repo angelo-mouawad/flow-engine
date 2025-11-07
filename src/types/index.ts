@@ -25,18 +25,8 @@ export type Trigger = {
   type: TriggerType;
 }
 
-export type Step = {
-  id: number;
-  name: string;
-  type: string;
-  role: string;
-  description: string;
-};
-
 export type Process = {
   id: string;
-  name: string;
+  title: string;
   type: string;
-  role: string;
-  description: string;
 };
