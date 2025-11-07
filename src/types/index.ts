@@ -35,10 +35,12 @@ export type Process = {
 };
 
 export type AbsenceData = {
-  startDate: Date;
-  endDate: Date;
-  submittedBy: string;
-  reason: string;
+  allFields: {
+    startDate: Date;
+    endDate: Date;
+    submittedBy: string;
+    reason: string;
+  }
 }
 
 export type RequestSubmission = {
