@@ -12,7 +12,7 @@
       ✅ Logged in as <strong>User</strong> — Limited Permissions
     </p>
     <p v-else class="text-blue-600">
-      ✅ Logged in as <strong>Admin</strong> — Full Permissions
+      ✅ Logged in as <strong>Manager</strong> — Full Permissions
     </p>
   </div>
 </template>

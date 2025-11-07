@@ -15,7 +15,7 @@ const currentRole = ref<'User' | 'Manager'>('User');
         <Header @role-changed="currentRole = $event" />
       </div>
 
-      <DisplayRole :role="currentRole" class="pr-6"/>
+      <!-- <DisplayRole :role="currentRole" class="pr-6"/> -->
 
       <div class="flex-1 flex justify-center">
         <div class="w-full p-5 m-5 rounded-xl">

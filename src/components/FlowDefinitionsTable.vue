@@ -61,7 +61,7 @@ onMounted(() => {
 
 <template>
   <div class="w-full">
-    <table class="w-full border-collapse text-sm" style="table-layout: fixed;">
+    <table class="w-full border-collapse text-sm">
       <thead>
         <tr class="text-left text-white bg-[#110]">
           <th

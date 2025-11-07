@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import type { Process } from "../types";
+import NotificationProcess from "../components/notification/NotificationProcess.vue";
 import ProcessSelection from "../components/Process.vue";
 
 const router = useRouter();
