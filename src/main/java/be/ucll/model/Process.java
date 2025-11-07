@@ -33,6 +33,14 @@ public abstract class Process {
         this.title = title;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public LocalDate getCreatedAt() {
         if (id == null) 
             throw new DomainException("Process not yet Created");

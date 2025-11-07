@@ -51,6 +51,10 @@ public class FlowInstance {
         return title;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
     public FlowDefinition getFlowDefinition() {
         return flowDefinition;
     }

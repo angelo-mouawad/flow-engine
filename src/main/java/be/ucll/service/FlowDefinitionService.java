@@ -3,6 +3,7 @@ package be.ucll.service;
 import be.ucll.controller.dto.FlowDefinitionInput;
 import be.ucll.model.FlowDefinition;
 import be.ucll.repository.FlowDefinitionRepository;
+import be.ucll.repository.FlowInstanceRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
