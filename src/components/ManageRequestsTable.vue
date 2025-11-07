@@ -67,15 +67,15 @@ const sortFlowInstances = (key: 'Request Type' | 'Submitted By' | 'Start Date' |
             if (a.requestType.toLowerCase() < b.requestType.toLowerCase()) result = -1;
             if (a.requestType.toLowerCase() > b.requestType.toLowerCase()) result = 1;
         } else if (key === 'Submitted By') {
-            if (a.data.submittedBy.toLowerCase() < b.data.submittedBy.toLowerCase()) result = -1;
-            if (a.data.submittedBy.toLowerCase() > b.data.submittedBy.toLowerCase()) result = 1;
+            if (a.data.allFields.submittedBy.toLowerCase() < b.data.allFields.submittedBy.toLowerCase()) result = -1;
+            if (a.data.allFields.submittedBy.toLowerCase() > b.data.allFields.submittedBy.toLowerCase()) result = 1;
         } else if (key === 'Start Date') {
-            result = new Date(a.data.startDate).getTime() - new Date(b.data.startDate).getTime();
+            result = new Date(a.data.allFields.startDate).getTime() - new Date(b.data.allFields.startDate).getTime();
         } else if (key === 'End Date') {
-            result = new Date(a.data.endDate).getTime() - new Date(b.data.endDate).getTime();
+            result = new Date(a.data.allFields.endDate).getTime() - new Date(b.data.allFields.endDate).getTime();
         } else if (key === 'Reason') {
-            if (a.data.reason.toLowerCase() < b.data.reason.toLowerCase()) result = -1;
-            if (a.data.reason.toLowerCase() > b.data.reason.toLowerCase()) result = 1;
+            if (a.data.allFields.reason.toLowerCase() < b.data.allFields.reason.toLowerCase()) result = -1;
+            if (a.data.allFields.reason.toLowerCase() > b.data.allFields.reason.toLowerCase()) result = 1;
         }
         return sortOrder.value === 'asc' ? result : -result;
     });
@@ -175,9 +175,6 @@ onMounted(() => {
                 <td class="px-4 py-2 text-gray-600">{{ requ.data.allFields.endDate }}</td>
                 <td class="px-4 py-2 text-gray-600">{{ requ.data.allFields.reason }}</td>
                 <td class="px-4 py-2 text-gray-600"></td>
-                <td class="px-4 py-2 text-center">
-                    <input type="checkbox" class="h-4 w-4 text-blue-600" v-model="requ._selected" />
-                </td>
             </tr>
         </tbody>
     </table>
