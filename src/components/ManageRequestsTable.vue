@@ -1,8 +1,3 @@
-<script setup lang="ts">
-import type { RequestSubmission } from "../types";
-import { ref, onMounted, computed } from "vue";
-import RequestService from "../services/RequestService";
-
 const loading = ref(false);
 const requests = ref<RequestSubmission[]>([]);
 const error = ref<string | null>(null);
@@ -166,7 +161,6 @@ onMounted(() => {
             <div v-else-if="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
                 <p class="font-medium">Error</p>
                 <p class="text-sm">{{ error }}</p>
-            </div>
 
             <tr class="cursor-pointer hover:bg-gray-100" v-for="requ in requests" :key="requ.id">
                 <td class="px-4 py-2 font-medium">{{ requ.requestType }}</td>
