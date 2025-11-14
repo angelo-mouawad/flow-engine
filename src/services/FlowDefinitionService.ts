@@ -1,10 +1,21 @@
-import type { FlowDefinition } from "../types";
+import type { FlowDefinitionPayload } from "../types";
 
 const getFlowDefinitions = async () => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/flowDefinition`);
-  return await response.json() as FlowDefinition[]
-}
+  return await response.json();
+};
+
+const addNewFlowDefinition = async (body: FlowDefinitionPayload) => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/flowDefinition`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+
+  return await response.json();
+};
 
 export default {
   getFlowDefinitions,
-}
+  addNewFlowDefinition,
+};

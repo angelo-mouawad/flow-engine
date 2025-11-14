@@ -50,3 +50,14 @@ export type RequestSubmission = {
   processedAt: Date;
   flowInstanceId: string;
 }
+
+export type FlowDefinitionPayload = {
+  title: string;
+  description: string;
+  processes: {
+    id: string;
+    title: string;
+    createdAt: string | undefined;
+  }[];
+  trigger: string;
+};
