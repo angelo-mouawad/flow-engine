@@ -149,13 +149,13 @@ const closeModal = () => {
     </table>
 
     <div v-if="showModal"
-      class="absolute left-1/2 top-1/2 w-[60%] -translate-x-1/2 -translate-y-1/2 rounded-md border border-gray-300 bg-white shadow-lg ring-1 ring-gray-200 z-50">
+      class="absolute left-1/2 top-1/2 w-[95vw] sm:w-[80vw] md:w-[60%] max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-md border border-gray-300 bg-white shadow-lg ring-1 ring-gray-200 z-50">
       <div class="p-6 h-full overflow-y-auto relative">
         <button @click="closeModal"
           class="absolute cursor-pointer right-4 top-4 rounded-md text-gray-600 hover:text-gray-900">✕</button>
         <h2 class="text-2xl font-semibold mb-4 text-center">Manage this request</h2>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <div v-for="(label, key) in {
             'Name': selectedDefinition?.title,
             'Updated At': selectedDefinition?.updatedAt,
