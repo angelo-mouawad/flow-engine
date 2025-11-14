@@ -37,7 +37,7 @@ const closeModal = () => {
 </script>
 
 <template>
-  <div v-if="isClicked" class="absolute left-1/2 top-1/2 w-[50%] h-[70%] -translate-x-1/2 -translate-y-1/2 rounded-md border border-gray-300 bg-white shadow-lg ring-1 ring-gray-200 z-50">
+  <div v-if="isClicked" class="absolute items-center left-1/2 top-1/2 w-[80%] h-[70%] -translate-x-1/2 -translate-y-1/2 rounded-md border border-gray-300 bg-white shadow-lg ring-1 ring-gray-200 z-50">
     <div class="p-6 h-full overflow-y-auto relative">
       <button @click="closeModal" class="absolute right-4 top-4 rounded-md text-gray-600 cursor-pointer hover:text-gray-900">✕</button>
       <h2 class="text-2xl font-semibold mb-4 text-center">Manage this request</h2>
@@ -59,7 +59,7 @@ const closeModal = () => {
           <div class="mt-1 text-lg font-semibold text-gray-800">{{ selectedRequest?.data?.allFields?.reason || 'no value' }}</div>
         </div>
       </div>
-      <div class="absolute bottom-5 w-[93%] flex justify-center gap-5">
+      <div class="bottom-5 flex justify-center gap-5">
         <button @click="handleApproveRequest" class="mt-6 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700">Approve</button>
         <button @click="handleDeclineRequest" class="mt-6 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Decline</button>
       </div>
