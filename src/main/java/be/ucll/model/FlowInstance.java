@@ -17,7 +17,7 @@ import jakarta.validation.constraints.NotNull;
 public class FlowInstance {
 
     @Id
-    private ObjectId id;
+    private String id;
 
     @NotNull
     @DBRef
@@ -76,7 +76,7 @@ public class FlowInstance {
         if (id == null) 
             throw new DomainException("Flow Instance not yet Created");
 
-        return id.getDate()
+        return new ObjectId(id).getDate()
             .toInstant()
             .atZone(ZoneOffset.UTC)
             .toLocalDate();

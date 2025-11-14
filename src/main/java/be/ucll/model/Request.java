@@ -8,8 +8,8 @@ public class Request extends Process{
     private RequestData data;
     private RequestSubmission submission;
 
-    public Request(String title, RequestType requestType){
-        super(title);
+    public Request(String name, RequestType requestType){
+        super(name, ProcessType.REQUEST);
         this.requestType = requestType;
     }
 

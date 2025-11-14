@@ -12,11 +12,13 @@ import be.ucll.exception.DomainException;
 @Document(collection = "Process")
 public abstract class Process {
     @Id
-    private ObjectId id;
-    private String title;
+    private String id;
+    private String name;
+    private ProcessType processType;
 
-    public Process(String title){ 
-        setTitle(title);
+    public Process(String name, ProcessType type){ 
+        setName(name);
+        this.processType = type;
     }
 
     public abstract void execute();
@@ -25,19 +27,23 @@ public abstract class Process {
         return id.toString();
     }
 
-    public String getTitle() {
-        return title;
+    public ProcessType getProcessType() {
+        return processType;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public LocalDate getCreatedAt() {
         if (id == null) 
             throw new DomainException("Process not yet Created");
 
-        return id.getDate()
+        return new ObjectId(id).getDate()
             .toInstant()
             .atZone(ZoneOffset.UTC)
             .toLocalDate();

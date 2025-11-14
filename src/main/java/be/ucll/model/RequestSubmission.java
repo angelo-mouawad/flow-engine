@@ -3,13 +3,17 @@ package be.ucll.model;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import be.ucll.exception.DomainException;
+
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 
 @Document(collection = "RequestSubmission")
 public class RequestSubmission {
     
     @Id
-    private ObjectId id;
+    private String id;
     
     private String requestType;
     private RequestStatus status;
@@ -68,5 +72,16 @@ public class RequestSubmission {
     
     public void setFlowInstanceId(String flowInstanceId) {
         this.flowInstanceId = flowInstanceId;
+    }
+
+    public LocalDate getCreatedAt() {
+
+        if (id == null) 
+            throw new DomainException("Flow Definition not yet Created");
+
+        return new ObjectId(id).getDate()
+            .toInstant()
+            .atZone(ZoneOffset.UTC)
+            .toLocalDate();
     }
 }

@@ -18,7 +18,7 @@ import jakarta.validation.constraints.NotEmpty;
 public class FlowDefinition {
 
     @Id
-    private ObjectId id;
+    private String id;
     @NotBlank
     private String title;
     @NotBlank
@@ -69,10 +69,11 @@ public class FlowDefinition {
     }
 
     public LocalDate getCreatedAt() {
+
         if (id == null) 
             throw new DomainException("Flow Definition not yet Created");
 
-        return id.getDate()
+        return new ObjectId(id).getDate()
             .toInstant()
             .atZone(ZoneOffset.UTC)
             .toLocalDate();

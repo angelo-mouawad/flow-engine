@@ -5,11 +5,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "Notification")
 public class Notification extends Process {
 
-  public NotificationType type;
+  public NotificationType notificationType;
 
-  public Notification(String title, NotificationType type){
-      super(title);
-      this.type = type;
+  public Notification(String name, NotificationType notificationType){
+      super(name, ProcessType.NOTIFICATION);
+      this.notificationType = notificationType;
   }
 
   @Override
