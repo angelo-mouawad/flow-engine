@@ -15,15 +15,13 @@ const openModal = () => {
   <NotificationModal ref="notifModal" />
 
   <header
-    class="w-full bg-white border-b border-gray-300 px-6 py-4 flex items-center justify-end shadow-sm h-25 gap-2"
-  >
-    <button
-      @click="openModal"
-      class="inline-flex items-center gap-2 bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-md foxus:outline-none"
-    >
-      <!-- <span class="text-xl">🛎</span> -->
-      <span class="font-medium">Notifications</span>
+    class="w-full bg-white border-b border-sidebarsecondary/30 px-4 sm:px-6 flex items-center justify-end h-14 gap-0">
+    <button @click="openModal"
+      class="inline-flex items-center justify-center w-9 h-9 sm:w-auto sm:h-10 sm:px-4 bg-white text-gray-700 hover:bg-gray-50 rounded-full sm:rounded-md focus:outline-none transition-colors"
+      aria-label="Notifications">
+      <img src="/images/notification.png" alt="Notifications" class="w-5 h-5 sm:mr-2" />
+      <span class="hidden sm:inline-flex items-center px-2">Notifications</span>
     </button>
-    <UserSwitch @role-changed="$emit('role-changed', $event)"/>
+    <UserSwitch @role-changed="$emit('role-changed', $event)" />
   </header>
 </template>

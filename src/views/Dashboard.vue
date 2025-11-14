@@ -58,57 +58,28 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- <NotificationBar /> -->
-
-  <div class="p-4 w-full">
+  <div class="p-2 sm:p-4 w-full">
     <div class="mb-8">
-      <h2 class="pb-4 font-bold text-4xl">My Flows</h2>
+      <h2 class="pb-2 sm:pb-4 font-bold text-2xl sm:text-4xl">My Flows</h2>
 
       <div class="overflow-x-auto">
-        <div class="flex flex-row gap-4 pb-4">
-          <div class="flex-shrink-0">
-            <FlowCard :is-create-new="true" />
-          </div>
-          <FlowCard title="Basic Absence Flow" class="flex-shrink-0" />
-          <FlowCard title="Clocking Flow" class="flex-shrink-0" />
-          <FlowCard title="Invoices Flow" class="flex-shrink-0" />
+        <div class="flex flex-row gap-2 pb-2 min-w-[600px]">
+          <FlowCard :is-create-new="true" class="flex-shrink-0 w-60" />
+          <FlowCard title="Basic Absence Flow" class="flex-shrink-0 w-60" />
+          <FlowCard title="Clocking Flow" class="flex-shrink-0 w-60" />
+          <FlowCard title="Invoices Flow" class="flex-shrink-0 w-60" />
         </div>
       </div>
     </div>
 
     <div class="mb-8">
-      <h2 class="pb-4 font-bold text-4xl">Overview of Flow Instances</h2>
-      <div class="grid grid-cols-6 gap-auto">
-        <StatsCard
-          label="Total"
-          :value="stats.total.toString()"
-          color="#ffc533"
-        />
-        <StatsCard
-          label="Active"
-          :value="stats.active.toString()"
-          color="#10b981"
-        />
-        <StatsCard
-          label="Pending"
-          :value="stats.pending.toString()"
-          color="#f59e0b"
-        />
-        <StatsCard
-          label="Failed"
-          :value="stats.failed.toString()"
-          color="#ef4444"
-        />
-        <StatsCard
-          label="Paused"
-          :value="stats.paused.toString()"
-          color="#3b82f6"
-        />
-        <StatsCard
-          label="Success"
-          :value="stats.success.toString()"
-          color="#84cc16"
-        />
+      <h2 class="pb-2 sm:pb-4 font-bold text-2xl sm:text-4xl">Overview of Flow Instances</h2>
+      <div class="overflow-x-auto">
+        <div class="flex flex-row gap-2 pb-2 min-w-[540px]">
+          <StatsCard label="Total" :value="stats.total.toString()" color="#ffc533" class="flex-shrink-0 w-44" />
+          <StatsCard label="Active" :value="stats.active.toString()" color="#10b981" class="flex-shrink-0 w-44" />
+          <StatsCard label="Pending" :value="stats.pending.toString()" color="#f59e0b" class="flex-shrink-0 w-44" />
+        </div>
       </div>
     </div>
 
