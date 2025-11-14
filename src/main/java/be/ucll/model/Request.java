@@ -6,7 +6,7 @@ public class Request extends Process{
 
     private RequestType requestType;
     private RequestData data;
-    private RequestSubmission Submission;
+    private RequestSubmission submission;
 
     public Request(String title, RequestType requestType){
         super(title);
@@ -23,15 +23,15 @@ public class Request extends Process{
     }
 
     public RequestSubmission getSubmission() {
-        return Submission;
+        return submission;
     }
 
     public RequestData getData() {
         return data;
     }
 
-    public void setSubmission(RequestSubmission Submission) {
-        this.Submission = Submission;
+    public void setSubmission(RequestSubmission submission) {
+        this.submission = submission;
     }
 
     public void setData(RequestData data) {
