@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import SideBar from "./components/SideBar.vue";
 import Header from "./components/Header.vue";
-import DisplayRole from "./components/user/DisplayRole.vue";
 import { ref } from 'vue';
 
 const currentRole = ref<'User' | 'Manager'>('User');
