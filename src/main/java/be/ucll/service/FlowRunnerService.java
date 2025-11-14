@@ -9,7 +9,6 @@ import be.ucll.model.Request;
 import be.ucll.model.Trigger;
 import be.ucll.repository.FlowDefinitionRepository;
 import be.ucll.repository.FlowInstanceRepository;
-import be.ucll.repository.ProcessRepository;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +28,6 @@ public class FlowRunnerService {
 
     @Autowired
     private RequestProcessingService requestProcessingService;
-
-    @Autowired ProcessRepository processRepository;
 
     public void instantiateFlow(String title, Map<String, Object> data){
 
@@ -58,7 +55,7 @@ public class FlowRunnerService {
 
                     fi.setFlowStatus(FlowStatus.PENDING);
                     fi.setUpdatedAt(LocalDate.now());
-                    fi = flowInstanceRepository.save(fi);
+                    flowInstanceRepository.save(fi);
                     return;
                 }
 
@@ -72,7 +69,7 @@ public class FlowRunnerService {
             fi.setFlowStatus(FlowStatus.SUCCESS);
             flowInstanceRepository.save(fi);
 
-        }catch(Exception e){
+        } catch(Exception e) {
             fi.setFlowStatus(FlowStatus.FAILURE);
             fi.setUpdatedAt(LocalDate.now());
             flowInstanceRepository.save(fi);
