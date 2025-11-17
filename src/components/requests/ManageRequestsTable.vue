@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { RequestSubmission } from "../types";
+import type { RequestSubmission } from "../../types";
 import { ref, onMounted } from "vue";
-import RequestService from "../services/RequestService";
+import RequestService from "../../services/RequestService";
 
 const emit = defineEmits(['open-request']);
 const loading = ref(false);

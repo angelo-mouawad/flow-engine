@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { FlowInstance } from "../types";
+import type { FlowInstance } from "../../types";
 import { ref, onMounted } from "vue";
-import FlowInstanceService from "../services/FlowInstanceService";
+import FlowInstanceService from "../../services/FlowInstanceService";
 
 const loading = ref(false);
 const flowInstances = ref<FlowInstance[]>([]);

@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useRoleStore } from '../stores/roleStore';
 import WelcomeGrid from '../views/Dashboard.vue';
-import FlowDefinitionForm from '../views/FlowDefinitionForm.vue';
+import FlowDefinitionForm from '../components/flows/FlowDefinitionForm.vue';
 import FlowDefinitionOverview from '../views/FlowDefinitionOverview.vue';
 import FlowInstancesOverview from '../views/FlowInstancesOverview.vue';
 import ManageRequests from '../views/ManageRequestsOverview.vue';

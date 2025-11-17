@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import FlowDefinitionService from "../services/FlowDefinitionService";
-import Process from "../components/Process.vue";
+import FlowDefinitionService from "../../services/FlowDefinitionService";
+import Process from "../main/Process.vue";
 
 const router = useRouter();
 
@@ -39,7 +39,7 @@ const saveFlow = async () => {
   router.push("/flow-definitions");
 };
 
-const goBackToFlowDef = () => router.push("/flow-definitions");
+const goBackToFlowDef = () => router.back();
 </script>
 
 

@@ -1,3 +1,18 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useNotificationStore } from '../../stores/NotificationStore'
+
+const { notifications, removeNotification } = useNotificationStore()
+const isOpen = ref(false)
+
+// Open/close modal
+const openModal = () => { isOpen.value = true }
+const closeModal = () => { isOpen.value = false }
+
+defineExpose({ openModal })
+</script>
+
+
 <template>
   <Teleport to="body">
     <div v-if="isOpen" class="fixed inset-0 bg-black/50 flex items-start justify-center z-[10000] p-4 pt-24"
@@ -40,17 +55,3 @@
     </div>
   </Teleport>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useNotificationStore } from '../../stores/NotificationStore'
-
-const { notifications, removeNotification } = useNotificationStore()
-const isOpen = ref(false)
-
-// Open/close modal
-const openModal = () => { isOpen.value = true }
-const closeModal = () => { isOpen.value = false }
-
-defineExpose({ openModal })
-</script>

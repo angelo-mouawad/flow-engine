@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import ManageRequestsTable from './ManageRequestsTable.vue'
-import RequestService from '../services/RequestService'
+import RequestService from '../../services/RequestService'
 
 const isClicked = ref(false)
 const selectedRequest = ref<any | null>(null)

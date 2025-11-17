@@ -1,10 +1,5 @@
 <script setup lang="ts">
-    import { onMounted } from 'vue';
-    import FlowDetails from '../components/FlowDetails.vue';
-
-    onMounted(()=>{
-        
-    });
+    import FlowDetails from '../components/flows/FlowTypeCreation.vue';
 </script>
 
 <template>

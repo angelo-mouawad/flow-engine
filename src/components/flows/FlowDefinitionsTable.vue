@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type { FlowDefinition } from "../types";
+import type { FlowDefinition } from "../../types";
 import { ref, onMounted } from "vue";
-import FlowDefinitionService from "../services/FlowDefinitionService";
+import FlowDefinitionService from "../../services/FlowDefinitionService";
+import FlowDetails from "./FlowDetails.vue";
 import deleteIcon from "/images/delete1.png.webp";
 
 const loading = ref(false);
@@ -151,34 +152,8 @@ const closeModal = () => {
     <div v-if="showModal"
       class="absolute left-1/2 top-1/2 w-[95vw] sm:w-[80vw] md:w-[60%] max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-md border border-gray-300 bg-white shadow-lg ring-1 ring-gray-200 z-50">
       <div class="p-6 h-full overflow-y-auto relative">
-        <button @click="closeModal"
-          class="absolute cursor-pointer right-4 top-4 rounded-md text-gray-600 hover:text-gray-900">✕</button>
-        <h2 class="text-2xl font-semibold mb-4 text-center">Manage this request</h2>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <div v-for="(label, key) in {
-            'Name': selectedDefinition?.title,
-            'Updated At': selectedDefinition?.updatedAt,
-            'Description': selectedDefinition?.description
-          }" :key="key" class="bg-gray-50 border border-gray-200 rounded-md p-4">
-            <div class="text-xs font-medium text-gray-500">{{ key }}</div>
-            <div class="mt-1 text-lg font-semibold text-gray-800">{{ label || 'no value' }}</div>
-          </div>
-        </div>
-        <div class="mt-5">
-          <div v-for="(label, key) in {
-            'Diagram': selectedDefinition?.title
-          }" :key="key" class="bg-gray-50 border border-gray-200 rounded-md p-4">
-            <div class="text-xs font-medium text-gray-500">{{ key }}</div>
-            <div class="mt-1 text-lg font-semibold text-gray-800">{{ label || 'no value' }}</div>
-          </div>
-        </div>
-        <div class="text-center">
-          <button type="button"
-            class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-6 border border-yellow-600 rounded-md shadow-sm transition-colors cursor-pointer mt-5">
-            Edit
-          </button>
-        </div>
+        <button @click="closeModal" class="absolute cursor-pointer right-4 top-4 rounded-md text-gray-600 hover:text-gray-900">✕</button>
+         <FlowDetails :selected-definition="selectedDefinition"/> 
       </div>
     </div>
 

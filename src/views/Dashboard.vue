@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import FlowCard from "../components/dashboard/FlowCard.vue";
 import StatsCard from "../components/dashboard/StatsCard.vue";
-import FlowInstancesTable from "../components/FlowInstancesTable.vue";
+import FlowInstancesTable from "../components/flows/FlowInstancesTable.vue";
 // import NotificationBar from "../components/notification/NotificationBar.vue";
 import type { FlowInstance, Status } from "../types";
 import FlowInstanceService from "../services/FlowInstanceService";
@@ -60,10 +60,10 @@ onMounted(() => {
 <template>
   <div class="p-2 sm:p-4 w-full">
     <div class="mb-8">
-      <h2 class="pb-2 sm:pb-4 font-bold text-2xl sm:text-4xl">My Flows</h2>
+      <h2 class="pb-2 font-bold text-2xl sm:pb-4 sm:text-4xl">My Flows</h2>
 
       <div class="overflow-x-auto">
-        <div class="flex flex-row gap-2 pb-2 min-w-[600px]">
+        <div class="flex flex-row gap-5 pb-2 min-w-[600px]">
           <FlowCard :is-create-new="true" class="flex-shrink-0 w-60" />
           <FlowCard title="Basic Absence Flow" class="flex-shrink-0 w-60" />
           <FlowCard title="Clocking Flow" class="flex-shrink-0 w-60" />
@@ -73,12 +73,15 @@ onMounted(() => {
     </div>
 
     <div class="mb-8">
-      <h2 class="pb-2 sm:pb-4 font-bold text-2xl sm:text-4xl">Overview of Flow Instances</h2>
+      <h2 class="pb-2 font-bold text-2xl sm:pb-4 sm:text-4xl">Overview of Flow Instances</h2>
       <div class="overflow-x-auto">
-        <div class="flex flex-row gap-2 pb-2 min-w-[540px]">
+        <div class="flex flex-row gap-5 pb-2 min-w-[540px]">
           <StatsCard label="Total" :value="stats.total.toString()" color="#ffc533" class="flex-shrink-0 w-44" />
           <StatsCard label="Active" :value="stats.active.toString()" color="#10b981" class="flex-shrink-0 w-44" />
           <StatsCard label="Pending" :value="stats.pending.toString()" color="#f59e0b" class="flex-shrink-0 w-44" />
+          <StatsCard label="Failed" :value="stats.failed.toString()" color="#ef4444" class="flex-shrink-0 w-44" />
+          <StatsCard label="Paused" :value="stats.paused.toString()" color="#3b82f6" class="flex-shrink-0 w-44" />
+          <StatsCard label="Success" :value="stats.success.toString()" color="#84cc16" class="flex-shrink-0 w-44" />
         </div>
       </div>
     </div>
