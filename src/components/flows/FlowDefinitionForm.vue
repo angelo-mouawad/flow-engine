@@ -25,7 +25,7 @@ const deleteStep = (id: string) => {
 };
 
 const updateStep = (stepId: string, updates: any) => {
-  const stepIndex = steps.value.findIndex(s => s.id === stepId);
+  const stepIndex = steps.value.findIndex((s) => s.id === stepId);
   if (stepIndex !== -1) {
     steps.value[stepIndex] = { ...steps.value[stepIndex], ...updates };
   }
@@ -149,22 +149,11 @@ const goBackToFlowDef = () => router.back();
             </button>
           </div>
 
-          <Process :step="step" @update-step="(updates) => updateStep(step.id, updates)" />
+          <Process
+            :step="step"
+            @update-step="(updates) => updateStep(step.id, updates)"
+          />
         </div>
-      </div>
-
-      <div v-if="steps.length > 0" class="mt-8 mb-6">
-        <p class="font-bold mb-3">Flow Preview</p>
-        <FlowDiagram
-          :processes="
-            steps.map((step) => ({
-              id: step.id,
-              type: step.type || step.subtype,
-              title: step.subtype || step.type,
-            }))
-          "
-          :interactive="true"
-        />
       </div>
 
       <!-- Add Process Button + Dropdown -->
@@ -195,6 +184,20 @@ const goBackToFlowDef = () => router.back();
           >
             Request Process
           </button>
+        </div>
+
+        <div v-if="steps.length > 0" class="mt-8 mb-6">
+          <p class="font-bold mb-3">Flow Preview</p>
+          <FlowDiagram
+            :processes="
+              steps.map((step) => ({
+                id: step.id,
+                type: step.type || step.subtype,
+                title: step.subtype || step.type,
+              }))
+            "
+            :interactive="true"
+          />
         </div>
       </div>
 
