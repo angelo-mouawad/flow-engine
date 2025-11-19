@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onMounted, ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
-const activeIndex = ref<number>(0);
+const route = useRoute();
+const activeIndex = computed(() => {
+  const normalised = `/${route.path.split("/")[1]}`;
+  return paths.indexOf(normalised);
+});
 const isReady = ref<boolean>(false);
 const menuItems = ["HOME", "FLOW DEFINITIONS", "FLOW INSTANCES", "MANAGE REQUESTS", "SETTINGS"];
 const yellowBar =
@@ -13,21 +17,12 @@ const paths = ["/", "/flow-definitions", "/flow-instances", "/manage-requests", 
 const burgerOpen = ref(false);
 
 const selectOption = (index: number) => {
-  activeIndex.value = index;
   router.push(paths[index] as string);
   burgerOpen.value = false;
 };
 
 onMounted(async () => {
   await router.isReady();
-
-  const path = router.currentRoute.value.path;
-
-  //e.g: returns "/flow-definitions" from /flow-definitions/new
-  const index = paths.indexOf(`/${path.split("/")[1]}`);
-  if (index !== -1) {
-    activeIndex.value = index;
-  }
   isReady.value = true;
 });
 </script>

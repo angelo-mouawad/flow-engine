@@ -103,7 +103,7 @@ const closeModal = () => {
               </span>
             </span>
           </th>
-          <th class=""></th>
+          <th class="px-4 py-2"></th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200">
@@ -138,7 +138,7 @@ const closeModal = () => {
               })
             }}
           </td>
-          <td class="px-4 py-2 text-right">
+          <td class="px-4 py-2 text-right min-w-[72px]">
             <button @click.stop="onRowIconClick(def)"
               class="inline-flex items-center p-1 rounded hover:bg-gray-100 focus:ring-2 focus:ring-blue-400"
               :aria-label="`Delete ${def.title}`">

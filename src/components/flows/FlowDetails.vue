@@ -9,7 +9,6 @@ defineProps<{
 
 <template>
   <h2 class="text-2xl font-semibold mb-4 text-center">Flow Details</h2>
-
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
     <div
       v-for="(label, key) in {
@@ -28,7 +27,11 @@ defineProps<{
   </div>
   <div class="mt-5">
     <p class="text-xs font-medium text-gray-500 mb-3">Diagram</p>
-    <div v-if="selectedDefinition?.processes && selectedDefinition.processes.length > 0">
+    <div
+      v-if="
+        selectedDefinition?.processes && selectedDefinition.processes.length > 0
+      "
+    >
       <FlowDiagram :processes="selectedDefinition.processes" />
     </div>
     <div v-else class="bg-gray-50 border border-gray-200 rounded-md p-4">
