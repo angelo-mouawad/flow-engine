@@ -37,9 +37,6 @@ const props = defineProps(["isDefinition"]);
         <FlowDefinitionsTable v-if="isDefinition" />
         <FlowInstancesTable v-if="!isDefinition" />
       </div>
-      <div class="mt-2 text-sm text-gray-500">
-        <!-- Total: {{ definitions.length }} -->
-      </div>
     </div>
   </div>
 </template>
