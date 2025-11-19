@@ -15,13 +15,20 @@ const showProcessMenu = ref(false);
 let nextStepId = "1";
 
 const addProcess = (type: string) => {
-  steps.value.push({ id: nextStepId, type });
+  steps.value.push({ id: nextStepId, type, subtype: null });
   nextStepId = (Number(nextStepId) + 1).toString();
   showProcessMenu.value = false;
 };
 
 const deleteStep = (id: string) => {
   steps.value = steps.value.filter((s) => s.id !== id);
+};
+
+const updateStep = (stepId: string, updates: any) => {
+  const stepIndex = steps.value.findIndex(s => s.id === stepId);
+  if (stepIndex !== -1) {
+    steps.value[stepIndex] = { ...steps.value[stepIndex], ...updates };
+  }
 };
 
 const saveFlow = async () => {
@@ -142,7 +149,7 @@ const goBackToFlowDef = () => router.back();
             </button>
           </div>
 
-          <Process :step="step" />
+          <Process :step="step" @update-step="(updates) => updateStep(step.id, updates)" />
         </div>
       </div>
 
@@ -152,8 +159,8 @@ const goBackToFlowDef = () => router.back();
           :processes="
             steps.map((step) => ({
               id: step.id,
-              type: step.type,
-              title: step.type,
+              type: step.type || step.subtype,
+              title: step.subtype || step.type,
             }))
           "
           :interactive="true"
