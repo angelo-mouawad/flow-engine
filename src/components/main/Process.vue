@@ -43,9 +43,9 @@ watch(
         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline cursor-pointer"
       >
           <option disabled>Select {{ step.type }} type</option>
-          <option v-if="step.type=='Notification'" value="email">Email</option>
-          <option v-if="step.type=='Notification'" value="popup">Popup</option>
-          <option v-if="step.type=='Request'"value="absence">Absence</option>
+          <option v-if="step.type=='Notification'" value="Email">Email</option>
+          <option v-if="step.type=='Notification'" value="Popup">Popup</option>
+          <option v-if="step.type=='Request'" value="Absence">Absence</option>
       </select>
     </div>
 
