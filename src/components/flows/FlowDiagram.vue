@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { VueFlow, useVueFlow } from "@vue-flow/core";
+import { VueFlow, useVueFlow, MarkerType } from "@vue-flow/core";
 import type { Process } from "../../types";
 
 const props = withDefaults(
@@ -71,6 +71,7 @@ const edges = computed(() => {
       source: currentId,
       target: nextId,
       type: "straight",
+      markerEnd: { type: MarkerType.ArrowClosed, color: "#6b7280" },
     });
   }
 
@@ -173,8 +174,9 @@ watch([nodes, edges], ([newNodes, newEdges]) => {
   stroke: #6b7280;
 }
 
-.vue-flow__arrowhead {
-  fill: #6b7280;
+.vue-flow__handle {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .vue-flow__background {
