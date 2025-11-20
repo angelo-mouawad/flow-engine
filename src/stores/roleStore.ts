@@ -2,11 +2,12 @@ import { defineStore } from 'pinia';
 
 export const useRoleStore = defineStore('role', {
   state: () => ({
-    role: 'User' as 'User' | 'Manager',
+    role: sessionStorage.getItem('role') || 'User',
   }),
   actions: {
-    setRole(newRole: 'User' | 'Manager') {
-        this.role = newRole;
+    setRole(newRole: string) {
+      this.role = newRole;
+      sessionStorage.setItem('role', newRole);
     }
   }
-})
+});

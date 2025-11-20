@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import SideBar from "./components/main/SideBar.vue";
 import Header from "./components/main/Header.vue";
-import { ref } from 'vue';
+import { computed } from 'vue';
+import { useRoleStore } from "./stores/roleStore";
 
-const currentRole = ref<'User' | 'Manager'>('User');
+const roleStore = useRoleStore();
+const currentRole = computed({
+  get: () => roleStore.role,
+  set: (v) => roleStore.setRole(v)
+})
 </script>
 
 <template>
