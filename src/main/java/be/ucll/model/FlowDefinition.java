@@ -26,18 +26,14 @@ public class FlowDefinition {
     @NotEmpty
     @DBRef
     private List<Process> processes;
-    @NotEmpty
-    private Trigger trigger;
 
-    private List<FlowInstance> flowInstances = new ArrayList<FlowInstance>();;
     private LocalDate updatedAt;
 
-    public FlowDefinition(String title, String description, List<Process> processes, Trigger trigger) {
+    public FlowDefinition(String title, String description, List<Process> processes) {
         setTitle(title);
         setDescription(description);
         setProcesses(processes);
         setUpdatedAt(LocalDate.now());
-        setTrigger(trigger);
     }
 
     public void setUpdatedAt(LocalDate updatedAt) {
@@ -58,14 +54,6 @@ public class FlowDefinition {
 
     public List<Process> getProcesses() {
         return processes;
-    }
-
-    public List<FlowInstance> getFlowInstances() {
-        return flowInstances;
-    }
-
-    public Trigger getTrigger() {
-        return trigger;
     }
 
     public LocalDate getCreatedAt() {
@@ -93,13 +81,5 @@ public class FlowDefinition {
 
     public void setProcesses(List<Process> processes) {
         this.processes = processes;
-    }
-
-    public void setFlowInstances(List<FlowInstance> flowInstances) {
-        this.flowInstances = flowInstances;
-    }
-
-    public void setTrigger(Trigger trigger) {
-        this.trigger = trigger;
     }
 }

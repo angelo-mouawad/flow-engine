@@ -35,20 +35,7 @@ public class AbsenceRequestType implements RequestType {
     }
     
     @Override
-    public RequestSubmission process(RequestData data) {
-        validate(data);
-        
-        RequestSubmission submission = new RequestSubmission();
-        submission.setRequestType(getRequestTypeName());
-        submission.setStatus(RequestStatus.PENDING);
-        submission.setData(data);
-        submission.setSubmittedAt(LocalDate.now());
-        
-        return submission;
-    }
-    
-    @Override
-    public String getRequestTypeName() {
+    public String getTypeName() {
         return "ABSENCE_REQUEST";
     }
 }

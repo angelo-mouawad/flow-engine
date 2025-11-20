@@ -21,8 +21,6 @@ public abstract class Process {
         this.processType = type;
     }
 
-    public abstract void execute();
-
     public String getId() {
         return id.toString();
     }
@@ -32,7 +30,7 @@ public abstract class Process {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {

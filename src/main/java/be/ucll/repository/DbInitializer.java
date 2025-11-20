@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import be.ucll.model.*;
 import be.ucll.model.Process;
+import be.ucll.model.strategies.notification.EmailNotificationType;
 import be.ucll.model.strategies.request.AbsenceRequestType;
 import be.ucll.service.FlowRunnerService;
 import jakarta.annotation.PostConstruct;
@@ -43,7 +44,7 @@ public class DbInitializer {
       data.setField("reason", "sickness");
 
       Process absence = new Request("Absence", new AbsenceRequestType());
-      Process notification = new Notification("Notification", NotificationType.POPUP);
+      Process notification = new Notification("Notification", new EmailNotificationType());
 
       List<Process> processes = new ArrayList<>(List.of(
                   absence,
@@ -55,14 +56,12 @@ public class DbInitializer {
       FlowDefinition fd1 = new FlowDefinition(
               "Absence Reporting", 
               "Receive absence requests for processsing", 
-              List.of(absence, notification), 
-              Trigger.ALL);
+              List.of(absence, notification));
 
       FlowDefinition fd2 = new FlowDefinition(
               "Absence Reporting alternate", 
               "Receive absence requests for processsing", 
-              List.of(notification, absence, notification), 
-              Trigger.POST);
+              List.of(notification, absence, notification));
 
       List<FlowDefinition> fds = List.of(fd1, fd2);
 

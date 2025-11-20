@@ -23,8 +23,7 @@ public class FlowDefinitionService {
         FlowDefinition fd = new FlowDefinition(
                 input.title(), 
                 input.description(),
-                input.processes(),
-                input.trigger());
+                input.processes());
 
         return flowDefinitionRepository.save(fd);
     }

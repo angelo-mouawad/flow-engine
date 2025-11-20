@@ -4,9 +4,9 @@ import be.ucll.exception.ServiceException;
 import be.ucll.model.FlowDefinition;
 import be.ucll.model.FlowInstance;
 import be.ucll.model.FlowStatus;
+import be.ucll.model.Notification;
 import be.ucll.model.Process;
 import be.ucll.model.Request;
-import be.ucll.model.Trigger;
 import be.ucll.repository.FlowDefinitionRepository;
 import be.ucll.repository.FlowInstanceRepository;
 
@@ -27,68 +27,66 @@ public class FlowRunnerService {
     private FlowDefinitionRepository flowDefinitionRepository;
 
     @Autowired
-    private RequestProcessingService requestProcessingService;
+    private RequestService requestService;
 
     public void instantiateFlow(String title, Map<String, Object> data){
 
         FlowDefinition fd =  flowDefinitionRepository.findByTitle(title)
             .orElseThrow(()-> new ServiceException("Flow with title "+ title +" does not exist"));
 
-        Trigger trigger = fd.getTrigger();
-        if (trigger == Trigger.POST || trigger == Trigger.ALL){
-            FlowInstance fi = new FlowInstance(fd, fd.getTitle());
-            fi = flowInstanceRepository.save(fi);
-            runFlow(fi, data);
-        }else{
-            throw new ServiceException("Flow Definition "+ fd.getTitle() +" cannot be triggered By Post request");
-        }
+        FlowInstance flowInstance = new FlowInstance(fd, fd.getTitle());
+        flowInstance = flowInstanceRepository.save(flowInstance);
+        runFlow(flowInstance, data);
     }
 
-    private void runFlow(FlowInstance fi, Map<String, Object> data){
+    private void runFlow(FlowInstance flowInstance, Map<String, Object> data){
         try{
 
-            while (fi.getCurrentProcess() != null) {
-                Process current = fi.getCurrentProcess();
-                
-                if(current instanceof Request){
-                    requestProcessingService.processRequest(fi,  (Request) current, data);
+            while (flowInstance.getCurrentProcess() != null) {
+                Process current = flowInstance.getCurrentProcess();
 
-                    fi.setFlowStatus(FlowStatus.PENDING);
-                    fi.setUpdatedAt(LocalDate.now());
-                    flowInstanceRepository.save(fi);
+                if(current instanceof Request){
+                    requestService.processRequest(flowInstance,  (Request) current, data);
+                    pauseFlow(flowInstance);
                     return;
+                }else if (current instanceof Notification) {
+                    // Notify in NotificationService
                 }
 
-                current.execute();
-
-                fi.nextProcess();
-                fi.setUpdatedAt(LocalDate.now());
-                fi = flowInstanceRepository.save(fi);
+                flowInstance.nextProcess();
+                flowInstance.setUpdatedAt(LocalDate.now());
+                flowInstance = flowInstanceRepository.save(flowInstance);
             }
 
-            fi.setFlowStatus(FlowStatus.SUCCESS);
-            flowInstanceRepository.save(fi);
+            flowInstance.setFlowStatus(FlowStatus.SUCCESS);
+            flowInstanceRepository.save(flowInstance);
 
         } catch(Exception e) {
-            fi.setFlowStatus(FlowStatus.FAILURE);
-            fi.setUpdatedAt(LocalDate.now());
-            flowInstanceRepository.save(fi);
+            flowInstance.setFlowStatus(FlowStatus.FAILURE);
+            flowInstance.setUpdatedAt(LocalDate.now());
+            flowInstanceRepository.save(flowInstance);
             throw new ServiceException("Flow Execution Failed: "+ e.getMessage());
         }
     }
 
+    public void pauseFlow(FlowInstance flowInstance){
+        flowInstance.setFlowStatus(FlowStatus.PENDING);
+        flowInstance.setUpdatedAt(LocalDate.now());
+        flowInstanceRepository.save(flowInstance);
+    }
+
     public void resumeFlow(ObjectId id){
-        FlowInstance fi = flowInstanceRepository.findById(id)
+        FlowInstance flowInstance = flowInstanceRepository.findById(id)
             .orElseThrow(()-> new ServiceException("Flow Instance not found"));
 
-        if(fi.getFlowStatus() != FlowStatus.PENDING){
+        if(flowInstance.getFlowStatus() != FlowStatus.PENDING){
             throw new ServiceException("Flow is not PENDING");
         }
 
-        fi.nextProcess();
-        fi.setFlowStatus(FlowStatus.ACTIVE);
-        fi.setUpdatedAt(LocalDate.now());
-        fi = flowInstanceRepository.save(fi);
-        runFlow(fi, Map.of());
+        flowInstance.nextProcess();
+        flowInstance.setFlowStatus(FlowStatus.ACTIVE);
+        flowInstance.setUpdatedAt(LocalDate.now());
+        flowInstance = flowInstanceRepository.save(flowInstance);
+        runFlow(flowInstance, Map.of());
     }
 }

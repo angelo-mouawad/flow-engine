@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import be.ucll.model.RequestStatus;
 import be.ucll.model.RequestSubmission;
-import be.ucll.service.RequestApprovalService;
+import be.ucll.service.ApprovalService;
+import be.ucll.service.RequestService;
 
 @RestController
 @RequestMapping("/request")
@@ -19,20 +21,23 @@ import be.ucll.service.RequestApprovalService;
 public class RequestController {
 
     @Autowired
-    private RequestApprovalService requestApprovalService;
+    private RequestService requestService;
+
+    @Autowired
+    private ApprovalService approvalService;
 
     @GetMapping("/pending")
     public List<RequestSubmission> getPendingRequests(){
-        return requestApprovalService.getPendingRequests();        
+        return requestService.getPendingRequests();        
     }
 
     @PutMapping("/approve/{id}")
     public void approveRequest(@PathVariable String id){
-        requestApprovalService.approveRequest(id);
+        approvalService.approveRequest(id, RequestStatus.APPROVED);
     }
 
     @PutMapping("/decline/{id}")
     public void declineRequest(@PathVariable String id){
-        requestApprovalService.declineRequest(id);
+        approvalService.approveRequest(id, RequestStatus.DECLINED);
     }
 }
