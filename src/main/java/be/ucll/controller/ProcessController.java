@@ -12,6 +12,7 @@ import be.ucll.service.ProcessService;
 
 @RestController
 @RequestMapping("/process")
+@CrossOrigin(origins = "*")
 public class ProcessController {
   
   @Autowired
