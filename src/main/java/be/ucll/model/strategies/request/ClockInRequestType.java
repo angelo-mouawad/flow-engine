@@ -3,37 +3,32 @@ package be.ucll.model.strategies.request;
 import be.ucll.exception.DomainException;
 import be.ucll.model.*;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 public class ClockInRequestType implements RequestType {
     
     @Override
     public void validate(RequestData data) {
-        String startDateStr = data.getField("startDate", String.class);
-        String endDateStr = data.getField("endDate", String.class);
+        String startTimeStr = data.getField("startTime", String.class);
+        String endTimeStr = data.getField("endTime", String.class);
         String submittedBy = data.getField("submittedBy", String.class);
-        String reason = data.getField("reason", String.class);
 
-        LocalDate startDate = LocalDate.parse(startDateStr);
-        LocalDate endDate = LocalDate.parse(endDateStr); 
+        ZonedDateTime startTime =  ZonedDateTime.parse(startTimeStr);
+        ZonedDateTime endTime =  ZonedDateTime.parse(endTimeStr);
 
-        if (startDate == null || endDate == null) {
-            throw new DomainException("Start date and end date are required");
+        if (startTime == null || endTime == null) {
+            throw new DomainException("Start time and end time are required");
         }
         
-        if (startDate.isAfter(endDate)) {
-            throw new DomainException("Start date cannot be after end date");
+        if (startTime.isAfter(endTime)) {
+            throw new DomainException("Start time cannot be after end time");
         }
         
-        if (reason == null || reason.isBlank()) {
-            throw new DomainException("Reason is required for absence request");
-        }
-
         if (submittedBy == null || submittedBy.isBlank()) {
             throw new DomainException("User is required for absence request");
         }
     }
-    
+ 
     @Override
     public String getTypeName() {
         return "CLOCKIN_REQUEST";
