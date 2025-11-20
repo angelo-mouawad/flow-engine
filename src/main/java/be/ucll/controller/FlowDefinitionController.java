@@ -15,7 +15,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/flowDefinition")
-@CrossOrigin(origins = "*")
 public class FlowDefinitionController {
     private FlowDefinitionService flowDefinitionService;
 
