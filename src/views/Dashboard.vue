@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import FlowCard from "../components/dashboard/FlowCard.vue";
 import StatsCard from "../components/dashboard/StatsCard.vue";
 import FlowInstancesTable from "../components/flows/FlowInstancesTable.vue";
@@ -10,7 +10,7 @@ import FlowInstanceService from "../services/FlowInstanceService";
 const flowInstances = ref<FlowInstance[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
-//let pollInterval: number; // TODO - implement polling
+let pollInterval: number;
 
 const stats = computed(() => {
   const statuses: Record<Status, number> = {
@@ -22,7 +22,7 @@ const stats = computed(() => {
   };
 
   flowInstances.value.forEach((instance) => {
-    statuses[instance.status]++;
+    statuses[instance.flowStatus]++;
   });
 
   return {
@@ -54,7 +54,12 @@ const fetchFlowInstances = async () => {
 
 onMounted(() => {
   fetchFlowInstances();
+  pollInterval = window.setInterval(fetchFlowInstances, 5000);
 });
+
+onUnmounted(() => {
+  clearInterval(pollInterval);
+})
 </script>
 
 <template>
