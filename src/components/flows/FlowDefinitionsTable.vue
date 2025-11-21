@@ -198,7 +198,7 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
     <div
       v-if="showModal"
       @click="closeModal"
-      class="h-screen w-screen absolute left-0 top-0 bg-black opacity-50"
+      class="fixed inset-0 bg-black opacity-50 z-40"
     ></div>
   </div>
 </template>

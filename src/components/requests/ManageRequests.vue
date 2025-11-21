@@ -101,7 +101,7 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
       </div>
     </div>
   </div>
-  <div v-if="isClicked" class="h-screen w-screen absolute left-0 top-0 bg-black opacity-50"></div>
+  <div v-if="isClicked" class="fixed inset-0 bg-black opacity-50 z-40"></div>
   <div
     class="w-full rounded-md p-5 transition-colors duration-300"
     :class="isDarkMode ? 'text-white' : 'text-gray-900'"
