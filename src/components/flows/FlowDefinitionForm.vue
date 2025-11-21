@@ -4,18 +4,25 @@ import { useRouter } from "vue-router";
 import FlowDefinitionService from "../../services/FlowDefinitionService";
 import Process from "../main/Process.vue";
 import FlowDiagram from "./FlowDiagram.vue";
+import ProcessService from "../../services/ProcessService";
 
 const router = useRouter();
 
 const flowName = ref("");
 const description = ref("");
-const steps = ref<any[]>([]);
-const showProcessMenu = ref(false);
-
+const steps = ref<any[]>([]); // each step = { id, processType, name }
 let nextStepId = "1";
 
-const addProcess = (type: string) => {
-  steps.value.push({ id: nextStepId, type, subtype: null });
+const showProcessMenu = ref(false);
+const allProcesses = ref<any[]>([]);
+
+// Fetch all processes on mount
+(async () => {
+  allProcesses.value = await ProcessService.getProcess();
+})();
+
+const addProcess = (processType: string) => {
+  steps.value.push({ id: nextStepId, processType, name: "" });
   nextStepId = (Number(nextStepId) + 1).toString();
   showProcessMenu.value = false;
 };
@@ -24,10 +31,10 @@ const deleteStep = (id: string) => {
   steps.value = steps.value.filter((s) => s.id !== id);
 };
 
-const updateStep = (stepId: string, updates: any) => {
-  const stepIndex = steps.value.findIndex((s) => s.id === stepId);
-  if (stepIndex !== -1) {
-    steps.value[stepIndex] = { ...steps.value[stepIndex], ...updates };
+const updateStep = (id: string, updates: any) => {
+  const index = steps.value.findIndex((s) => s.id === id);
+  if (index !== -1) {
+    steps.value[index] = { ...steps.value[index], ...updates };
   }
 };
 
@@ -36,9 +43,9 @@ const saveFlow = async () => {
     title: flowName.value,
     description: description.value,
     trigger: "MANUAL",
-    processes: steps.value.map((step) => ({
-      id: step.id,
-      title: step.type,
+    processes: steps.value.map((s) => ({
+      id: s.id,
+      title: s.name || s.processType,
       createdAt: new Date().toISOString().split("T")[0],
     })),
   };
@@ -116,47 +123,48 @@ const goBackToFlowDef = () => router.back();
       <hr class="pb-5" v-if="steps.length" />
 
       <!-- Process Cards -->
-      <div v-if="steps.length > 0">
-        <div
-          v-for="(step, index) in steps"
-          :key="step.id"
-          class="rounded-md border p-5 bg-[#f5f5f5] mb-4"
+      <!-- Process Cards -->
+<div v-if="steps.length > 0">
+  <div
+    v-for="(step, index) in steps"
+    :key="step.id"
+    class="rounded-md border p-5 bg-[#f5f5f5] mb-4"
+  >
+    <div class="flex justify-between items-center mb-4">
+      <p class="font-bold text-gray-700">
+        {{ step.processType }} PROCESS
+      </p>
+      <button
+        @click="deleteStep(step.id)"
+        type="button"
+        class="flex items-center gap-1 text-red-500 hover:text-red-700 font-semibold text-sm transition-colors cursor-pointer"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          <div class="flex justify-between items-center mb-4">
-            <p class="font-bold text-gray-700">
-              {{ step.type || `Process ${index + 1}` }}
-            </p>
-            <button
-              v-if="steps.length > 0"
-              @click="deleteStep(step.id)"
-              type="button"
-              class="flex items-center gap-1 text-red-500 hover:text-red-700 font-semibold text-sm transition-colors cursor-pointer"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-              <span>Remove</span>
-            </button>
-          </div>
-
-          <Process
-            :step="step"
-            @update-step="(updates) => updateStep(step.id, updates)"
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
           />
-        </div>
-      </div>
+        </svg>
+        <span>Remove</span>
+      </button>
+    </div>
 
-      <!-- Add Process Button + Dropdown -->
+    <Process
+      :process="step"
+      @update-process="(updates) => updateStep(step.id, updates)"
+    />
+  </div>
+</div>
+
+
+      <!-- Add Process Button + Dropdown for type selection -->
       <div class="relative w-full">
         <button
           @click="showProcessMenu = !showProcessMenu"
@@ -173,29 +181,19 @@ const goBackToFlowDef = () => router.back();
           class="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg"
         >
           <button
-            @click="addProcess('Notification')"
+            v-for="processType in [...new Set(allProcesses.map(p => p.processType))]"
+            :key="processType"
+            @click="addProcess(processType)"
             class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-yellow-100 transition-colors cursor-pointer"
           >
-            Notification Process
-          </button>
-          <button
-            @click="addProcess('Request')"
-            class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-yellow-100 transition-colors cursor-pointer"
-          >
-            Request Process
+            {{ processType }} PROCESS
           </button>
         </div>
 
         <div v-if="steps.length > 0" class="mt-8 mb-6">
           <p class="font-bold mb-3">Flow Preview</p>
           <FlowDiagram
-            :processes="
-              steps.map((step) => ({
-                id: step.id,
-                type: step.type || step.subtype,
-                title: step.subtype || step.type,
-              }))
-            "
+            :processes="steps.map(s => ({ id: s.id, type: s.processType, title: s.name || s.processType }))"
             :interactive="true"
           />
         </div>

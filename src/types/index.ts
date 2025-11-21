@@ -29,8 +29,8 @@ export type Trigger = {
 
 export type Process = {
   id: string;
-  type: string;
-  title: string;
+  processType: string;
+  name: string;
 };
 
 export type AbsenceData = {
