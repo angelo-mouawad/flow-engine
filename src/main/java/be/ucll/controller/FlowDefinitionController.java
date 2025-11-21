@@ -4,6 +4,8 @@ import be.ucll.controller.dto.FlowDefinitionInput;
 import be.ucll.model.FlowDefinition;
 import be.ucll.service.FlowDefinitionService;
 import org.bson.types.ObjectId;
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +32,7 @@ public class FlowDefinitionController {
     }
 
     @PostMapping
-    public FlowDefinition addFlowDefinition(@RequestBody FlowDefinitionInput input) {
+    public FlowDefinition addFlowDefinition(@RequestBody @Valid FlowDefinitionInput input) {
         return flowDefinitionService.addFlowDefinition(input);
     }
 
