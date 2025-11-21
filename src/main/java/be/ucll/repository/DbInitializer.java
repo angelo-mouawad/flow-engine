@@ -44,10 +44,12 @@ public class DbInitializer {
       data.setField("reason", "sickness");
 
       Process absence = new Request("Absence", new AbsenceRequestType());
+      Process approval = new Approval("Approval");
       Process notification = new Notification("Notification", new EmailNotificationType());
 
       List<Process> processes = new ArrayList<>(List.of(
                   absence,
+                  approval,
                   notification
             ));
 
@@ -56,12 +58,12 @@ public class DbInitializer {
       FlowDefinition fd1 = new FlowDefinition(
               "Absence Reporting", 
               "Receive absence requests for processsing", 
-              List.of(absence, notification));
+              List.of(absence, approval, notification));
 
       FlowDefinition fd2 = new FlowDefinition(
               "Absence Reporting alternate", 
               "Receive absence requests for processsing", 
-              List.of(notification, absence, notification));
+              List.of(notification, absence, approval));
 
       List<FlowDefinition> fds = List.of(fd1, fd2);
 
