@@ -28,8 +28,8 @@ const nodes = computed(() => {
       return;
     }
 
-    // it should change after backend processes update
-    const nodeId = process.id || `process-${index}`;
+    // we can simplify at the end
+    const nodeId = `process-${index}-${process.id || index}`;
     const label = (process as any).name || process.name || "Unnamed Process";
     const processType = (process as any).processType || process.name;
 
@@ -63,8 +63,8 @@ const edges = computed(() => {
       continue;
     }
 
-    const currentId = currentProcess.id || `process-${i}`; // it should change after backend processes update
-    const nextId = nextProcess.id || `process-${i + 1}`;
+    const currentId = `process-${i}-${currentProcess.id || i}`;
+    const nextId = `process-${i + 1}-${nextProcess.id || i + 1}`;
 
     result.push({
       id: `e-${currentId}-${nextId}`,
