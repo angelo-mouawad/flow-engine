@@ -70,7 +70,6 @@ const closeModal = () => {
   showModal.value = false;
   selectedDefinition.value = null;
 };
-
 </script>
 
 <template>
@@ -78,10 +77,16 @@ const closeModal = () => {
     <table class="w-full border-collapse text-sm">
       <thead>
         <tr class="text-left text-white bg-[#110]">
-          <th class="px-4 py-2 font-medium select-none cursor-pointer" @click="sortFlowDefinitions('title')">
+          <th
+            class="px-4 py-2 font-medium select-none cursor-pointer"
+            @click="sortFlowDefinitions('title')"
+          >
             Name
             <span class="ml-2">
-              <span class="ml-2 inline-block" style="width: 1.5em; text-align: left">
+              <span
+                class="ml-2 inline-block"
+                style="width: 1.5em; text-align: left"
+              >
                 <span v-if="sortKey === 'title'">
                   <span v-if="sortOrder === 'asc'">▲</span>
                   <span v-else>▼</span>
@@ -91,10 +96,16 @@ const closeModal = () => {
             </span>
           </th>
           <th class="px-4 py-2 font-medium" style="width: 40%">Description</th>
-          <th class="px-4 py-2 font-medium select-none cursor-pointer" @click="sortFlowDefinitions('updatedAt')">
+          <th
+            class="px-4 py-2 font-medium select-none cursor-pointer"
+            @click="sortFlowDefinitions('updatedAt')"
+          >
             Last Updated
             <span class="ml-2">
-              <span class="ml-2 inline-block" style="width: 1.5em; text-align: left">
+              <span
+                class="ml-2 inline-block"
+                style="width: 1.5em; text-align: left"
+              >
                 <span v-if="sortKey === 'updatedAt'">
                   <span v-if="sortOrder === 'asc'">▲</span>
                   <span v-else>▼</span>
@@ -114,7 +125,9 @@ const closeModal = () => {
         </tr>
         <tr v-else-if="error">
           <td colspan="4" class="p-4">
-            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div
+              class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded"
+            >
               <p class="font-medium">Error</p>
               <p class="text-sm">{{ error }}</p>
             </div>
@@ -125,10 +138,17 @@ const closeModal = () => {
             No flow definitions found.
           </td>
         </tr>
-        <tr v-else v-for="def in flowDefinitions" :key="def.id"
-          class="cursor-pointer hover:bg-gray-50 transition-colors" @click="onRowClick(def)">
+        <tr
+          v-else
+          v-for="def in flowDefinitions"
+          :key="def.id"
+          class="cursor-pointer hover:bg-gray-50 transition-colors"
+          @click="onRowClick(def)"
+        >
           <td class="px-4 py-2 font-medium">{{ def.title }}</td>
-          <td class="px-4 py-2 text-gray-600 truncate" style="max-width: 320px">{{ def.description || "—" }}</td>
+          <td class="px-4 py-2 text-gray-600 truncate" style="max-width: 320px">
+            {{ def.description || "—" }}
+          </td>
           <td class="px-4 py-2 text-gray-600">
             {{
               new Date(def.updatedAt).toLocaleDateString("en-GB", {
@@ -139,9 +159,11 @@ const closeModal = () => {
             }}
           </td>
           <td class="px-4 py-2 text-right min-w-[72px]">
-            <button @click.stop="onRowIconClick(def)"
+            <button
+              @click.stop="onRowIconClick(def)"
               class="inline-flex items-center p-1 rounded hover:bg-gray-100 focus:ring-2 focus:ring-blue-400"
-              :aria-label="`Delete ${def.title}`">
+              :aria-label="`Delete ${def.title}`"
+            >
               <img :src="deleteIcon" alt="Delete" class="w-5 h-5" />
             </button>
           </td>
@@ -149,15 +171,25 @@ const closeModal = () => {
       </tbody>
     </table>
 
-    <div v-if="showModal"
-      class="absolute left-1/2 top-1/2 w-[95vw] sm:w-[80vw] md:w-[60%] max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-md border border-gray-300 bg-white shadow-lg ring-1 ring-gray-200 z-50">
+    <div
+      v-if="showModal"
+      class="fixed left-1/2 top-1/2 w-[95vw] sm:w-[80vw] md:w-[60%] md:h-[80%] max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-md border border-gray-300 bg-white shadow-lg ring-1 ring-gray-200 z-50"
+    >
       <div class="p-6 h-full overflow-y-auto relative">
-        <button @click="closeModal" class="absolute cursor-pointer right-4 top-4 rounded-md text-gray-600 hover:text-gray-900">✕</button>
-         <FlowDetails :selected-definition="selectedDefinition"/> 
+        <button
+          @click="closeModal"
+          class="absolute cursor-pointer right-4 top-4 rounded-md text-gray-600 hover:text-gray-900"
+        >
+          ✕
+        </button>
+        <FlowDetails :selected-definition="selectedDefinition" />
       </div>
     </div>
 
-    <div v-if="showModal" @click="closeModal" class="h-screen w-screen absolute left-0 top-0 bg-black opacity-50"></div>
+    <div
+      v-if="showModal"
+      @click="closeModal"
+      class="h-screen w-screen absolute left-0 top-0 bg-black opacity-50"
+    ></div>
   </div>
-
 </template>

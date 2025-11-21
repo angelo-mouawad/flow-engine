@@ -115,7 +115,7 @@ watch([nodes, edges], ([newNodes, newEdges]) => {
 <style scoped>
 .flow-diagram-container {
   width: 100%;
-  height: 400px;
+  height: 300px;
   border: 1px solid #e5e7eb;
   border-radius: 0.375rem;
   background-color: #fafafa;
