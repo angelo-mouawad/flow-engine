@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import FlowDefinitionService from "../../services/FlowDefinitionService";
 import ProcessComponent from "../main/Process.vue";
@@ -10,6 +10,8 @@ import type { Process } from "../../types";
 const router = useRouter();
 
 const flowName = ref("");
+const flowNameError = ref("");
+const stepsError = ref("");
 const description = ref("");
 
 const steps = ref<
@@ -53,6 +55,16 @@ const updateStep = (stepId: string, updates: Partial<Process>) => {
 };
 
 const saveFlow = async () => {
+  if (!flowName.value.trim()) {
+    flowNameError.value = "Flow name is required";
+    return;
+  }
+
+  if (!steps.value.length) {
+    stepsError.value = "At least one flow step is required";
+    return;
+  }
+
   const payload = {
     title: flowName.value,
     description: description.value,
@@ -68,6 +80,17 @@ const saveFlow = async () => {
 };
 
 const goBackToFlowDef = () => router.back();
+
+watch(flowName, (value) => {
+  if (value.trim()) flowNameError.value = "";
+});
+
+watch(
+  () => steps.value.length,
+  (length) => {
+    if (length) stepsError.value = "";
+  }
+);
 </script>
 
 <template>
@@ -107,8 +130,14 @@ const goBackToFlowDef = () => router.back();
               v-model="flowName"
               type="text"
               placeholder="Enter flow name"
-              class="shadow border rounded w-full py-2 px-3 text-gray-700"
+              :class="[
+                'shadow border rounded w-full py-2 px-3 text-gray-700',
+                flowNameError ? 'border-red-500 focus:border-red-500' : ''
+              ]"
             />
+            <p v-if="flowNameError" class="text-red-600 text-sm mt-1">
+              {{ flowNameError }}
+            </p>
           </div>
         </div>
 
@@ -127,6 +156,9 @@ const goBackToFlowDef = () => router.back();
 
       <p class="font-bold">Flow Steps</p>
       <hr class="pb-5" v-if="steps.length" />
+      <p v-if="stepsError" class="text-red-600 text-sm mt-1">
+        {{ stepsError }}
+      </p>
 
       <div v-if="steps.length > 0">
         <div
