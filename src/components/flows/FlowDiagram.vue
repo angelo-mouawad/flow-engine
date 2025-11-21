@@ -9,7 +9,7 @@ const props = withDefaults(
     interactive?: boolean;
   }>(),
   {
-    interactive: false,
+    interactive: true,
   }
 );
 
@@ -70,7 +70,7 @@ const edges = computed(() => {
       id: `e-${currentId}-${nextId}`,
       source: currentId,
       target: nextId,
-      type: "straight",
+      type: "smoothstep",
       markerEnd: { type: MarkerType.ArrowClosed, color: "#6b7280" },
     });
   }
@@ -100,7 +100,7 @@ watch([nodes, edges], ([newNodes, newEdges]) => {
     <VueFlow
       :nodes="vueFlowNodes"
       :edges="vueFlowEdges"
-      :nodes-draggable="false"
+      :nodes-draggable="true"
       :zoom-on-scroll="interactive"
       :pan-on-scroll="interactive"
       :pan-on-drag="interactive"
