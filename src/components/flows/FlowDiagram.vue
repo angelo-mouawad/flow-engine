@@ -30,8 +30,8 @@ const nodes = computed(() => {
 
     // it should change after backend processes update
     const nodeId = process.id || `process-${index}`;
-    const label = (process as any).name || process.title || "Unnamed Process";
-    const processType = (process as any).processType || process.type;
+    const label = (process as any).name || process.name || "Unnamed Process";
+    const processType = (process as any).processType || process.name;
 
     const isFirst = index === 0;
     const isLast = index === props.processes.length - 1;

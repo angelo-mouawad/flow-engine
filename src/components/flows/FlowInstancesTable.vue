@@ -24,7 +24,7 @@ const sortFlowInstances = (key: 'title' | 'status' | 'flowDefinition' | 'updated
         if (a.title.toLowerCase() > b.title.toLowerCase()) result = 1;
     } else if (key === 'status') {
       const order: Record<string, number> = { ACTIVE: 0, PENDING: 1, FAILED: 2 };
-      result = (order[a.status] ?? 99) - (order[b.status] ?? 99);
+      result = (order[a.flowStatus] ?? 99) - (order[b.flowStatus] ?? 99);
     } else if (key === 'flowDefinition') {
       if (a.flowDefinition.title.toLowerCase() < b.flowDefinition.title.toLowerCase()) result = -1;
      if (a.flowDefinition.title.toLowerCase() > b.flowDefinition.title.toLowerCase()) result = 1;
@@ -117,7 +117,7 @@ onMounted(() => {
       </div>
       <tr class="cursor-pointer hover:bg-gray-100" v-for="inst in flowInstances" :key="inst.id">
         <td class="px-4 py-2 font-medium">{{ inst.title }}</td>
-        <td class="px-4 py-2 text-gray-600">{{ inst.status }}</td>
+        <td class="px-4 py-2 text-gray-600">{{ inst.flowStatus }}</td>
         <td class="px-4 py-2 text-gray-600">{{ inst.flowDefinition.title }}</td>
         <td class="px-4 py-2 text-gray-600">
           {{ new Date(inst.updatedAt).toLocaleDateString('en-GB', {

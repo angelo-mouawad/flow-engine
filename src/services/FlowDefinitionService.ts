@@ -13,6 +13,8 @@ const addNewFlowDefinition = async (body: FlowDefinitionPayload) => {
     body: JSON.stringify(body)
   });
 
+  console.log(body);
+
   return await response.json();
 };
 

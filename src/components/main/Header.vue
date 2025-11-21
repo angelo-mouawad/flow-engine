@@ -9,6 +9,10 @@ const notifModal = ref<InstanceType<typeof NotificationModal>>();
 const openModal = () => {
   notifModal.value?.openModal();
 };
+
+const emit = defineEmits<{
+  (e: "role-changed", payload: string): void;
+}>();
 </script>
 
 <template>
