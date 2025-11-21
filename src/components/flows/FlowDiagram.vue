@@ -2,6 +2,7 @@
 import { ref, computed, watch } from "vue";
 import { VueFlow, useVueFlow, MarkerType } from "@vue-flow/core";
 import type { Process } from "../../types";
+import { useThemeStore } from "../../stores/themeStore";
 
 const props = withDefaults(
   defineProps<{
@@ -83,7 +84,10 @@ const vueFlowEdges = ref(edges.value);
 
 const { fitView } = useVueFlow();
 
-watch([nodes, edges], ([newNodes, newEdges]) => {
+const themeStore = useThemeStore();
+const isDarkMode = computed(() => themeStore.isDarkMode);
+
+watch([nodes, edges, isDarkMode], ([newNodes, newEdges]) => {
   vueFlowNodes.value = newNodes;
   vueFlowEdges.value = newEdges;
 
@@ -96,7 +100,7 @@ watch([nodes, edges], ([newNodes, newEdges]) => {
 </script>
 
 <template>
-  <div class="flow-diagram-container">
+  <div class="flow-diagram-container" :class="{ 'flow-diagram-container--dark': isDarkMode }">
     <VueFlow
       :nodes="vueFlowNodes"
       :edges="vueFlowEdges"
@@ -118,7 +122,12 @@ watch([nodes, edges], ([newNodes, newEdges]) => {
   height: 300px;
   border: 1px solid #e5e7eb;
   border-radius: 0.375rem;
-  background-color: #fafafa;
+  background-color: #ffffff;
+}
+
+.flow-diagram-container--dark {
+  background-color: #1c1e1f;
+  border-color: #181a1b;
 }
 
 .flow-diagram {
@@ -134,10 +143,10 @@ watch([nodes, edges], ([newNodes, newEdges]) => {
 .vue-flow__node {
   padding: 14px 20px;
   border-radius: 0.375rem;
-  border: 2px solid #d1d5db;
-  background: white;
+  border: 2px solid #181a1b;
+  background: #1c1e1f;
   font-weight: 600;
-  color: #374151;
+  color: #f3f4f6;
   min-width: 160px;
   text-align: center;
 }
@@ -155,7 +164,7 @@ watch([nodes, edges], ([newNodes, newEdges]) => {
 }
 
 .vue-flow__node-default {
-  background: white;
+  background: #ffffff;
   border-color: #d1d5db;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
