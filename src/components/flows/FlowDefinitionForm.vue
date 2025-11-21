@@ -6,6 +6,7 @@ import ProcessComponent from "../main/Process.vue";
 import FlowDiagram from "./FlowDiagram.vue";
 import ProcessService from "../../services/ProcessService";
 import type { Process } from "../../types";
+import { useThemeStore } from "../../stores/themeStore";
 
 const router = useRouter();
 
@@ -13,7 +14,6 @@ const flowName = ref("");
 const description = ref("");
 const flowNameError = ref("");
 const stepsError = ref("");
-const isDarkMode = ref(false);
 
 const steps = ref<
   { id: string; processType: string; name: string; selectedProcessId?: string }[]
@@ -82,9 +82,8 @@ const saveFlow = async () => {
 
 const goBackToFlowDef = () => router.back();
 
-const toggleTheme = () => {
-  isDarkMode.value = !isDarkMode.value;
-};
+const themeStore = useThemeStore();
+const isDarkMode = computed(() => themeStore.isDarkMode);
 
 const labelTextColor = computed(() =>
   isDarkMode.value ? "text-gray-200" : "text-gray-700"
@@ -112,7 +111,7 @@ watch(
     <div class="w-full max-w-4xl mx-auto px-4">
       <div
         class="rounded-md border p-5 shadow-sm transition-colors duration-300"
-        :class="isDarkMode ? 'bg-[#181a1b] border-gray-700' : 'bg-white border-gray-300'"
+        :class="isDarkMode ? 'bg-[#1c1e1f] border-[#2c2f31] text-white' : 'bg-white border-gray-300 text-gray-900'"
       >
         <div class="flex flex-col gap-4 mb-6">
           <div
@@ -124,28 +123,6 @@ watch(
             >
               Create New Flow Definition
             </h2>
-
-            <button
-              @click="toggleTheme"
-              type="button"
-              class="flex items-center gap-3 px-4 py-2 rounded-full border transition-colors duration-200"
-              :class="
-                isDarkMode
-                  ? 'bg-[#1c1e1f] border-gray-600 text-gray-100'
-                  : 'bg-gray-100 border-gray-300 text-gray-800'
-              "
-            >
-              <span>{{ isDarkMode ? "Light Mode" : "Dark Mode" }}</span>
-              <span
-                class="relative inline-flex h-5 w-10 items-center rounded-full transition-colors duration-200"
-                :class="isDarkMode ? 'bg-yellow-500' : 'bg-gray-400'"
-              >
-                <span
-                  class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200"
-                  :class="isDarkMode ? 'translate-x-5' : 'translate-x-1'"
-                ></span>
-              </span>
-            </button>
           </div>
 
           <button
@@ -153,7 +130,7 @@ watch(
             class="flex items-center w-fit mb-2 transition-colors font-medium mt-2 cursor-pointer"
             :class="
               isDarkMode
-                ? 'text-yellow-300 hover:text-yellow-200'
+                ? 'text-gray-200 hover:text-white'
                 : 'text-yellow-700 hover:text-yellow-500'
             "
           >
@@ -181,7 +158,7 @@ watch(
           Basic Information
         </p>
         <hr
-          :class="isDarkMode ? 'border-gray-700' : 'border-gray-200'"
+          :class="isDarkMode ? 'border-[#2c2f31]' : 'border-gray-200'"
           class="mb-2"
         />
         <form class="mt-5 flex flex-direction flex-wrap space-y-4">
@@ -199,9 +176,9 @@ watch(
                 placeholder="Enter flow name"
                 :class="[
                   'shadow border rounded w-full py-2 px-3 transition-colors duration-200 placeholder-gray-400',
-                  isDarkMode
-                    ? 'bg-[#1c1e1f] border-gray-700 text-gray-100'
-                    : 'bg-white border-gray-300 text-gray-700',
+                isDarkMode
+                  ? 'bg-[#1c1e1f] border-[#2c2f31] text-white'
+                  : 'bg-white border-gray-300 text-gray-700',
                   flowNameError ? 'border-red-500 focus:border-red-500' : ''
                 ]"
               />
@@ -225,7 +202,7 @@ watch(
               :class="[
                 'shadow border rounded w-full py-2 px-3 transition-colors duration-200 placeholder-gray-400',
                 isDarkMode
-                  ? 'bg-[#1c1e1f] border-gray-700 text-gray-100'
+                  ? 'bg-[#1c1e1f] border-[#2c2f31] text-white'
                   : 'bg-white border-gray-300 text-gray-700'
               ]"
             ></textarea>
@@ -241,7 +218,7 @@ watch(
         <hr
           class="pb-5"
           v-if="steps.length"
-          :class="isDarkMode ? 'border-gray-700' : 'border-gray-200'"
+          :class="isDarkMode ? 'border-[#2c2f31]' : 'border-gray-200'"
         />
         <p v-if="stepsError" class="text-red-600 text-sm mt-1">
           {{ stepsError }}
@@ -254,7 +231,7 @@ watch(
             class="rounded-md border p-5 mb-4 transition-colors duration-200"
             :class="
               isDarkMode
-                ? 'bg-[#1c1e1f] border-gray-700 text-gray-100'
+                ? 'bg-[#1c1e1f] border-[#2c2f31] text-white'
                 : 'bg-[#f5f5f5] border-gray-300 text-gray-800'
             "
           >
@@ -304,7 +281,7 @@ watch(
             class="w-full rounded-lg border-2 border-dashed py-4 text-center mt-2 transition-colors"
             :class="
               isDarkMode
-                ? 'border-gray-600 text-gray-200 hover:border-yellow-500 hover:bg-[#1c1e1f]'
+                ? 'border-gray-600 text-gray-200 hover:border-gray-400 hover:bg-[#242628]'
                 : 'border-gray-300 text-gray-600 hover:border-yellow-500 hover:bg-yellow-50'
             "
           >
@@ -316,7 +293,7 @@ watch(
             class="absolute z-10 mt-2 w-full border rounded-md shadow-lg"
             :class="
               isDarkMode
-                ? 'bg-[#1c1e1f] border-gray-700'
+                ? 'bg-[#1c1e1f] border-[#2c2f31]'
                 : 'bg-white border-gray-300'
             "
           >
@@ -327,7 +304,7 @@ watch(
               class="block w-full text-left px-4 py-2 transition-colors"
               :class="
                 isDarkMode
-                  ? 'text-gray-200 hover:bg-[#181a1b]'
+                  ? 'text-gray-200 hover:bg-[#242628]'
                   : 'text-gray-700 hover:bg-yellow-100'
               "
             >
@@ -357,7 +334,7 @@ watch(
 
         <hr
           class="mt-5"
-          :class="isDarkMode ? 'border-gray-700' : 'border-gray-200'"
+          :class="isDarkMode ? 'border-[#2c2f31]' : 'border-gray-200'"
         />
 
         <div class="p-5 flex justify-center gap-[2.6rem] mt-2 flex-wrap">
@@ -367,7 +344,7 @@ watch(
             class="font-medium py-2 px-6 border rounded-md shadow-sm transition-colors"
             :class="
               isDarkMode
-                ? 'bg-[#1c1e1f] border-gray-600 text-gray-100 hover:bg-[#181a1b]'
+                ? 'bg-[#1c1e1f] border-[#2c2f31] text-white hover:bg-[#242628]'
                 : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
             "
           >
@@ -379,7 +356,7 @@ watch(
             class="font-medium py-2 px-6 border rounded-md shadow-sm transition-colors"
             :class="
               isDarkMode
-                ? 'bg-gray-700 border-gray-600 text-gray-100 hover:bg-gray-600'
+                ? 'bg-[#242628] border-[#2c2f31] text-white hover:bg-[#2f3234]'
                 : 'bg-gray-200 border-gray-300 text-gray-700 hover:bg-gray-300'
             "
           >

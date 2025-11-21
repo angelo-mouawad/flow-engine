@@ -39,15 +39,15 @@ const emit = defineEmits<{
     <button
       @click="toggleTheme"
       type="button"
-      class="flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 shadow-sm"
+      class="inline-flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 shadow-sm"
       :class="
         isDarkMode
-          ? 'bg-[#242628] text-white hover:bg-[#2f3234]'
+          ? 'bg-[#242628] text-white hover:bg-[#1f2122]'
           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
       "
       aria-label="Toggle color theme"
     >
-      <span>{{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}</span>
+      <span class="hidden sm:block">{{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}</span>
       <span
         class="relative inline-flex h-5 w-10 items-center rounded-full transition-colors duration-200"
         :class="isDarkMode ? 'bg-yellow-500' : 'bg-gray-300'"

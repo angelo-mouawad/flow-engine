@@ -6,6 +6,7 @@ import FlowInstancesTable from "../components/flows/FlowInstancesTable.vue";
 // import NotificationBar from "../components/notification/NotificationBar.vue";
 import type { FlowInstance, Status } from "../types";
 import FlowInstanceService from "../services/FlowInstanceService";
+import { useThemeStore } from "../stores/themeStore";
 
 const flowInstances = ref<FlowInstance[]>([]);
 const loading = ref(false);
@@ -55,10 +56,16 @@ const fetchFlowInstances = async () => {
 onMounted(() => {
   fetchFlowInstances();
 });
+
+const themeStore = useThemeStore();
+const isDarkMode = computed(() => themeStore.isDarkMode);
 </script>
 
 <template>
-  <div class="p-2 sm:p-4 w-full">
+  <div
+    class="p-2 sm:p-4 w-full transition-colors duration-300"
+    :class="isDarkMode ? 'text-white' : 'text-gray-900'"
+  >
     <div class="mb-8">
       <h2 class="pb-2 font-bold text-2xl sm:pb-4 sm:text-4xl">My Flows</h2>
 
@@ -86,7 +93,10 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="overflow-x-auto rounded-md bg-white">
+    <div
+      class="overflow-x-auto rounded-md transition-colors duration-300 border"
+      :class="isDarkMode ? 'bg-[#1c1e1f] border-[#2c2f31]' : 'bg-white border-gray-200'"
+    >
       <FlowInstancesTable />
     </div>
   </div>

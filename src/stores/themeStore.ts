@@ -7,7 +7,11 @@ type ThemeState = {
 };
 
 const getInitialTheme = (): boolean => {
-  const stored = localStorage.getItem(STORAGE_KEY);
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored !== null) return stored === "dark";
   if (window.matchMedia) {
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -25,7 +29,9 @@ export const useThemeStore = defineStore("theme", {
     },
     setDarkMode(value: boolean) {
       this.isDarkMode = value;
-      localStorage.setItem(STORAGE_KEY, value ? "dark" : "light");
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(STORAGE_KEY, value ? "dark" : "light");
+      }
     },
   },
 });
