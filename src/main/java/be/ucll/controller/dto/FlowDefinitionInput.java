@@ -2,7 +2,6 @@ package be.ucll.controller.dto;
 
 import java.util.List;
 
-import be.ucll.model.Process;
 import jakarta.validation.constraints.NotNull;
 
 public record FlowDefinitionInput(
@@ -11,5 +10,5 @@ public record FlowDefinitionInput(
     @NotNull
     String description,
     @NotNull
-    List<Process> processes) {
+    List<String> processes) {
 }
