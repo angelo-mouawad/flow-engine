@@ -2,7 +2,6 @@ package be.ucll.service;
 
 import java.time.LocalDate;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +31,6 @@ public class ApprovalService {
         submission.setProcessedAt(LocalDate.now());
         submission = requestSubmissionRepository.save(submission);
 
-        flowRunnerService.resumeFlow(new ObjectId(submission.getFlowInstanceId()));
+        flowRunnerService.resumeFlow(submission.getFlowInstanceId());
     }
 }
