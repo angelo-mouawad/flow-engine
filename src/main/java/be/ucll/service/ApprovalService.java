@@ -21,7 +21,7 @@ public class ApprovalService {
     private RequestSubmissionRepository requestSubmissionRepository;
 
     public void approveRequest(String requestId, RequestStatus status) {
-        RequestSubmission submission = requestSubmissionRepository.findById(new ObjectId(requestId))
+        RequestSubmission submission = requestSubmissionRepository.findById(requestId)
             .orElseThrow(() -> new ServiceException("Request not found"));
 
         if (submission.getStatus() != RequestStatus.PENDING) {

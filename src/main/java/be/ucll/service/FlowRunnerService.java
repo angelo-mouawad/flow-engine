@@ -6,7 +6,6 @@ import be.ucll.model.Process;
 import be.ucll.repository.FlowDefinitionRepository;
 import be.ucll.repository.FlowInstanceRepository;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -64,7 +63,7 @@ public class FlowRunnerService {
         }
     }
 
-    public void resumeFlow(ObjectId id){
+    public void resumeFlow(String id){
         FlowInstance flowInstance = flowInstanceRepository.findById(id)
             .orElseThrow(()-> new ServiceException("Flow Instance not found"));
 

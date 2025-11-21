@@ -1,17 +1,14 @@
 package be.ucll.service;
 
 import be.ucll.controller.dto.FlowDefinitionInput;
-import be.ucll.exception.DomainException;
 import be.ucll.exception.ServiceException;
 import be.ucll.model.FlowDefinition;
 import be.ucll.model.Process;
 import be.ucll.repository.FlowDefinitionRepository;
 import be.ucll.repository.ProcessRepository;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +30,8 @@ public class FlowDefinitionService {
         List<Process> processes = new ArrayList<>();
 
         for (String processId : input) {
-            Process p = processRepository.findById(new ObjectId(processId)).orElseThrow(() -> new ServiceException("No process found by id " + processId));
+            Process p = processRepository.findById(processId)
+              .orElseThrow(() -> new ServiceException("No process found by id " + processId));
             processes.add(p);
         }
 
@@ -52,7 +50,7 @@ public class FlowDefinitionService {
     }
 
     public FlowDefinition updateFlowDefinition(FlowDefinitionInput updatedFlowDefintion, String id) {
-        FlowDefinition oldFlowDefinition = flowDefinitionRepository.findById(new ObjectId(id))
+        FlowDefinition oldFlowDefinition = flowDefinitionRepository.findById(id)
           .orElseThrow(() -> new ServiceException("No id found"));
 
         oldFlowDefinition.setTitle(updatedFlowDefintion.title());
