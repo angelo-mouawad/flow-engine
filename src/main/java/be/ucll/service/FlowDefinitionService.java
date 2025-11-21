@@ -51,7 +51,7 @@ public class FlowDefinitionService {
         return flowDefinitionRepository.save(flow);
     }
 
-    public FlowDefinition updateFlowDefinition(FlowDefinitionInput updatedFlowDefintion, ObjectId id) {
+    public FlowDefinition updateFlowDefinition(FlowDefinitionInput updatedFlowDefintion, String id) {
         FlowDefinition oldFlowDefinition = flowDefinitionRepository.findById(id).orElseThrow(() -> new ServiceException("No id found"));
 
         oldFlowDefinition.setTitle(updatedFlowDefintion.title());
