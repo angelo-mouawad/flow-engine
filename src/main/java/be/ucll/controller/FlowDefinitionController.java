@@ -3,7 +3,6 @@ package be.ucll.controller;
 import be.ucll.controller.dto.FlowDefinitionInput;
 import be.ucll.model.FlowDefinition;
 import be.ucll.service.FlowDefinitionService;
-import org.bson.types.ObjectId;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +35,8 @@ public class FlowDefinitionController {
         return flowDefinitionService.addFlowDefinition(input);
     }
 
-    @PutMapping("/flowDefinition/id")
-    public FlowDefinition updateFlowDefinition(@RequestBody FlowDefinitionInput updatedFlowDefinition, ObjectId id) {
+    @PutMapping("/flowDefinition/{id}")
+    public FlowDefinition updateFlowDefinition(@RequestBody FlowDefinitionInput updatedFlowDefinition, @PathVariable String id) {
         return flowDefinitionService.updateFlowDefinition(updatedFlowDefinition, id);
     }
 
