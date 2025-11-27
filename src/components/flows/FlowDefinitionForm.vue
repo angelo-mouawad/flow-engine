@@ -11,6 +11,8 @@ import { useThemeStore } from "../../stores/themeStore";
 const router = useRouter();
 
 const flowName = ref("");
+const flowNameError = ref("");
+const stepsError = ref("");
 const description = ref("");
 const flowNameError = ref("");
 const stepsError = ref("");

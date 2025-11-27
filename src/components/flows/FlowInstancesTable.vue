@@ -190,11 +190,11 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
             <span
               class="inline-block w-3 h-3 rounded-full flex-shrink-0"
               :class="{
-                'bg-teal-500': inst.flowStatus.toLowerCase() === 'active',
-                'bg-green-500': inst.flowStatus.toLowerCase() === 'success',
-                'bg-orange-500': inst.flowStatus.toLowerCase() === 'pending',
-                'bg-red-500': inst.flowStatus.toLowerCase() === 'failed',
-                'bg-blue-500': inst.flowStatus.toLowerCase() === 'paused',
+                'bg-[#10b981]': inst.flowStatus.toLowerCase() === 'active',
+                'bg-[#84cc16]': inst.flowStatus.toLowerCase() === 'success',
+                'bg-[#f59e0b]': inst.flowStatus.toLowerCase() === 'pending',
+                'bg-[#ef4444]': inst.flowStatus.toLowerCase() === 'failed',
+                'bg-[#3b82f6]': inst.flowStatus.toLowerCase() === 'paused',
               }"
             ></span>
             <span :class="['font-medium', isDarkMode ? 'text-white' : 'text-gray-900']">{{
