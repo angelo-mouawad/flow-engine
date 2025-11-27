@@ -9,6 +9,10 @@ const loading = ref(false);
 const flowDefinitions = ref<FlowDefinition[]>([]);
 const error = ref<string | null>(null);
 
+const selectedDefinition = ref<FlowDefinition | null>(null);
+const editableDefinition = ref<FlowDefinition | null>(null);
+const showModal = ref(false);
+
 const sortKey = ref<"title" | "updatedAt">("updatedAt");
 const sortOrder = ref<"asc" | "desc">("asc");
 
@@ -58,8 +62,6 @@ const onRowIconClick = (def: FlowDefinition) => {
 onMounted(() => {
   fetchFlowDefinitions();
 });
-const selectedDefinition = ref<FlowDefinition | null>(null);
-const showModal = ref(false);
 
 const onRowClick = (def: FlowDefinition) => {
   selectedDefinition.value = def;
@@ -182,7 +184,7 @@ const closeModal = () => {
         >
           ✕
         </button>
-        <FlowDetails :selected-definition="selectedDefinition" />
+        <FlowDetails :selected-definition="selectedDefinition"/>
       </div>
     </div>
 
