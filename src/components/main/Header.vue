@@ -47,7 +47,7 @@ const emit = defineEmits<{
       "
       aria-label="Toggle color theme"
     >
-      <span class="hidden sm:block">{{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}</span>
+      <span class="hidden sm:block">{{ isDarkMode ? 'Dark Mode' : 'Dark Mode' }}</span>
       <span
         class="relative inline-flex h-5 w-10 items-center rounded-full transition-colors duration-200"
         :class="isDarkMode ? 'bg-yellow-500' : 'bg-gray-300'"
