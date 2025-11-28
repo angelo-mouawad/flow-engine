@@ -14,8 +14,6 @@ const flowName = ref("");
 const flowNameError = ref("");
 const stepsError = ref("");
 const description = ref("");
-const flowNameError = ref("");
-const stepsError = ref("");
 
 const steps = ref<
   { id: string; processType: string; name: string; selectedProcessId?: string }[]
