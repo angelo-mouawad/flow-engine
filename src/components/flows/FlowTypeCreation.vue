@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import FlowDefinitionsTable from "./FlowDefinitionsTable.vue";
 import FlowInstancesTable from "./FlowInstancesTable.vue";
 import { useThemeStore } from "../../stores/themeStore";
@@ -8,6 +8,8 @@ const props = defineProps(["isDefinition"]);
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
+
+const searchQuery = ref("");
 </script>
 
 <template>
@@ -17,7 +19,11 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
   >
     <div
       class="rounded-lg border p-2 sm:p-6 shadow-sm transition-colors duration-300"
-      :class="isDarkMode ? 'bg-[#1c1e1f] border-[#2c2f31]' : 'bg-white border-gray-300'"
+      :class="
+        isDarkMode
+          ? 'bg-[#1c1e1f] border-[#2c2f31]'
+          : 'bg-white border-gray-300'
+      "
     >
       <h2 class="font-bold text-2xl sm:text-4xl py-3 sm:py-5">
         {{ props.isDefinition ? "Flow Definitions: " : "Flow Instances: " }}
@@ -42,9 +48,14 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
           </svg>
           <input
             type="text"
+            v-model="searchQuery"
             placeholder="Search"
             class="border rounded-md pl-9 px-3 py-1 text-sm focus:outline-none transition-colors w-full"
-            :class="isDarkMode ? 'bg-[#1c1e1f] border-[#2c2f31] text-white placeholder-gray-500' : 'bg-white border-gray-300 text-gray-800 placeholder-gray-400'"
+            :class="
+              isDarkMode
+                ? 'bg-[#1c1e1f] border-[#2c2f31] text-white placeholder-gray-500'
+                : 'bg-white border-gray-300 text-gray-800 placeholder-gray-400'
+            "
           />
         </div>
 
@@ -52,8 +63,18 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
           <button
             class="rounded-md px-4 py-1 bg-yellow-500 text-sm font-medium cursor-pointer hover:bg-yellow-600 flex items-center gap-2"
           >
-            <svg class="w-4 h-4 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            <svg
+              class="w-4 h-4 text-gray-800"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
             </svg>
             <span class="text-gray-800">New flow</span>
           </button>
@@ -64,8 +85,8 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
         class="overflow-x-auto rounded-md shadow-sm border mt-2 transition-colors duration-300"
         :class="isDarkMode ? 'border-[#2c2f31]' : 'border-gray-200'"
       >
-        <FlowDefinitionsTable v-if="props.isDefinition" />
-        <FlowInstancesTable v-else />
+        <FlowDefinitionsTable v-if="props.isDefinition" :searchQuery="searchQuery" />
+        <FlowInstancesTable v-else :searchQuery="searchQuery" />
       </div>
     </div>
   </div>
