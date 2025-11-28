@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { RequestSubmission } from "../../types";
 import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import RequestService from "../../services/RequestService";
 import { useThemeStore } from "../../stores/themeStore";
 
-const emit = defineEmits(['open-request']);
 const loading = ref(false);
 const requests = ref<RequestSubmission[]>([]);
 const error = ref<string | null>(null);
@@ -51,10 +51,14 @@ const fetchRequests = async () => {
 };
 
 onMounted(fetchRequests);
-defineExpose({ fetchRequests });
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
+const router = useRouter();
+
+const openRequestDetails = (id: string) => {
+  router.push({ name: "RequestDetails", params: { id } });
+};
 </script>
 
 <template>
@@ -83,7 +87,7 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
         <td colspan="5" class="px-4 py-3">{{ error }}</td>
       </tr>
       <tr v-else v-for="r in requests" :key="r.id" 
-          @click="emit('open-request', r)" 
+          @click="openRequestDetails(r.id)" 
           class="cursor-pointer transition-colors"
           :class="isDarkMode ? 'hover:bg-[#242628]' : 'hover:bg-gray-100'">
         <td class="pl-4 py-2 font-medium">{{ r.requestType }}</td>

@@ -6,6 +6,14 @@ const getFlowDefinitions = async () => {
   return await response.json() as FlowDefinition[];
 };
 
+const getFlowDefinitionById = async (id: string) => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/flowDefinition/${id}`);
+  if (!response.ok) {
+    throw new Error("Failed to load flow definition");
+  }
+  return await response.json() as FlowDefinition;
+};
+
 const addNewFlowDefinition = async (body: FlowDefinitionPayload) => {
   const response = await fetch(`${import.meta.env.VITE_API_URL}/flowDefinition`, {
     method: "POST",
@@ -20,5 +28,6 @@ const addNewFlowDefinition = async (body: FlowDefinitionPayload) => {
 
 export default {
   getFlowDefinitions,
+  getFlowDefinitionById,
   addNewFlowDefinition,
 };

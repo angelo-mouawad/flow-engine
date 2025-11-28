@@ -11,14 +11,14 @@ const emit = defineEmits<{
 }>();
 
 const local = reactive({
-  title: props.step?.title ?? "",
+  name: props.step?.name ?? "",
   type: props.step?.processType ?? "",
 });
 
 watch(
-  () => local.title,
+  () => local.name,
   (val) => {
-    emit("update-step", { title: val });
+    emit("update-step", { name: val });
   }
 );
 watch(
@@ -32,7 +32,7 @@ watch(
   () => props.step,
   (newStep) => {
     if (!newStep) return;
-    local.title = newStep.title ?? "";
+    local.name = newStep.name ?? "";
     local.type = newStep.processType ?? "";
   },
   { deep: true }
@@ -47,7 +47,7 @@ watch(
         Notification Name
       </label>
       <input
-        v-model="local.title"
+        v-model="local.name"
         type="text"
         placeholder="e.g., Send Email Notification"
         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline"

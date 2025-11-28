@@ -4,16 +4,23 @@ import type { FlowDefinition } from "../../types";
 import FlowDiagram from "./FlowDiagram.vue";
 import { useThemeStore } from "../../stores/themeStore";
 
-defineProps<{
+const props = defineProps<{
   selectedDefinition: FlowDefinition | null;
 }>();
+
+const emit = defineEmits<{
+  (e: "edit", payload: FlowDefinition | null): void;
+  (e: "delete", payload: FlowDefinition | null): void;
+}>();
+
+const onEdit = () => emit("edit", props.selectedDefinition);
+const onDelete = () => emit("delete", props.selectedDefinition);
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
 </script>
 
 <template>
-  <h2 class="text-2xl font-semibold mb-4 text-center">Flow Details</h2>
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
     <div
       v-for="(label, key) in {
@@ -52,12 +59,20 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
       <p>No processes in this flow</p>
     </div>
   </div>
-  <div class="text-center">
+  <div class="flex items-center justify-center gap-3">
     <button
-      type="button"
       class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-6 border border-yellow-600 rounded-md shadow-sm transition-colors cursor-pointer mt-5"
+      type="button"
+      @click="onEdit"
     >
       Edit
+    </button>
+    <button
+      type="button"
+      class="mt-5 py-2 px-4 border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition-colors cursor-pointer"
+      @click="onDelete"
+    >
+      Delete
     </button>
   </div>
 </template>

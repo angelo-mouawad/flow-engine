@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { FlowInstance } from "../../types";
 import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import FlowInstanceService from "../../services/FlowInstanceService";
 import { useThemeStore } from "../../stores/themeStore";
 
@@ -74,6 +75,12 @@ const fetchFlowInstances = async () => {
 onMounted(() => {
   fetchFlowInstances();
 });
+
+const router = useRouter();
+
+const viewFlowInstance = (instanceId: string) => {
+  router.push({ name: "FlowInstanceDetails", params: { id: instanceId } });
+};
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
@@ -183,6 +190,7 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
         :class="isDarkMode ? 'hover:bg-[#242628]' : 'hover:bg-gray-100'"
         v-for="inst in flowInstances"
         :key="inst.id"
+        @click="viewFlowInstance(inst.id)"
       >
         <td class="px-4 py-2 font-medium">{{ inst.title }}</td>
         <td class="px-4 py-2">
