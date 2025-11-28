@@ -18,7 +18,24 @@ const addNewFlowDefinition = async (body: FlowDefinitionPayload) => {
   return await response.json();
 };
 
+const updateFlowDefinition = async (id: string, data: FlowDefinition) => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/flowDefinition/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update flow definition (status ${response.status})`);
+  }
+
+  return (await response.json()) as FlowDefinition;
+}
+
 export default {
   getFlowDefinitions,
   addNewFlowDefinition,
+  updateFlowDefinition,
 };
