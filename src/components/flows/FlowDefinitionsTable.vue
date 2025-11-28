@@ -54,9 +54,17 @@ const fetchFlowDefinitions = async () => {
   }
 };
 
-const onRowIconClick = (def: FlowDefinition) => {
-  // Remove the clicked definition from the local array so the row disappears
-  flowDefinitions.value = flowDefinitions.value.filter((d) => d.id !== def.id);
+const onRowIconClick = async (def: FlowDefinition) => {
+  try {
+    if (def.id === undefined) {
+      throw new Error("Flow definition has no ID");
+    }
+    await FlowDefinitionService.deleteFlowDefinition(def.id);
+    flowDefinitions.value = flowDefinitions.value.filter((d) => d.id !== def.id);
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : "Failed to delete flow definition";
+    console.error("Failed to delete flow definition:", e);
+  }
 };
 
 onMounted(() => {

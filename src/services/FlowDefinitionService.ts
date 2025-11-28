@@ -34,8 +34,21 @@ const updateFlowDefinition = async (id: string, data: FlowDefinition) => {
   return (await response.json()) as FlowDefinition;
 }
 
+const deleteFlowDefinition = async (id: string) => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/flowDefinition/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete flow definition (status ${response.status})`);
+  }
+
+  return true;
+}
+
 export default {
   getFlowDefinitions,
   addNewFlowDefinition,
   updateFlowDefinition,
+  deleteFlowDefinition
 };
