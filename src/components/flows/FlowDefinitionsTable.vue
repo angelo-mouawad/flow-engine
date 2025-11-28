@@ -10,9 +10,6 @@ const loading = ref(false);
 const flowDefinitions = ref<FlowDefinition[]>([]);
 const error = ref<string | null>(null);
 
-const selectedDefinition = ref<FlowDefinition | null>(null);
-const showModal = ref(false);
-
 const sortKey = ref<"title" | "updatedAt">("updatedAt");
 const sortOrder = ref<"asc" | "desc">("asc");
 
@@ -153,7 +150,7 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
           :key="def.id"
           class="cursor-pointer transition-colors"
           :class="isDarkMode ? 'hover:bg-[#242628]' : 'hover:bg-gray-50'"
-          @click="goToDetails(def.id)"
+          @click="goToDetails(def.id!)"
         >
           <td class="px-4 py-2 font-medium">{{ def.title }}</td>
           <td class="px-4 py-2 truncate" :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'" style="max-width: 320px">

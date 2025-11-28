@@ -16,7 +16,6 @@ const emit = defineEmits<{
   (e: "updated", payload: FlowDefinition): void;
 }>();
 
-// initialize inputs whenever the selected definition changes
 watch(
   () => props.selectedDefinition,
   (newDef) => {
@@ -32,6 +31,9 @@ function startEdit() {
   descriptionInput.value = props.selectedDefinition.description ?? "";
   isEditing.value = true;
 }
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 async function saveChanges() {
   if (!props.selectedDefinition) return;
@@ -52,6 +54,7 @@ async function saveChanges() {
     );
     emit("updated", result);
     isEditing.value = false;
+    router.push("/flow-definitions");
   } catch (err) {
     console.error("Failed to save flow definition:", err);
   }
@@ -62,7 +65,7 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
 </script>
 
 <template>
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+  <div v-if="!isEditing" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
     <div
       v-for="(label, key) in {
         Name: props.selectedDefinition?.title,
@@ -127,14 +130,16 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
     </div>
   </div>
   <div class="flex items-center justify-center gap-3">
-    <button
+    <button 
+      v-if="!isEditing"
       class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-6 border border-yellow-600 rounded-md shadow-sm transition-colors cursor-pointer mt-5"
       type="button"
-      @click="onEdit"
+      @click="startEdit"
     >
       Edit
     </button>
     <button
+      v-if="isEditing"
       @click="saveChanges"
       type="button"
       class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-6 border border-yellow-600 rounded-md shadow-sm transition-colors cursor-pointer mt-5"
