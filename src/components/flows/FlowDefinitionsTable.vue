@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { FlowDefinition } from "../../types";
 import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import FlowDefinitionService from "../../services/FlowDefinitionService";
-import FlowDetails from "./FlowDetails.vue";
 import deleteIcon from "/images/delete1.png.webp";
 import { useThemeStore } from "../../stores/themeStore";
 
@@ -63,14 +63,9 @@ onMounted(() => {
   fetchFlowDefinitions();
 });
 
-const onRowClick = (def: FlowDefinition) => {
-  selectedDefinition.value = def;
-  showModal.value = true;
-};
-
-const closeModal = () => {
-  showModal.value = false;
-  selectedDefinition.value = null;
+const router = useRouter();
+const goToDetails = (id: string) => {
+  router.push({ name: "FlowDefinitionDetails", params: { id } });
 };
 
 const themeStore = useThemeStore();
@@ -150,7 +145,7 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
           :key="def.id"
           class="cursor-pointer transition-colors"
           :class="isDarkMode ? 'hover:bg-[#242628]' : 'hover:bg-gray-50'"
-          @click="onRowClick(def)"
+          @click="goToDetails(def.id)"
         >
           <td class="px-4 py-2 font-medium">{{ def.title }}</td>
           <td class="px-4 py-2 truncate" :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'" style="max-width: 320px">
@@ -179,27 +174,5 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
       </tbody>
     </table>
 
-    <div
-      v-if="showModal"
-      class="fixed left-1/2 top-1/2 w-[95vw] sm:w-[80vw] md:w-[60%] md:h-[80%] max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-md shadow-lg ring-1 ring-gray-800/10 z-50 transition-colors duration-200"
-      :class="isDarkMode ? 'bg-[#1c1e1f] border border-[#4b4f53] text-white' : 'bg-white border border-gray-300 text-gray-900'"
-    >
-      <div class="p-6 h-full overflow-y-auto relative">
-        <button
-          @click="closeModal"
-          class="absolute cursor-pointer right-4 top-4 rounded-md"
-          :class="isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'"
-        >
-          ✕
-        </button>
-        <FlowDetails :selected-definition="selectedDefinition"/>
-      </div>
-    </div>
-
-    <div
-      v-if="showModal"
-      @click="closeModal"
-      class="fixed inset-0 bg-black opacity-50 z-40"
-    ></div>
   </div>
 </template>

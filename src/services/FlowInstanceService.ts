@@ -1,11 +1,19 @@
 import type { FlowInstance } from "../types";
 
 const getFlowInstances = async () => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/flowInstance`)
-  const data = await response.json() as FlowInstance[]
-  return data
-}
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/flowInstance`);
+  return await response.json() as FlowInstance[];
+};
+
+const getFlowInstanceById = async (id: string) => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/flowInstance/${id}`);
+  if (!response.ok) {
+    throw new Error("Failed to load flow instance");
+  }
+  return await response.json() as FlowInstance;
+};
 
 export default {
   getFlowInstances,
-}
+  getFlowInstanceById,
+};
