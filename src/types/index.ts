@@ -1,10 +1,10 @@
 export type FlowDefinition = {
-  id: string;
+  id?: string;
   title: string;
   description: string;
   processes: Process[];
-  flowInstances: FlowInstance[];
-  updatedAt: Date;
+  flowInstances?: FlowInstance[];
+  updatedAt?: Date;
 };
 
 export type Status = 'PENDING' | 'ACTIVE' | 'SUCCESS' | 'FAILURE' | 'PAUSED'
