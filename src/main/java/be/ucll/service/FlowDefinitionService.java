@@ -27,6 +27,11 @@ public class FlowDefinitionService {
         return flowDefinitionRepository.findAll();
     }
 
+    public FlowDefinition findFlowDefinitionById(String id) {
+        return flowDefinitionRepository.findById(id)
+                .orElseThrow(() -> new ServiceException("No id found"));
+    }
+
     public List<Process> getProcessesByIds(List<String> input) {
         List<Process> processes = new ArrayList<>();
 
