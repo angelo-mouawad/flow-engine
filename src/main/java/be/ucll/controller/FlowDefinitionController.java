@@ -30,6 +30,11 @@ public class FlowDefinitionController {
         return flowDefinitionService.findAllFlowDefinitions();
     }
 
+    @GetMapping("/{id}")
+    public FlowDefinition findFlowDefinitionById(@PathVariable String id) {
+        return flowDefinitionService.findFlowDefinitionById(id);
+    }
+
     @PostMapping
     public FlowDefinition addFlowDefinition(@RequestBody @Valid FlowDefinitionInput input) {
         return flowDefinitionService.addFlowDefinition(input);
