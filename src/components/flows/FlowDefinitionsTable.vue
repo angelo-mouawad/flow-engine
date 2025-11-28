@@ -6,6 +6,10 @@ import FlowDefinitionService from "../../services/FlowDefinitionService";
 import deleteIcon from "/images/delete1.png.webp";
 import { useThemeStore } from "../../stores/themeStore";
 
+const props = defineProps<{
+  searchQuery: string;
+}>();
+
 const loading = ref(false);
 const flowDefinitions = ref<FlowDefinition[]>([]);
 const error = ref<string | null>(null);
@@ -57,9 +61,12 @@ const onRowIconClick = async (def: FlowDefinition) => {
       throw new Error("Flow definition has no ID");
     }
     await FlowDefinitionService.deleteFlowDefinition(def.id);
-    flowDefinitions.value = flowDefinitions.value.filter((d) => d.id !== def.id);
+    flowDefinitions.value = flowDefinitions.value.filter(
+      (d) => d.id !== def.id
+    );
   } catch (e) {
-    error.value = e instanceof Error ? e.message : "Failed to delete flow definition";
+    error.value =
+      e instanceof Error ? e.message : "Failed to delete flow definition";
     console.error("Failed to delete flow definition:", e);
   }
 };
@@ -75,11 +82,35 @@ const goToDetails = (id: string) => {
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
+
+const filteredFlowDefinitions = computed(() => {
+  if (!props.searchQuery.trim()) {
+    return flowDefinitions.value;
+  }
+
+  const search = props.searchQuery.toLowerCase().trim();
+
+  return flowDefinitions.value.filter((def) => {
+    const searchableData = JSON.stringify(Object.values(def))
+      .toLowerCase()
+      .replace(/"id":\s*"[^"]*"/gi, "")
+      .replace(/"[a-f0-9-]{36}"/gi, "")
+      .replace(/\bid\b:\s*"[^"]*"/gi, "");
+
+    return searchableData.includes(search);
+  });
+});
 </script>
 
 <template>
-  <div class="w-full transition-colors duration-300" :class="isDarkMode ? 'text-white' : 'text-gray-900'">
-    <table class="w-full border-collapse text-sm transition-colors duration-200" :class="isDarkMode ? 'text-white' : 'text-gray-900'">
+  <div
+    class="w-full transition-colors duration-300"
+    :class="isDarkMode ? 'text-white' : 'text-gray-900'"
+  >
+    <table
+      class="w-full border-collapse text-sm transition-colors duration-200"
+      :class="isDarkMode ? 'text-white' : 'text-gray-900'"
+    >
       <thead>
         <tr class="text-left text-white bg-[#111]">
           <th
@@ -122,43 +153,63 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
           <th class="px-4 py-2"></th>
         </tr>
       </thead>
-      <tbody class="divide-y" :class="isDarkMode ? 'divide-[#2c2f31]' : 'divide-gray-200'">
+      <tbody
+        class="divide-y"
+        :class="isDarkMode ? 'divide-[#2c2f31]' : 'divide-gray-200'"
+      >
         <tr v-if="loading">
           <td colspan="4" class="text-center py-8">
-            <div :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'">Loading flow definitions...</div>
+            <div :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'">
+              Loading flow definitions...
+            </div>
           </td>
         </tr>
         <tr v-else-if="error">
           <td colspan="4" class="p-4">
             <div
               class="px-4 py-3 rounded border"
-              :class="isDarkMode ? 'bg-[#2b1b1b] border-[#4c1d1d] text-red-200' : 'bg-red-50 border-red-200 text-red-700'"
+              :class="
+                isDarkMode
+                  ? 'bg-[#2b1b1b] border-[#4c1d1d] text-red-200'
+                  : 'bg-red-50 border-red-200 text-red-700'
+              "
             >
               <p class="font-medium">Error</p>
               <p class="text-sm">{{ error }}</p>
             </div>
           </td>
         </tr>
-        <tr v-else-if="flowDefinitions.length === 0">
-          <td colspan="4" class="text-center py-8" :class="isDarkMode ? 'text-gray-300' : 'text-gray-500'">
+        <tr v-else-if="filteredFlowDefinitions.length === 0">
+          <td
+            colspan="4"
+            class="text-center py-8"
+            :class="isDarkMode ? 'text-gray-300' : 'text-gray-500'"
+          >
             No flow definitions found.
           </td>
         </tr>
         <tr
           v-else
-          v-for="def in flowDefinitions"
+          v-for="def in filteredFlowDefinitions"
           :key="def.id"
           class="cursor-pointer transition-colors"
           :class="isDarkMode ? 'hover:bg-[#242628]' : 'hover:bg-gray-50'"
           @click="goToDetails(def.id!)"
         >
           <td class="px-4 py-2 font-medium">{{ def.title }}</td>
-          <td class="px-4 py-2 truncate" :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'" style="max-width: 320px">
+          <td
+            class="px-4 py-2 truncate"
+            :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
+            style="max-width: 320px"
+          >
             {{ def.description || "—" }}
           </td>
-          <td class="px-4 py-2" :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'">
+          <td
+            class="px-4 py-2"
+            :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
+          >
             {{
-              new Date(def.updatedAt??'Never').toLocaleDateString("en-GB", {
+              new Date(def.updatedAt ?? "Never").toLocaleDateString("en-GB", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -178,6 +229,5 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
         </tr>
       </tbody>
     </table>
-
   </div>
 </template>

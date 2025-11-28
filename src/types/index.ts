@@ -7,9 +7,9 @@ export type FlowDefinition = {
   updatedAt?: Date;
 };
 
-export type Status = 'PENDING' | 'ACTIVE' | 'SUCCESS' | 'FAILURE' | 'PAUSED'
+export type Status = "PENDING" | "ACTIVE" | "SUCCESS" | "FAILURE" | "PAUSED";
 
-export type RequestType = 'ABSENCE_REQUEST'
+export type RequestType = "ABSENCE_REQUEST";
 
 export type FlowInstance = {
   id: string;
@@ -20,12 +20,12 @@ export type FlowInstance = {
   updatedAt: Date;
 };
 
-export type TriggerType = 'MANUAL' | 'POST'
+export type TriggerType = "MANUAL" | "POST";
 
 export type Trigger = {
   id: string;
   type: TriggerType;
-}
+};
 
 export type Process = {
   id: string;
@@ -39,8 +39,8 @@ export type AbsenceData = {
     endDate: Date;
     submittedBy: string;
     reason: string;
-  }
-}
+  };
+};
 
 export type RequestSubmission = {
   id: string;
@@ -50,7 +50,7 @@ export type RequestSubmission = {
   submittedAt: Date;
   processedAt: Date;
   flowInstanceId: string;
-}
+};
 
 export type FlowDefinitionPayload = {
   title: string;
