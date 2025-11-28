@@ -9,6 +9,7 @@ import be.ucll.repository.ProcessRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,5 +60,11 @@ public class FlowDefinitionService {
 
 
         return flowDefinitionRepository.save(oldFlowDefinition);
+    }
+
+    public void deleteFlowDefinition(String id) {
+        FlowDefinition updatedFlowDefinition = flowDefinitionRepository.findById(id)
+                .orElseThrow(() -> new ServiceException("No id found"));;
+        flowDefinitionRepository.delete(updatedFlowDefinition);
     }
 }

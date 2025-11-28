@@ -35,9 +35,14 @@ public class FlowDefinitionController {
         return flowDefinitionService.addFlowDefinition(input);
     }
 
-    @PutMapping("/flowDefinition/{id}")
+    @PutMapping("/{id}")
     public FlowDefinition updateFlowDefinition(@RequestBody FlowDefinitionInput updatedFlowDefinition, @PathVariable String id) {
         return flowDefinitionService.updateFlowDefinition(updatedFlowDefinition, id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteFlowDefinition(@PathVariable String id) {
+        flowDefinitionService.deleteFlowDefinition(id);
     }
 
     @ExceptionHandler(RuntimeException.class)
