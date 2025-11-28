@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import type { FlowDefinition } from "../../types";
 import FlowDiagram from "./FlowDiagram.vue";
 import FlowDefinitionService from "../../services/FlowDefinitionService";
 const isEditing = ref(false);
 const nameInput = ref("");
 const descriptionInput = ref("");
+import { useThemeStore } from "../../stores/themeStore";
 
 const props = defineProps<{
   selectedDefinition: FlowDefinition | null;
@@ -56,6 +57,8 @@ async function saveChanges() {
   }
 }
 
+const themeStore = useThemeStore();
+const isDarkMode = computed(() => themeStore.isDarkMode);
 </script>
 
 <template>
@@ -68,10 +71,13 @@ async function saveChanges() {
         Description: props.selectedDefinition?.description,
       }"
       :key="key"
-      class="bg-gray-50 border border-gray-200 rounded-md p-4"
+      class="rounded-md p-4 border transition-colors duration-200"
+      :class="isDarkMode ? 'bg-[#1c1e1f] border-[#2c2f31]' : 'bg-gray-50 border-gray-200'"
     >
-      <div class="text-l font-semibold text-gray-500">{{ key }}</div>
-      <div class="mt-1 text-lg font-semibold text-gray-800">
+      <div class="text-xs font-medium" :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">
+        {{ key }}
+      </div>
+      <div class="mt-1 text-lg font-semibold" :class="isDarkMode ? 'text-white' : 'text-gray-800'">
         {{ label || "no value" }}
       </div>
     </div>
@@ -113,8 +119,12 @@ async function saveChanges() {
     <div v-if="props.selectedDefinition?.processes && props.selectedDefinition.processes.length > 0">
       <FlowDiagram :processes="props.selectedDefinition.processes" />
     </div>
-    <div v-else class="bg-gray-50 border border-gray-200 rounded-md p-4">
-      <p class="text-gray-500 text-center">No processes in this flow</p>
+    <div
+      v-else
+      class="rounded-md p-4 border transition-colors duration-200 text-center"
+      :class="isDarkMode ? 'bg-[#1c1e1f] border-[#2c2f31] text-gray-300' : 'bg-gray-50 border-gray-200 text-gray-500'"
+    >
+      <p>No processes in this flow</p>
     </div>
   </div>
   <div class="text-center">

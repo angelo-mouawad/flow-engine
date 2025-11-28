@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { FlowInstance } from "../../types";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import FlowInstanceService from "../../services/FlowInstanceService";
+import { useThemeStore } from "../../stores/themeStore";
 
 const loading = ref(false);
 const flowInstances = ref<FlowInstance[]>([]);
@@ -73,10 +74,16 @@ const fetchFlowInstances = async () => {
 onMounted(() => {
   fetchFlowInstances();
 });
+
+const themeStore = useThemeStore();
+const isDarkMode = computed(() => themeStore.isDarkMode);
 </script>
 
 <template>
-  <table class="w-full border-collapse text-sm">
+  <table
+    class="w-full border-collapse text-sm transition-colors duration-200"
+    :class="isDarkMode ? 'text-white' : 'text-gray-900'"
+  >
     <thead>
       <tr class="text-left text-white bg-[#111]">
         <th
@@ -145,14 +152,20 @@ onMounted(() => {
         </th>
       </tr>
     </thead>
-    <tbody class="divide-y divide-gray-200">
+    <tbody
+      class="divide-y"
+      :class="isDarkMode ? 'divide-[#2c2f31]' : 'divide-gray-200'"
+    >
       <div v-if="loading" class="flex items-center justify-center py-8">
-        <div class="text-gray-600">Loading flow instances...</div>
+        <div :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'">
+          Loading flow instances...
+        </div>
       </div>
 
       <div
         v-else-if="error"
-        class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded"
+        class="px-4 py-3 rounded border"
+        :class="isDarkMode ? 'bg-[#2b1b1b] border-[#4c1d1d] text-red-200' : 'bg-red-50 border-red-200 text-red-700'"
       >
         <p class="font-medium">Error</p>
         <p class="text-sm">{{ error }}</p>
@@ -160,12 +173,14 @@ onMounted(() => {
 
       <div
         v-else-if="flowInstances.length === 0"
-        class="text-center py-8 text-gray-500"
+        class="text-center py-8"
+        :class="isDarkMode ? 'text-gray-300' : 'text-gray-500'"
       >
         No flow instances found.
       </div>
       <tr
-        class="cursor-pointer hover:bg-gray-100"
+        class="cursor-pointer transition-colors"
+        :class="isDarkMode ? 'hover:bg-[#242628]' : 'hover:bg-gray-100'"
         v-for="inst in flowInstances"
         :key="inst.id"
       >
@@ -182,14 +197,16 @@ onMounted(() => {
                 'bg-[#3b82f6]': inst.flowStatus.toLowerCase() === 'paused',
               }"
             ></span>
-            <span class="text-gray-900 font-medium">{{
+            <span :class="['font-medium', isDarkMode ? 'text-white' : 'text-gray-900']">{{
               inst.flowStatus.charAt(0).toUpperCase() +
               inst.flowStatus.slice(1).toLowerCase()
             }}</span>
           </div>
         </td>
-        <td class="px-4 py-2 text-gray-600">{{ inst.flowDefinition.title }}</td>
-        <td class="px-4 py-2 text-gray-600">
+        <td class="px-4 py-2" :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'">
+          {{ inst.flowDefinition.title }}
+        </td>
+        <td class="px-4 py-2" :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'">
           {{
             new Date(inst.updatedAt).toLocaleDateString("en-GB", {
               year: "numeric",

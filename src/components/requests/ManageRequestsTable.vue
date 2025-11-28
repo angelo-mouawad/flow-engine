@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { RequestSubmission } from "../../types";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import RequestService from "../../services/RequestService";
+import { useThemeStore } from "../../stores/themeStore";
 
 const emit = defineEmits(['open-request']);
 const loading = ref(false);
@@ -51,10 +52,13 @@ const fetchRequests = async () => {
 
 onMounted(fetchRequests);
 defineExpose({ fetchRequests });
+
+const themeStore = useThemeStore();
+const isDarkMode = computed(() => themeStore.isDarkMode);
 </script>
 
 <template>
-  <table class="w-full border-collapse text-sm">
+  <table class="w-full border-collapse text-sm transition-colors duration-200" :class="isDarkMode ? 'text-white' : 'text-gray-900'">
     <thead>
       <tr class="text-left text-white bg-[#111]">
         <th v-for="key in tableKeys" 
@@ -71,21 +75,22 @@ defineExpose({ fetchRequests });
         </th>
       </tr>
     </thead>
-    <tbody class="divide-y divide-gray-200">
+    <tbody class="divide-y" :class="isDarkMode ? 'divide-[#2c2f31]' : 'divide-gray-200'">
       <tr v-if="loading" class="text-center">
-        <td colspan="5" class="py-8 text-gray-600">Loading requests...</td>
+        <td colspan="5" class="py-8" :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'">Loading requests...</td>
       </tr>
-      <tr v-else-if="error" class="text-center bg-red-50 border border-red-200 text-red-700">
+      <tr v-else-if="error" class="text-center border" :class="isDarkMode ? 'bg-[#2b1b1b] border-[#4c1d1d] text-red-200' : 'bg-red-50 border-red-200 text-red-700'">
         <td colspan="5" class="px-4 py-3">{{ error }}</td>
       </tr>
       <tr v-else v-for="r in requests" :key="r.id" 
           @click="emit('open-request', r)" 
-          class="cursor-pointer hover:bg-gray-100">
+          class="cursor-pointer transition-colors"
+          :class="isDarkMode ? 'hover:bg-[#242628]' : 'hover:bg-gray-100'">
         <td class="pl-4 py-2 font-medium">{{ r.requestType }}</td>
-        <td class="pl-4 py-2 text-gray-600">{{ r.data.allFields.submittedBy }}</td>
-        <td class="pl-4 py-2 text-gray-600">{{ r.data.allFields.startDate }}</td>
-        <td class="pl-4 py-2 text-gray-600">{{ r.data.allFields.endDate }}</td>
-        <td class="pl-4 py-2 text-gray-600">{{ r.data.allFields.reason }}</td>
+        <td class="pl-4 py-2" :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'">{{ r.data.allFields.submittedBy }}</td>
+        <td class="pl-4 py-2" :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'">{{ r.data.allFields.startDate }}</td>
+        <td class="pl-4 py-2" :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'">{{ r.data.allFields.endDate }}</td>
+        <td class="pl-4 py-2" :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'">{{ r.data.allFields.reason }}</td>
       </tr>
     </tbody>
   </table>

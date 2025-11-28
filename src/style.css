@@ -10,3 +10,29 @@
   --color-additional: #808080;
   --color-sidebarhighlight: #5b5d60;
 }
+
+:root {
+  --app-bg: #f2f6fe;
+  --surface-bg: #ffffff;
+  --surface-border: #e5e7eb;
+  --text-color: #111827;
+}
+
+:root.theme-dark {
+  --app-bg: #1c1e1f;
+  --surface-bg: #181a1b;
+  --surface-border: #2c2f31;
+  --text-color: #f3f4f6;
+}
+
+body {
+  background-color: var(--app-bg);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.surface-card {
+  background-color: var(--surface-bg);
+  border-color: var(--surface-border);
+  color: var(--text-color);
+}

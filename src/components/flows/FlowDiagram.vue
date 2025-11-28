@@ -2,6 +2,7 @@
 import { ref, computed, watch } from "vue";
 import { VueFlow, useVueFlow, MarkerType } from "@vue-flow/core";
 import type { Process } from "../../types";
+import { useThemeStore } from "../../stores/themeStore";
 
 const props = withDefaults(
   defineProps<{
@@ -28,8 +29,8 @@ const nodes = computed(() => {
       return;
     }
 
-    // we can simplify at the end
-    const nodeId = `process-${index}-${process.id || index}`;
+    // it should change after backend processes update
+    const nodeId = process.id || `process-${index}`;
     const label = (process as any).name || process.name || "Unnamed Process";
     const processType = (process as any).processType || process.name;
 
@@ -63,8 +64,8 @@ const edges = computed(() => {
       continue;
     }
 
-    const currentId = `process-${i}-${currentProcess.id || i}`;
-    const nextId = `process-${i + 1}-${nextProcess.id || i + 1}`;
+    const currentId = currentProcess.id || `process-${i}`; // it should change after backend processes update
+    const nextId = nextProcess.id || `process-${i + 1}`;
 
     result.push({
       id: `e-${currentId}-${nextId}`,
@@ -83,6 +84,9 @@ const vueFlowEdges = ref(edges.value);
 
 const { fitView } = useVueFlow();
 
+const themeStore = useThemeStore();
+const isDarkMode = computed(() => themeStore.isDarkMode);
+
 watch([nodes, edges], ([newNodes, newEdges]) => {
   vueFlowNodes.value = newNodes;
   vueFlowEdges.value = newEdges;
@@ -96,7 +100,10 @@ watch([nodes, edges], ([newNodes, newEdges]) => {
 </script>
 
 <template>
-  <div class="flow-diagram-container">
+  <div
+    class="flow-diagram-container"
+    :class="{ 'flow-diagram-container--dark': isDarkMode }"
+  >
     <VueFlow
       :nodes="vueFlowNodes"
       :edges="vueFlowEdges"
@@ -119,6 +126,11 @@ watch([nodes, edges], ([newNodes, newEdges]) => {
   border: 1px solid #e5e7eb;
   border-radius: 0.375rem;
   background-color: #fafafa;
+}
+
+.flow-diagram-container--dark {
+  background-color: #1c1e1f;
+  border-color: #181a1b;
 }
 
 .flow-diagram {
