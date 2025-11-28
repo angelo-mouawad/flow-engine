@@ -11,7 +11,6 @@ const flowDefinitions = ref<FlowDefinition[]>([]);
 const error = ref<string | null>(null);
 
 const selectedDefinition = ref<FlowDefinition | null>(null);
-const editableDefinition = ref<FlowDefinition | null>(null);
 const showModal = ref(false);
 
 const sortKey = ref<"title" | "updatedAt">("updatedAt");
@@ -29,7 +28,7 @@ const sortFlowDefinitions = (key: "title" | "updatedAt") => {
     if (key === "title") {
       if (a.title.toLowerCase() < b.title.toLowerCase()) result = -1;
       if (a.title.toLowerCase() > b.title.toLowerCase()) result = 1;
-    } else if (key === "updatedAt") {
+    } else if (key === "updatedAt" && a.updatedAt && b.updatedAt) {
       result =
         new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
     }
@@ -159,7 +158,7 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
           </td>
           <td class="px-4 py-2" :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'">
             {{
-              new Date(def.updatedAt).toLocaleDateString("en-GB", {
+              new Date(def.updatedAt??'Never').toLocaleDateString("en-GB", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",

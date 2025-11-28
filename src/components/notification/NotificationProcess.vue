@@ -11,14 +11,14 @@ const emit = defineEmits<{
 }>();
 
 const local = reactive({
-  title: props.step?.title ?? "",
+  title: props.step?.name ?? "",
   type: props.step?.processType ?? "",
 });
 
 watch(
   () => local.title,
   (val) => {
-    emit("update-step", { title: val });
+    emit("update-step", { name: val });
   }
 );
 watch(
@@ -32,7 +32,7 @@ watch(
   () => props.step,
   (newStep) => {
     if (!newStep) return;
-    local.title = newStep.title ?? "";
+    local.title = newStep.name;
     local.type = newStep.processType ?? "";
   },
   { deep: true }
