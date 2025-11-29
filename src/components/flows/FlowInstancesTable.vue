@@ -1,110 +1,115 @@
 <script setup lang="ts">
-import type { FlowInstance } from "../../types";
-import { ref, onMounted, computed } from "vue";
-import { useRouter } from "vue-router";
-import FlowInstanceService from "../../services/FlowInstanceService";
-import { useThemeStore } from "../../stores/themeStore";
+  import type { FlowInstance } from "../../types";
+  import { ref, onMounted, computed } from "vue";
+  import { useRouter } from "vue-router";
+  import FlowInstanceService from "../../services/FlowInstanceService";
+  import { useThemeStore } from "../../stores/themeStore";
 
-const props = defineProps<{
-  searchQuery: string;
-}>();
-
-const loading = ref(false);
-const flowInstances = ref<FlowInstance[]>([]);
-const error = ref<string | null>(null);
-
-const sortKey = ref<"title" | "status" | "flowDefinition" | "updatedAt">(
-  "updatedAt"
-);
-const sortOrder = ref<"asc" | "desc">("asc");
-
-const sortFlowInstances = (
-  key: "title" | "status" | "flowDefinition" | "updatedAt"
-) => {
-  if (sortKey.value === key) {
-    sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
-  } else {
-    sortKey.value = key;
-    sortOrder.value = "asc";
-  }
-  flowInstances.value = [...flowInstances.value].sort((a, b) => {
-    let result = 0;
-    if (key === "title") {
-      if (a.title.toLowerCase() < b.title.toLowerCase()) result = -1;
-      if (a.title.toLowerCase() > b.title.toLowerCase()) result = 1;
-    } else if (key === "status") {
-      const order: Record<string, number> = {
-        ACTIVE: 0,
-        PENDING: 1,
-        FAILED: 2,
-      };
-      result = (order[a.flowStatus] ?? 99) - (order[b.flowStatus] ?? 99);
-    } else if (key === "flowDefinition") {
-      if (
-        a.flowDefinition.title.toLowerCase() <
-        b.flowDefinition.title.toLowerCase()
-      )
-        result = -1;
-      if (
-        a.flowDefinition.title.toLowerCase() >
-        b.flowDefinition.title.toLowerCase()
-      )
-        result = 1;
-    } else if (key === "updatedAt") {
-      result =
-        new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
+  const props = withDefaults(
+    defineProps<{
+      searchQuery?: string;
+    }>(),
+    {
+      searchQuery: '',
     }
-    return sortOrder.value === "asc" ? result : -result;
+  );
+
+  const loading = ref(false);
+  const flowInstances = ref<FlowInstance[]>([]);
+  const error = ref<string | null>(null);
+
+  const sortKey = ref<"title" | "status" | "flowDefinition" | "updatedAt">(
+    "updatedAt"
+  );
+  const sortOrder = ref<"asc" | "desc">("asc");
+
+  const sortFlowInstances = (
+    key: "title" | "status" | "flowDefinition" | "updatedAt"
+  ) => {
+    if (sortKey.value === key) {
+      sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+    } else {
+      sortKey.value = key;
+      sortOrder.value = "asc";
+    }
+    flowInstances.value = [...flowInstances.value].sort((a, b) => {
+      let result = 0;
+      if (key === "title") {
+        if (a.title.toLowerCase() < b.title.toLowerCase()) result = -1;
+        if (a.title.toLowerCase() > b.title.toLowerCase()) result = 1;
+      } else if (key === "status") {
+        const order: Record<string, number> = {
+          ACTIVE: 0,
+          PENDING: 1,
+          FAILED: 2,
+        };
+        result = (order[a.flowStatus] ?? 99) - (order[b.flowStatus] ?? 99);
+      } else if (key === "flowDefinition") {
+        if (
+          a.flowDefinition.title.toLowerCase() <
+          b.flowDefinition.title.toLowerCase()
+        )
+          result = -1;
+        if (
+          a.flowDefinition.title.toLowerCase() >
+          b.flowDefinition.title.toLowerCase()
+        )
+          result = 1;
+      } else if (key === "updatedAt") {
+        result =
+          new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
+      }
+      return sortOrder.value === "asc" ? result : -result;
+    });
+  };
+
+  const fetchFlowInstances = async () => {
+    loading.value = true;
+    error.value = null;
+    try {
+      const data = await FlowInstanceService.getFlowInstances();
+      flowInstances.value = data;
+      sortFlowInstances(sortKey.value);
+    } catch (e) {
+      error.value =
+        e instanceof Error
+          ? e.message
+          : "An error occurred while fetching flow instances";
+      console.error("Failed to fetch flow instances:", e);
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  onMounted(() => {
+    fetchFlowInstances();
   });
-};
 
-const fetchFlowInstances = async () => {
-  loading.value = true;
-  error.value = null;
-  try {
-    const data = await FlowInstanceService.getFlowInstances();
-    flowInstances.value = data;
-    sortFlowInstances(sortKey.value);
-  } catch (e) {
-    error.value =
-      e instanceof Error
-        ? e.message
-        : "An error occurred while fetching flow instances";
-    console.error("Failed to fetch flow instances:", e);
-  } finally {
-    loading.value = false;
-  }
-};
+  const router = useRouter();
 
-onMounted(() => {
-  fetchFlowInstances();
-});
+  const viewFlowInstance = (instanceId: string) => {
+    router.push({ name: "FlowInstanceDetails", params: { id: instanceId } });
+  };
 
-const router = useRouter();
+  const themeStore = useThemeStore();
+  const isDarkMode = computed(() => themeStore.isDarkMode);
 
-const viewFlowInstance = (instanceId: string) => {
-  router.push({ name: "FlowInstanceDetails", params: { id: instanceId } });
-};
+  const filteredFlowInstances = computed(() => {
+    if (!props.searchQuery.trim()) {
+      return flowInstances.value;
+    }
 
-const themeStore = useThemeStore();
-const isDarkMode = computed(() => themeStore.isDarkMode);
+    const query = props.searchQuery.toLowerCase().trim();
+    return flowInstances.value.filter((inst) => {
+      const searchableData = JSON.stringify(Object.values(inst))
+        .toLowerCase()
+        .replace(/"id":\s*"[^"]*"/gi, "")
+        .replace(/"[a-f0-9-]{36}"/gi, "")
+        .replace(/\bid\b:\s*"[^"]*"/gi, "");
 
-const filteredFlowInstances = computed(() => {
-  if (!props.searchQuery.trim()) {
-    return flowInstances.value;
-  }
-
-  const query = props.searchQuery.toLowerCase().trim();
-  return flowInstances.value.filter((inst) => {
-    const searchableData = JSON.stringify(Object.values(inst))
-      .toLowerCase()
-      .replace(/"id":\s*"[^"]*"/gi, "")
-      .replace(/"[a-f0-9-]{36}"/gi, "")
-      .replace(/\bid\b:\s*"[^"]*"/gi, "");
-
-    return searchableData.includes(query);
+      return searchableData.includes(query);
+    });
   });
-});
 </script>
 
 <template>
