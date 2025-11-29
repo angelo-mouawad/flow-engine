@@ -13,7 +13,20 @@ const getFlowInstanceById = async (id: string) => {
   return await response.json() as FlowInstance;
 };
 
+const deleteFlowInstance = async (id: string): Promise<boolean> => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/flowInstance/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete flow instance");
+  }
+
+  return true;
+}
+
 export default {
   getFlowInstances,
   getFlowInstanceById,
+  deleteFlowInstance,
 };

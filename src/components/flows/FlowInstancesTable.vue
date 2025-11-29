@@ -4,6 +4,7 @@
   import { useRouter } from "vue-router";
   import FlowInstanceService from "../../services/FlowInstanceService";
   import { useThemeStore } from "../../stores/themeStore";
+  import deleteIcon from "/images/delete1.png.webp"
 
   const props = withDefaults(
     defineProps<{
@@ -76,6 +77,23 @@
           ? e.message
           : "An error occurred while fetching flow instances";
       console.error("Failed to fetch flow instances:", e);
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const deleteFlowInstance = async (id: string) => {
+    loading.value = true;
+    error.value = null;
+    try {
+      await FlowInstanceService.deleteFlowInstance(id);
+      flowInstances.value = flowInstances.value.filter((inst) => inst.id !== id);
+    } catch (e) {
+      error.value =
+      e instanceof Error
+        ? e.message
+        : `An error occurred while delete flow instance with id ${id}`
+      console.error(`Failed to delete flow instance with id: ${id}`);
     } finally {
       loading.value = false;
     }
@@ -183,6 +201,7 @@
             <span v-else class="text-gray-400">▲▼</span>
           </span>
         </th>
+        <th class="px-4 py-2"></th>
       </tr>
     </thead>
     <tbody
@@ -271,6 +290,15 @@
               day: "numeric",
             })
           }}
+        </td>
+        <td class="px-4 py-2 text-right min-w-[72px]">
+          <button
+            @click.stop="deleteFlowInstance(inst.id)"
+            class="inline-flex items-center p-1 rounded hover:bg-gray-100 focus:ring-2 focus:ring-blue-400"
+            :aria-label="`Delete ${inst.title}`"
+          >
+            <img :src="deleteIcon" alt="Delete" class="w-5 h-5" />
+          </button>
         </td>
       </tr>
     </tbody>
