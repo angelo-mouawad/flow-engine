@@ -1,5 +1,6 @@
 package be.ucll.service;
 
+import be.ucll.exception.ServiceException;
 import be.ucll.model.FlowInstance;
 import be.ucll.repository.FlowInstanceRepository;
 
@@ -16,5 +17,17 @@ public class FlowInstanceService {
 
     public List<FlowInstance> findAllFlowInstances() {
         return flowInstanceRepository.findAll();
+    }
+
+    public void deleteFlowInstanceById(String id) {
+        if (id == null) {
+            throw new ServiceException("id must now be null");
+        }
+
+        if (!flowInstanceRepository.existsById(id)) {
+            throw new ServiceException(id);
+        }
+
+        flowInstanceRepository.deleteById(id);
     }
 }

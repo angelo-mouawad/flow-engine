@@ -46,8 +46,9 @@ public class FlowDefinitionController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteFlowDefinition(@PathVariable String id) {
+    public ResponseEntity<Void> deleteFlowDefinition(@PathVariable String id) {
         flowDefinitionService.deleteFlowDefinition(id);
+        return ResponseEntity.noContent().build();
     }
 
     @ExceptionHandler(RuntimeException.class)
