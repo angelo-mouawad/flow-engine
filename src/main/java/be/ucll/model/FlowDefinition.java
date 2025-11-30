@@ -1,12 +1,12 @@
 package be.ucll.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import be.ucll.exception.DomainException;
@@ -23,20 +23,15 @@ public class FlowDefinition {
     @NotBlank
     private String description;
     @NotEmpty
-    @DBRef
     private List<Process> processes;
 
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 
-    public FlowDefinition(String title, String description, List<Process> processes) {
+    public FlowDefinition(String title, String description, List<? extends Process> processes) {
         setTitle(title);
         setDescription(description);
         setProcesses(processes);
-        setUpdatedAt(LocalDate.now());
-    }
-
-    public void setUpdatedAt(LocalDate updatedAt) {
-        this.updatedAt = updatedAt;
+        setUpdatedAt(LocalDateTime.now());
     }
 
     public String getId() {
@@ -55,7 +50,7 @@ public class FlowDefinition {
         return processes;
     }
 
-    public LocalDate getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
 
         if (id == null) 
             throw new DomainException("Flow Definition not yet Created");
@@ -63,10 +58,10 @@ public class FlowDefinition {
         return new ObjectId(id).getDate()
             .toInstant()
             .atZone(ZoneOffset.UTC)
-            .toLocalDate();
+            .toLocalDateTime();
     }
 
-    public LocalDate getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
@@ -78,7 +73,11 @@ public class FlowDefinition {
         this.description = description;
     }
 
-    public void setProcesses(List<Process> processes) {
-        this.processes = processes;
+    public void setProcesses(List<? extends Process> processes) {
+        this.processes = List.copyOf(processes) ;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

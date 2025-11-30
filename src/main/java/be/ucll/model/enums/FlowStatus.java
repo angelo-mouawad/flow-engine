@@ -1,4 +1,4 @@
-package be.ucll.model;
+package be.ucll.model.enums;
 
 public enum FlowStatus {
     ACTIVE,

@@ -18,6 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/flowDefinition")
 public class FlowDefinitionController {
+
     private FlowDefinitionService flowDefinitionService;
 
     @Autowired
@@ -41,7 +42,7 @@ public class FlowDefinitionController {
     }
 
     @PutMapping("/{id}")
-    public FlowDefinition updateFlowDefinition(@RequestBody FlowDefinitionInput updatedFlowDefinition, @PathVariable String id) {
+    public FlowDefinition updateFlowDefinition(@RequestBody @Valid FlowDefinitionInput updatedFlowDefinition, @PathVariable String id) {
         return flowDefinitionService.updateFlowDefinition(updatedFlowDefinition, id);
     }
 

@@ -1,25 +1,26 @@
 package be.ucll.service;
 
-import java.time.LocalDate;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import be.ucll.exception.ServiceException;
-import be.ucll.model.RequestStatus;
+import be.ucll.model.enums.RequestStatus;
 import be.ucll.model.RequestSubmission;
 import be.ucll.repository.RequestSubmissionRepository;
 
 @Service
 public class ApprovalService {
     
-    @Autowired
     private FlowRunnerService flowRunnerService;
-
-    @Autowired
     private RequestSubmissionRepository requestSubmissionRepository;
 
-    public void approveRequest(String requestId, RequestStatus status) {
+    @Autowired
+    public ApprovalService(RequestSubmissionRepository requestSubmissionRepository, FlowRunnerService flowRunnerService){
+        this.requestSubmissionRepository = requestSubmissionRepository;
+        this.flowRunnerService = flowRunnerService;
+    }
+
+    public void approveRequest(String requestId, RequestStatus status, String user) {
         RequestSubmission submission = requestSubmissionRepository.findById(requestId)
             .orElseThrow(() -> new ServiceException("Request not found"));
 
@@ -27,10 +28,15 @@ public class ApprovalService {
             throw new ServiceException("Request is not in pending state");
         }
 
-        submission.setStatus(status);
-        submission.setProcessedAt(LocalDate.now());
-        submission = requestSubmissionRepository.save(submission);
-
-        flowRunnerService.resumeFlow(submission.getFlowInstanceId());
+        try {
+            submission.approve(user, status);
+            requestSubmissionRepository.save(submission);
+            if (submission.getStatus() == RequestStatus.APPROVED || 
+                 submission.getStatus() == RequestStatus.DECLINED) {
+                flowRunnerService.resumeFlow(submission.getFlowInstanceId());
+            }
+        } catch (RuntimeException e) {
+            throw new ServiceException(e.getMessage());
+        }
     }
 }

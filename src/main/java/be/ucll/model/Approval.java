@@ -1,18 +1,16 @@
 package be.ucll.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import be.ucll.model.enums.ProcessType;
+
 public class Approval extends Process{
 
-    private RequestSubmission requestSubmission;
+    protected Approval() {}
 
-    public Approval(String name){
+    @JsonCreator
+    public Approval(@JsonProperty("name") String name) {
         super(name, ProcessType.APPROVAL);
-    }
-
-    public RequestSubmission getRequestSubmission() {
-        return requestSubmission;
-    }
-
-    public void setRequestSubmission(RequestSubmission requestSubmission) {
-        this.requestSubmission = requestSubmission;
     }
 }

@@ -6,29 +6,34 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import be.ucll.model.FlowInstance;
 import be.ucll.model.Request;
 import be.ucll.model.RequestData;
-import be.ucll.model.RequestStatus;
+import be.ucll.model.enums.RequestStatus;
 import be.ucll.model.RequestSubmission;
 import be.ucll.repository.RequestSubmissionRepository;
 
 @Service
 public class RequestService {
 
-    @Autowired
     private RequestSubmissionRepository requestSubmissionRepository;
 
-    public List<RequestSubmission> getPendingRequests(){
-        return requestSubmissionRepository.findByStatus(RequestStatus.PENDING);
+    @Autowired
+    public RequestService(RequestSubmissionRepository requestSubmissionRepository){
+        this.requestSubmissionRepository = requestSubmissionRepository;
+    }
+
+    public List<RequestSubmission> getPendingRequests(String user){
+
+        List<RequestSubmission> requests = requestSubmissionRepository.findByStatus(RequestStatus.PENDING);
+        requests.removeIf(r -> !r.isPendingForUser(user));
+
+        return requests;
     }
     
-    public void processRequest(FlowInstance fi, Request request, Map<String, Object> data){
-        RequestData rqData = new RequestData();
-        data.forEach(rqData::setField);
+    public void processRequest(Request request, Map<String, Object> data){
+        RequestData rqData = new RequestData(data);
 
         RequestSubmission submission = request.submit(rqData);
-        submission.setFlowInstanceId(fi.getId());
-        submission = requestSubmissionRepository.save(submission);
+        requestSubmissionRepository.save(submission);
     }
 }

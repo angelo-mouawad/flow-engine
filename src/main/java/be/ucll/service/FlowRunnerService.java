@@ -3,13 +3,14 @@ package be.ucll.service;
 import be.ucll.exception.ServiceException;
 import be.ucll.model.*;
 import be.ucll.model.Process;
+import be.ucll.model.enums.FlowStatus;
 import be.ucll.repository.FlowDefinitionRepository;
 import be.ucll.repository.FlowInstanceRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Service
@@ -24,41 +25,51 @@ public class FlowRunnerService {
     @Autowired
     private RequestService requestService;
 
-    public void instantiateFlow(String title, Map<String, Object> data){
+    public void instantiateFlow(String id, Map<String, Map<String, Object>> data){
 
-        FlowDefinition fd =  flowDefinitionRepository.findByTitle(title)
-            .orElseThrow(()-> new ServiceException("Flow with title "+ title +" does not exist"));
+        FlowDefinition fd =  flowDefinitionRepository.findById(id)
+            .orElseThrow(()-> new ServiceException("Flow id does not exist"));
 
-        FlowInstance flowInstance = new FlowInstance(fd, fd.getTitle());
+        FlowInstance flowInstance = new FlowInstance(fd, fd.getTitle(), data);
         flowInstance = flowInstanceRepository.save(flowInstance);
-        runFlow(flowInstance, data);
+        runFlow(flowInstance);
     }
 
-    private void runFlow(FlowInstance flowInstance, Map<String, Object> data){
+    private void runFlow(FlowInstance flowInstance){
         try{
+            Map<String, Map<String, Object>> data = flowInstance.getData();
 
             while (flowInstance.getCurrentProcess() != null) {
                 Process current = flowInstance.getCurrentProcess();
+                current.setFlowInstanceId(flowInstance.getId());
 
-                if(current instanceof Request){
-                    requestService.processRequest(flowInstance,  (Request) current, data);
-                }else if(current instanceof Approval){
-                    updateFlow(flowInstance, FlowStatus.PENDING);
-                    return;
-                }else if (current instanceof Notification) {
-                    // Notify in NotificationService
+                switch (current) {
+                    case Request request -> {
+                        requestService.processRequest(
+                                request,
+                                data.get(request.getRequestTypeName())); 
+                    }
+                    case Approval approval -> {
+                        updateFlowStatus(flowInstance, FlowStatus.PENDING);
+                        return;
+                    }
+                    case Notification notification -> {
+                        //TODO: Notify in NotificationService
+                    }
+                    default -> { break; }
                 }
 
                 flowInstance.nextProcess();
-                flowInstance.setUpdatedAt(LocalDate.now());
+                flowInstance.setUpdatedAt(LocalDateTime.now());
                 flowInstanceRepository.save(flowInstance);
             }
 
             flowInstance.setFlowStatus(FlowStatus.SUCCESS);
             flowInstanceRepository.save(flowInstance);
 
+            //TODO: Send FlowInstance back to Calling URL
         } catch(Exception e) {
-            updateFlow(flowInstance, FlowStatus.FAILURE);
+            updateFlowStatus(flowInstance, FlowStatus.FAILURE);
             throw new ServiceException("Flow Execution Failed: "+ e.getMessage());
         }
     }
@@ -73,13 +84,14 @@ public class FlowRunnerService {
 
         flowInstance.nextProcess();
         flowInstance.setFlowStatus(FlowStatus.ACTIVE);
-        flowInstance.setUpdatedAt(LocalDate.now());
-        flowInstance = flowInstanceRepository.save(flowInstance); runFlow(flowInstance, Map.of());
+        flowInstance.setUpdatedAt(LocalDateTime.now());
+        flowInstanceRepository.save(flowInstance); 
+        runFlow(flowInstance);
     }
 
-    private void updateFlow(FlowInstance flowInstance, FlowStatus status){
+    private void updateFlowStatus(FlowInstance flowInstance, FlowStatus status){
         flowInstance.setFlowStatus(status);
-        flowInstance.setUpdatedAt(LocalDate.now());
+        flowInstance.setUpdatedAt(LocalDateTime.now());
         flowInstanceRepository.save(flowInstance);
     }
 }

@@ -3,6 +3,7 @@ package be.ucll.controller;
 import be.ucll.model.FlowInstance;
 import be.ucll.service.FlowInstanceService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +24,7 @@ public class FlowInstanceController {
 
     private final FlowInstanceService flowInstanceService;
 
+    @Autowired
     public FlowInstanceController(FlowInstanceService flowInstanceService) {
         this.flowInstanceService = flowInstanceService;
     }

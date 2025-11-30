@@ -1,49 +1,71 @@
 package be.ucll.model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import be.ucll.exception.DomainException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-@Document(collection = "Process")
+import be.ucll.model.enums.ProcessType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "processType"
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = Request.class, name = "REQUEST"),
+    @JsonSubTypes.Type(value = Approval.class, name = "APPROVAL"),
+    @JsonSubTypes.Type(value = Notification.class, name = "NOTIFICATION")
+})
 public abstract class Process {
-    @Id
-    private String id;
+
+    @NotNull @NotBlank 
     private String name;
-    private ProcessType processType;
 
-    public Process(String name, ProcessType type){ 
-        setName(name);
-        this.processType = type;
-    }
+    @NotNull private ProcessType processType;
 
-    public String getId() {
-        return id.toString();
-    }
+    @JsonIgnore
+    private String flowInstanceId;
 
-    public ProcessType getProcessType() {
-        return processType;
+    protected Process() {}
+
+    public Process(String name, ProcessType processType){ 
+        this.name = name;
+        setProcessType(processType);
     }
 
     public String getName() {
         return this.name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getFlowInstanceId() {
+        return flowInstanceId;
     }
 
-    public LocalDate getCreatedAt() {
-        if (id == null) 
-            throw new DomainException("Process not yet Created");
+    public ProcessType getProcessType() {
+        return processType;
+    }
 
-        return new ObjectId(id).getDate()
+    public void setFlowInstanceId(String flowInstanceId) {
+        this.flowInstanceId = flowInstanceId;
+    }
+
+    private void setProcessType(ProcessType processType) {
+        this.processType = processType;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        if (flowInstanceId == null) return null;
+
+        return new ObjectId(flowInstanceId).getDate()
             .toInstant()
             .atZone(ZoneOffset.UTC)
-            .toLocalDate();
+            .toLocalDateTime();
     }
 }

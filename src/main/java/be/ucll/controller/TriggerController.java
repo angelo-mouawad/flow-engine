@@ -20,12 +20,16 @@ import be.ucll.service.FlowRunnerService;
 @RequestMapping("/trigger")
 public class TriggerController {
     
-    @Autowired
     private FlowRunnerService flowRunnerService;
 
-    @PostMapping("/{title}")
-    public void triggerFlow(@PathVariable String title, @RequestBody Map<String, Object> data){
-        flowRunnerService.instantiateFlow(title, data); 
+    @Autowired
+    public TriggerController(FlowRunnerService flowRunnerService){
+        this.flowRunnerService = flowRunnerService;
+    }
+
+    @PostMapping("/{id}")
+    public void triggerFlow(@PathVariable String id, @RequestBody Map<String, Map<String, Object>> data){
+        flowRunnerService.instantiateFlow(id, data); 
     }
 
     @ExceptionHandler(RuntimeException.class)

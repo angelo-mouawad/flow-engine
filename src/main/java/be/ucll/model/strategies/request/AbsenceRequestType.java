@@ -6,7 +6,7 @@ import be.ucll.model.*;
 import java.time.LocalDate;
 
 public class AbsenceRequestType implements RequestType {
-    
+ 
     @Override
     public void validate(RequestData data) {
         String startDateStr = data.getField("startDate", String.class);
@@ -20,11 +20,11 @@ public class AbsenceRequestType implements RequestType {
         if (startDate == null || endDate == null) {
             throw new DomainException("Start date and end date are required");
         }
-        
+ 
         if (startDate.isAfter(endDate)) {
             throw new DomainException("Start date cannot be after end date");
         }
-        
+ 
         if (reason == null || reason.isBlank()) {
             throw new DomainException("Reason is required for absence request");
         }
@@ -33,7 +33,7 @@ public class AbsenceRequestType implements RequestType {
             throw new DomainException("User is required for absence request");
         }
     }
-    
+ 
     @Override
     public String getTypeName() {
         return "ABSENCE_REQUEST";

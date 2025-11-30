@@ -5,6 +5,12 @@ import java.util.Map;
 
 public class RequestData {
     private Map<String, Object> fields = new HashMap<>();
+
+    public RequestData(Map<String, Object> data){
+        data.forEach(this::setField);
+    }
+
+    public RequestData(){ }
     
     public void setField(String key, Object value) {
         fields.put(key, value);
@@ -15,6 +21,6 @@ public class RequestData {
     }
 
     public Map<String, Object> getAllFields(){
-        return new HashMap<>(fields);         
+        return fields;         
     }
 }
