@@ -34,6 +34,11 @@ public class RequestController {
         this.requestService = requestService;
     }
 
+    @GetMapping("/pending/{id}")
+    public RequestSubmission getPendingRequestById(@RequestHeader("UserEmail") String user, @PathVariable String id){
+        return requestService.getRequestById(user, id);        
+    }
+
     @GetMapping("/pending")
     public List<RequestSubmission> getPendingRequests(@RequestHeader("UserEmail") String user){
         return requestService.getPendingRequests(user);        

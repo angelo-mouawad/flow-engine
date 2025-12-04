@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import be.ucll.exception.ServiceException;
 import be.ucll.model.Request;
 import be.ucll.model.RequestData;
 import be.ucll.model.enums.RequestStatus;
@@ -20,6 +21,22 @@ public class RequestService {
     @Autowired
     public RequestService(RequestSubmissionRepository requestSubmissionRepository){
         this.requestSubmissionRepository = requestSubmissionRepository;
+    }
+
+    public RequestSubmission getRequestById(String user, String id){
+
+        RequestSubmission request = requestSubmissionRepository.findById(id).orElseThrow(
+                () -> new ServiceException("request doesn't exist"));
+
+        if (request.getStatus() != RequestStatus.PENDING){
+            throw new ServiceException("request is not pending");
+        }
+
+        if(!request.isPendingForUser(user)){
+            throw new ServiceException("request is not pending for " + user.replace('_', '.'));
+        }
+
+        return request;
     }
 
     public List<RequestSubmission> getPendingRequests(String user){
