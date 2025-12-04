@@ -9,11 +9,9 @@ export type FlowDefinition = {
 
 export type Status = "PENDING" | "ACTIVE" | "SUCCESS" | "FAILURE" | "PAUSED";
 
-export type RequestType = "ABSENCE_REQUEST";
-
 export type FlowInstance = {
   id: string;
-  flowDefinition: FlowDefinition;
+  flowDefinitionId: string;
   title: string;
   flowStatus: Status;
   currentProcess: Process;
@@ -27,11 +25,19 @@ export type Trigger = {
   type: TriggerType;
 };
 
+export type ProcessType = "REQUEST" | "NOTIFICATION" | "APPROVAL";
+export type RequestType = "ABSENCE_REQUEST" | "CLOCK_IN_REQUEST";
+
 export type Process = {
-  id: string;
-  processType: string;
+  id?: string;
+  processType: ProcessType;
   name: string;
+  approvable?: boolean;
+  minApprovals?: number;
+  approvableBy?: string[];
+  requestTypeName?: RequestType;
 };
+// Generalize, depends on type
 
 export type AbsenceData = {
   allFields: {
@@ -55,5 +61,10 @@ export type RequestSubmission = {
 export type FlowDefinitionPayload = {
   title: string;
   description: string;
-  processes: string[];
+  processes: Process[];
+};
+
+export type User = {
+  name: string;
+  email: string;
 };
