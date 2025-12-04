@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import ManageRequestsTable from "./ManageRequestsTable.vue";
+import PendingRequestsTable from "./PendingRequestsTable.vue";
 import { useThemeStore } from "../../stores/themeStore";
 
 const themeStore = useThemeStore();
@@ -56,7 +56,7 @@ const searchQuery = ref("");
         class="overflow-x-auto rounded-md shadow-sm border transition-colors duration-300"
         :class="isDarkMode ? 'border-[#2c2f31]' : 'border-gray-200'"
       >
-        <ManageRequestsTable :searchQuery="searchQuery" />
+        <PendingRequestsTable :searchQuery="searchQuery" />
       </div>
     </div>
   </div>

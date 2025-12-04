@@ -28,6 +28,7 @@ export type FlowInstance = {
   flowStatus: Status;
   currentProcess: Process;
   updatedAt: Date;
+  flowDefinition?: FlowDefinition | null;
 };
 
 type ProcessBase = {
@@ -75,3 +76,8 @@ export type User = {
   name: string;
   email: string;
 };
+
+export type User = {
+  type: string;
+  email: string;
+}

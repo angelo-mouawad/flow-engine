@@ -4,6 +4,7 @@ import Header from "./components/main/Header.vue";
 import { computed, watchEffect } from "vue";
 import { useRoleStore } from "./stores/roleStore";
 import { useThemeStore } from "./stores/themeStore";
+import { useUserStore } from "./stores/userStore";
 
 const roleStore = useRoleStore();
 const currentRole = computed({
@@ -20,6 +21,13 @@ if (typeof window !== "undefined") {
     document.body.classList.toggle("theme-dark", isDarkMode.value);
   });
 }
+
+window.addEventListener("storage", (event) => {
+  if (event.key === "user") {
+    const userStore = useUserStore();
+    userStore.loadFromStorage();
+  }
+});
 </script>
 
 <template>

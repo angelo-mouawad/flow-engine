@@ -12,7 +12,7 @@ const isReady = ref<boolean>(false);
 const menuItems = ["HOME", "FLOW DEFINITIONS", "FLOW INSTANCES", "MANAGE REQUESTS", "SETTINGS"];
 const yellowBar =
   "before:content-[''] before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-sidebarprimary";
-const paths = ["/", "/flow-definitions", "/flow-instances", "/manage-requests", "/settings"];
+const paths = ["/", "/flow-definitions", "/flow-instances", "/pending-requests", "/settings"];
 
 const burgerOpen = ref(false);
 
