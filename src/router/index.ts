@@ -6,8 +6,8 @@ import FlowDefinitionOverview from '../views/FlowDefinitionOverview.vue';
 import FlowDefinitionDetails from '../views/FlowDefinitionDetails.vue';
 import FlowInstancesOverview from '../views/FlowInstancesOverview.vue';
 import FlowInstanceDetails from '../views/FlowInstanceDetails.vue';
-import ManageRequests from '../views/ManageRequestsOverview.vue';
 import RequestDetails from '../views/RequestDetails.vue';
+import PendingRequestsOverview from '../views/PendingRequestsOverview.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: WelcomeGrid },
@@ -16,8 +16,8 @@ const routes = [
   { path: '/flow-instances', name: 'FlowInstances', component: FlowInstancesOverview },
   { path: '/flow-instances/:id', name: 'FlowInstanceDetails', component: FlowInstanceDetails },
   { path: '/flow-definitions/new', name: 'FlowDefinitionsNew', component: FlowDefinitionForm, meta: { requiresAdmin: true } },
-  { path: '/manage-requests', name: 'ManageRequests', component: ManageRequests },
-  { path: '/manage-requests/:id', name: 'RequestDetails', component: RequestDetails },
+  { path: '/pending-requests', name: 'PendingRequests', component: PendingRequestsOverview },
+  { path: '/pending-requests/:id', name: 'RequestDetails', component: RequestDetails },
 ];
 
 const router = createRouter({

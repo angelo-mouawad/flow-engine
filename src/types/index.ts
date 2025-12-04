@@ -13,11 +13,12 @@ export type RequestType = "ABSENCE_REQUEST";
 
 export type FlowInstance = {
   id: string;
-  flowDefinition: FlowDefinition;
+  flowDefinitionId: string;
   title: string;
   flowStatus: Status;
   currentProcess: Process;
   updatedAt: Date;
+  flowDefinition?: FlowDefinition | null;
 };
 
 export type TriggerType = "MANUAL" | "POST";
@@ -57,3 +58,8 @@ export type FlowDefinitionPayload = {
   description: string;
   processes: string[];
 };
+
+export type User = {
+  type: string;
+  email: string;
+}

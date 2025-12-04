@@ -1,9 +1,32 @@
 <script setup lang="ts">
 import type { RequestSubmission } from "../../types";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import RequestService from "../../services/RequestService";
 import { useThemeStore } from "../../stores/themeStore";
+import { useUserStore } from "../../stores/userStore";
+
+const userStore = useUserStore();
+
+const currentUserEmail = computed(() =>
+  userStore.currentUser?.email ??
+  JSON.parse(sessionStorage.getItem("currentUser") || "{}")?.email ??
+  null
+);
+
+window.addEventListener("storage", (event) => {
+  if (event.key === "currentUser" && event.newValue) {
+    const updatedUser = JSON.parse(event.newValue);
+    userStore.currentUser = updatedUser;
+  }
+});
+
+
+watch(currentUserEmail, (newEmail, oldEmail) => {
+  if (newEmail && newEmail !== oldEmail) {
+    fetchRequests();
+  }
+});
 
 const props = defineProps<{ searchQuery: string }>();
 

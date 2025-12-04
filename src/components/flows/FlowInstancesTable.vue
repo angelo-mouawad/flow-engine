@@ -1,10 +1,11 @@
 <script setup lang="ts">
-  import type { FlowInstance } from "../../types";
+  import type { FlowDefinition, FlowInstance } from "../../types";
   import { ref, onMounted, computed } from "vue";
   import { useRouter } from "vue-router";
   import FlowInstanceService from "../../services/FlowInstanceService";
   import { useThemeStore } from "../../stores/themeStore";
   import deleteIcon from "/images/delete1.png.webp"
+import FlowDefinitionService from "../../services/FlowDefinitionService";
 
   const props = withDefaults(
     defineProps<{
@@ -46,14 +47,16 @@
         };
         result = (order[a.flowStatus] ?? 99) - (order[b.flowStatus] ?? 99);
       } else if (key === "flowDefinition") {
+        const titleA = a.flowDefinition?.title.toLowerCase() ?? "";
+        const titleB = b.flowDefinition?.title.toLowerCase() ?? "";
         if (
-          a.flowDefinition.title.toLowerCase() <
-          b.flowDefinition.title.toLowerCase()
+          titleA <
+          titleB
         )
           result = -1;
         if (
-          a.flowDefinition.title.toLowerCase() >
-          b.flowDefinition.title.toLowerCase()
+          titleA >
+          titleB
         )
           result = 1;
       } else if (key === "updatedAt") {
@@ -68,9 +71,20 @@
     loading.value = true;
     error.value = null;
     try {
-      const data = await FlowInstanceService.getFlowInstances();
-      flowInstances.value = data;
+      const [instanceRes, definitionRes] = await Promise.all([
+        FlowInstanceService.getFlowInstances(),
+        FlowDefinitionService.getFlowDefinitions()
+      ]);
+
+      const instances = await instanceRes as FlowInstance[];
+      const definitions = await definitionRes as FlowDefinition[];
+      flowInstances.value = instances.map(inst => ({
+        ...inst,
+        flowDefinition: definitions.find(d => d.id === inst.flowDefinitionId) ?? null
+      }));
+
       sortFlowInstances(sortKey.value);
+    
     } catch (e) {
       error.value =
         e instanceof Error
@@ -277,7 +291,7 @@
           class="px-4 py-2"
           :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
         >
-          {{ inst.flowDefinition.title }}
+          {{ inst.flowDefinition?.title }}
         </td>
         <td
           class="px-4 py-2"
