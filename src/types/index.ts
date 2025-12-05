@@ -1,3 +1,11 @@
+export type TriggerType = "MANUAL" | "POST";
+export type Status = "PENDING" | "ACTIVE" | "SUCCESS" | "FAILURE" | "PAUSED";
+export type ProcessType = "REQUEST" | "NOTIFICATION" | "APPROVAL";
+export type RequestType = "ABSENCE_REQUEST" | "CLOCKIN_REQUEST";
+export type NotificationType = "EMAIL_NOTIFICATION" | "POPUP_NOTIFICATION";
+
+export type Process = Request | Approval | Notification;
+
 export type FlowDefinition = {
   id?: string;
   title: string;
@@ -7,9 +15,11 @@ export type FlowDefinition = {
   updatedAt?: Date;
 };
 
-export type Status = "PENDING" | "ACTIVE" | "SUCCESS" | "FAILURE" | "PAUSED";
-
-export type RequestType = "ABSENCE_REQUEST";
+export type FlowDefinitionPayload = {
+  title: string;
+  description: string;
+  processes: Process[];
+};
 
 export type FlowInstance = {
   id: string;
@@ -21,17 +31,26 @@ export type FlowInstance = {
   flowDefinition?: FlowDefinition | null;
 };
 
-export type TriggerType = "MANUAL" | "POST";
-
-export type Trigger = {
-  id: string;
-  type: TriggerType;
+type ProcessBase = {
+  id?: string;
+  name: string;
 };
 
-export type Process = {
-  id: string;
-  processType: string;
-  name: string;
+export type Request = ProcessBase & {
+  processType: "REQUEST";
+  requestTypeName: RequestType;
+  approvable: boolean;
+  minApprovals: number;
+  approvableBy: string[];
+};
+
+export type Approval = ProcessBase & {
+  processType: "APPROVAL";
+};
+
+export type Notification = ProcessBase & {
+  processType: "NOTIFICATION";
+  notificationType: NotificationType;
 };
 
 export type AbsenceData = {
@@ -53,13 +72,7 @@ export type RequestSubmission = {
   flowInstanceId: string;
 };
 
-export type FlowDefinitionPayload = {
-  title: string;
-  description: string;
-  processes: string[];
-};
-
 export type User = {
-  type: string;
+  name: string;
   email: string;
-}
+};

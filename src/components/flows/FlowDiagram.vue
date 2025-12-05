@@ -29,10 +29,36 @@ const nodes = computed(() => {
       return;
     }
 
-    // it should change after backend processes update
     const nodeId = process.id || `process-${index}`;
-    const label = (process as any).name || process.name || "Unnamed Process";
-    const processType = (process as any).processType || process.name;
+    const processType = process.processType;
+
+    let label = process.name;
+
+    if (!label || label.trim() === "") {
+      if (process.processType === "REQUEST") {
+        const requestTypeName = process.requestTypeName;
+        if (requestTypeName === "ABSENCE_REQUEST") {
+          label = "Absence Request";
+        } else if (requestTypeName === "CLOCKIN_REQUEST") {
+          label = "Clock-In Request";
+        } else {
+          label = "Request Process";
+        }
+      } else if (process.processType === "APPROVAL") {
+        label = "Approval Process";
+      } else if (process.processType === "NOTIFICATION") {
+        const notificationType = process.notificationType;
+        if (notificationType === "EMAIL_NOTIFICATION") {
+          label = "Email Notification";
+        } else if (notificationType === "POPUP_NOTIFICATION") {
+          label = "Popup Notification";
+        } else {
+          label = "Notification Process";
+        }
+      } else {
+        label = "Unnamed Process";
+      }
+    }
 
     const isFirst = index === 0;
     const isLast = index === props.processes.length - 1;
