@@ -11,7 +11,7 @@ export interface User {
 const USERS: User[] = [  
   { name: "Adam", role: "Manager", email: "adam@glackit.be" },
   { name: "Tom", role: "Manager", email: "tom@glackit.be" },
-  { name: "Zbi", role: "Manager", email: "zbi@dkchi.ma" },
+  { name: "Jared", role: "Manager", email: "Jared@glackit.be" },
   { name: "Stef", role: "User", email: "stef@gmail.com" },
   { name: "Jolie", role: "User", email: "jolie@gmail.com" },
   { name: "Samip", role: "Manager", email: "samip@glackit.be" },
