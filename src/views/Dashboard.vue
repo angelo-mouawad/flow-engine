@@ -4,11 +4,13 @@ import FlowCard from "../components/dashboard/FlowCard.vue";
 import StatsCard from "../components/dashboard/StatsCard.vue";
 import FlowInstancesTable from "../components/flows/FlowInstancesTable.vue";
 // import NotificationBar from "../components/notification/NotificationBar.vue";
-import type { FlowInstance, Status } from "../types";
+import type { FlowInstance, Status, FlowDefinition } from "../types";
 import FlowInstanceService from "../services/FlowInstanceService";
+import FlowDefinitionService from "../services/FlowDefinitionService";
 import { useThemeStore } from "../stores/themeStore";
 
 const flowInstances = ref<FlowInstance[]>([]);
+const flowDefinitions = ref<FlowDefinition[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 let pollInterval: number;
@@ -53,8 +55,18 @@ const fetchFlowInstances = async () => {
   }
 };
 
+const fetchFlowDefinitions = async () => {
+  try {
+    const defs = await FlowDefinitionService.getFlowDefinitions();
+    flowDefinitions.value = defs;
+  } catch (e) {
+    console.error("Failed to fetch flow definitions:", e);
+  }
+};
+
 onMounted(() => {
   fetchFlowInstances();
+  fetchFlowDefinitions();
   pollInterval = window.setInterval(fetchFlowInstances, 5000);
 });
 
@@ -75,10 +87,16 @@ onUnmounted(() => {
 
       <div class="overflow-x-auto">
         <div class="flex flex-row gap-5 pb-2 min-w-[600px]">
-          <FlowCard :is-create-new="true" class="flex-shrink-0 w-60" />
-          <FlowCard title="Basic Absence Flow" class="flex-shrink-0 w-60" />
-          <FlowCard title="Clocking Flow" class="flex-shrink-0 w-60" />
-          <FlowCard title="Invoices Flow" class="flex-shrink-0 w-60" />
+          <FlowCard is-create-new class="flex-shrink-0 w-60" />
+          <FlowCard
+            v-for="def in flowDefinitions"
+            :key="def.id ?? def.title"
+            :id="def.id"
+            :title="def.title"
+            :description="def.description"
+            :processes="def.processes"
+            class="flex-shrink-0 w-60"
+          />
         </div>
       </div>
     </div>
