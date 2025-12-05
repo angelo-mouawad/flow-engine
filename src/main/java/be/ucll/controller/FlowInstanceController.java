@@ -1,6 +1,7 @@
 package be.ucll.controller;
 
 import be.ucll.model.FlowInstance;
+import be.ucll.service.FlowDefinitionService;
 import be.ucll.service.FlowInstanceService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,11 @@ public class FlowInstanceController {
     @GetMapping
     public List<FlowInstance> findAllFlowInstances() {
         return flowInstanceService.findAllFlowInstances();
+    }
+
+    @GetMapping("/{id}")
+    public FlowInstance findFlowInstanceById(@PathVariable String id) {
+        return flowInstanceService.findFlowInstanceById(id);
     }
 
     @DeleteMapping("/{id}")

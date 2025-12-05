@@ -19,6 +19,11 @@ public class FlowInstanceService {
         return flowInstanceRepository.findAll();
     }
 
+    public FlowInstance findFlowInstanceById(String id) {
+        return flowInstanceRepository.findById(id)
+                .orElseThrow(() -> new ServiceException("No id found"));
+    }
+
     public void deleteFlowInstanceById(String id) {
         if (id == null) {
             throw new ServiceException("id must now be null");
