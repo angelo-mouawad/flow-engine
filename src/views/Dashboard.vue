@@ -91,8 +91,10 @@ onUnmounted(() => {
           <FlowCard
             v-for="def in flowDefinitions"
             :key="def.id ?? def.title"
+            :id="def.id"
             :title="def.title"
             :description="def.description"
+            :processes="def.processes"
             class="flex-shrink-0 w-60"
           />
         </div>
