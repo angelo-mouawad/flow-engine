@@ -19,13 +19,19 @@ const getRequests = async () => {
     headers: {
       "UserEmail": email.replace('.', '_')
     }
-  })
+  });
 
   return await response.json() as RequestSubmission[];
 };
 
 const getRequestById = async (id: string) => {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/request/pending/${id}`);
+  const email = getUserEmail();
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/request/pending/${id}`, {
+    method: 'GET',
+    headers: {
+      "UserEmail": email.replace('.', '_')
+    }
+  });
   if (!response.ok) {
     throw new Error("Failed to load request");
   }
