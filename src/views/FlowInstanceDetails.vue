@@ -170,7 +170,7 @@ const formatDate = (dateValue?: string | Date) => {
               Last updated
             </p>
             <p class="text-lg font-semibold mt-1">{{ formatDate(flowInstance.updatedAt) }}</p>
-            <p class="text-xs mt-2" :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">
+            <p v-if="flowInstance.currentProcess != null" class="text-xs mt-2" :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">
               Current process: <span class="font-semibold">{{ flowInstance.currentProcess.name || "—" }}</span>
             </p>
           </div>
