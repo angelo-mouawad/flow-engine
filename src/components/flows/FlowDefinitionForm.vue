@@ -11,6 +11,7 @@ import type {
   RequestType,
 } from "../../types";
 import { useThemeStore } from "../../stores/themeStore";
+import { useUserStore } from "../../stores/userStore";
 
 const router = useRouter();
 
@@ -220,6 +221,11 @@ const goBackToFlowDef = () => router.back();
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
+
+const userStore = useUserStore();
+const availableApprovers = computed(() =>
+  userStore.users.filter(user => user.role === "Manager")
+);
 
 const labelTextColor = computed(() =>
   isDarkMode.value ? "text-gray-200" : "text-gray-700"
@@ -510,10 +516,13 @@ watch(
                     "
                   >
                     <option value="">Select approver to add</option>
-                    <option value="adam@glackit.be">
-                      Adam (adam@glackit.be)
+                    <option
+                      v-for="approver in availableApprovers"
+                      :key="approver.email"
+                      :value="approver.email"
+                    >
+                      {{ approver.name }} ({{ approver.email }})
                     </option>
-                    <option value="sum@dkchi.ma">Sum (sum@dkchi.ma)</option>
                   </select>
 
                   <div v-if="step.approvableBy && step.approvableBy.length > 0">
