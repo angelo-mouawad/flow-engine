@@ -9,6 +9,17 @@ import FlowInstanceService from "../services/FlowInstanceService";
 import FlowDefinitionService from "../services/FlowDefinitionService";
 import { useThemeStore } from "../stores/themeStore";
 
+const user = ref<any>(null)
+const stored = sessionStorage.getItem("user")
+
+if (stored) {
+  user.value = JSON.parse(stored)
+}
+
+const isManager = () => {
+  return user.value?.role === "Manager";
+}
+
 const flowInstances = ref<FlowInstance[]>([]);
 const flowDefinitions = ref<FlowDefinition[]>([]);
 const loading = ref(false);
@@ -82,7 +93,7 @@ onUnmounted(() => {
     class="p-2 sm:p-4 w-full transition-colors duration-300"
     :class="isDarkMode ? 'text-white' : 'text-gray-900'"
   >
-    <div class="mb-8">
+    <div v-if="isManager()" class="mb-8">
       <h2 class="pb-2 font-bold text-2xl sm:pb-4 sm:text-4xl">My Flows</h2>
 
       <div class="overflow-x-auto">

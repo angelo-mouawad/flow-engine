@@ -59,6 +59,20 @@ async function saveChanges() {
     console.error("Failed to save flow definition:", err);
   }
 }
+const formatDate = (dateValue?: string | Date) => {
+  if (!dateValue) return "—";
+  try {
+    return new Date(dateValue).toLocaleString("en-GB", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return String(dateValue);
+  }
+};
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
@@ -69,7 +83,7 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
     <div
       v-for="(label, key) in {
         Name: props.selectedDefinition?.title,
-        'Updated At': props.selectedDefinition?.updatedAt,
+        'Updated At': formatDate(props.selectedDefinition?.updatedAt),
         Description: props.selectedDefinition?.description,
       }"
       :key="key"
@@ -88,12 +102,11 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
     <div
       v-for="(label, key) in {
         Name: props.selectedDefinition?.title,
-        'Updated At': props.selectedDefinition?.updatedAt,
+        'Updated At': formatDate(props.selectedDefinition?.updatedAt),
         Description: props.selectedDefinition?.description,
       }"
       :key="key"
-      class="border rouned-md p-4"
-      :class="isDarkMode? 'bg-[#1c1e1f] border-[#2c2d31]' : 'bg-gray-50 border-gray-200'"
+      class="bg-gray-50 border border-gray-200 rounded-md p-4"
     >
       <div class="text-l font-semibold text-gray-500">{{ key }}</div>
       <div class="mt-1">
@@ -112,7 +125,7 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
           />
         </template>
         <template v-else>
-          <div class="text-lg font-semibold text-gray-200">{{ label || 'no value' }}</div>
+          <div class="text-lg font-semibold text-gray-800">{{ label || 'no value' }}</div>
         </template>
       </div>
     </div>
