@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import be.ucll.controller.dto.FlowData;
 import be.ucll.model.*;
-import be.ucll.model.strategies.notification.EmailNotificationType;
 import be.ucll.service.FlowRunnerService;
 import jakarta.annotation.PostConstruct;
 
@@ -43,7 +43,7 @@ public class DbInitializer {
       Request absence = new Request("Absence", "ABSENCE_REQUEST", true, new String[]{"adam@glackit.be", "stef@gmail.com"}, 2);
       Request absence2 = new Request("Absence",  "ABSENCE_REQUEST", false, new String[]{}, 0);
       Approval approval = new Approval("Approval");
-      Notification notification = new Notification("Notification", new EmailNotificationType());
+      Notification notification = new Notification("Notification", "POPUP_NOTIFICATION");
 
       FlowDefinition fd1 = new FlowDefinition(
               "Absence Reporting", 
@@ -68,7 +68,10 @@ public class DbInitializer {
       Map<String, Map<String, Object>> rqdata = new HashMap<>();
       rqdata.put(absence.getRequestTypeName(), data.getAllFields());
 
-      flowRunnerService.instantiateFlow(fd1.getId(), rqdata);
-      flowRunnerService.instantiateFlow(fd2.getId(), rqdata);
+      FlowData flowData = new FlowData("hamid senior absence approval",rqdata);
+      FlowData flowData2 = new FlowData("hamid absence no approval",rqdata);
+
+      flowRunnerService.instantiateFlow(fd1.getId(), flowData);
+      flowRunnerService.instantiateFlow(fd2.getId(), flowData2);
     }
 }

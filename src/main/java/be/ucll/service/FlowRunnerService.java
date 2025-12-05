@@ -10,6 +10,7 @@ import be.ucll.repository.FlowInstanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import be.ucll.controller.dto.FlowData;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -25,12 +26,12 @@ public class FlowRunnerService {
     @Autowired
     private RequestService requestService;
 
-    public void instantiateFlow(String id, Map<String, Map<String, Object>> data){
+    public void instantiateFlow(String id, FlowData flowData){
 
         FlowDefinition fd =  flowDefinitionRepository.findById(id)
             .orElseThrow(()-> new ServiceException("Flow id does not exist"));
 
-        FlowInstance flowInstance = new FlowInstance(fd, fd.getTitle(), data);
+        FlowInstance flowInstance = new FlowInstance(fd, flowData.title(), flowData.data());
         flowInstance = flowInstanceRepository.save(flowInstance);
         runFlow(flowInstance);
     }

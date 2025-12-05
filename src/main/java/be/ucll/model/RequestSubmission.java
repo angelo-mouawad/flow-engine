@@ -21,7 +21,6 @@ public class RequestSubmission {
     @Id
     private String id;
 
-    @JsonIgnore
     private Map<String, RequestStatus> approvals = new HashMap<>();
 
     private RequestStatus status;

@@ -1,7 +1,6 @@
 package be.ucll.controller;
 
 import be.ucll.model.FlowInstance;
-import be.ucll.service.FlowDefinitionService;
 import be.ucll.service.FlowInstanceService;
 
 import org.springframework.beans.factory.annotation.Autowired;
