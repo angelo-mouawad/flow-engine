@@ -27,6 +27,8 @@ export type FlowInstance = {
   title: string;
   flowStatus: Status;
   currentProcess: Process;
+  step: number;
+  processes: Process[];
   updatedAt: Date;
   flowDefinition?: FlowDefinition | null;
 };

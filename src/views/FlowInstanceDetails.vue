@@ -158,10 +158,7 @@ const formatDate = (dateValue?: string | Date) => {
               Flow Definition
             </p>
             <p class="text-lg font-semibold mt-1">
-              {{ flowInstance.flowDefinition?.title || "—" }}
-            </p>
-            <p class="text-sm mt-2" :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'">
-              {{ flowInstance.flowDefinition?.description || "No description provided." }}
+              {{ flowInstance.title || "—" }}
             </p>
           </div>
 
@@ -174,7 +171,7 @@ const formatDate = (dateValue?: string | Date) => {
             </p>
             <p class="text-lg font-semibold mt-1">{{ formatDate(flowInstance.updatedAt) }}</p>
             <p class="text-xs mt-2" :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">
-              Current process: <span class="font-semibold">{{ flowInstance.currentProcess?.name || "—" }}</span>
+              Current process: <span class="font-semibold">{{ flowInstance.currentProcess.name || "—" }}</span>
             </p>
           </div>
         </div>
@@ -185,20 +182,20 @@ const formatDate = (dateValue?: string | Date) => {
           </p>
 
           <div
-            v-if="flowInstance.flowDefinition?.processes?.length"
+            v-if="flowInstance.processes?.length"
             class="rounded-md border p-4 transition-colors duration-200"
             :class="isDarkMode ? 'bg-[#181a1b] border-[#2c2f31]' : 'bg-gray-50 border-gray-200'"
           >
             <ol class="relative border-l pl-6 ml-4" :class="isDarkMode ? 'border-[#2c2f31]' : 'border-gray-200'">
               <li
-                v-for="process in flowInstance.flowDefinition.processes"
-                :key="process.id"
+                v-for="process, i in flowInstance.processes"
+                :key="i"
                 class="mb-6 last:mb-0"
               >
                 <span
                   class="absolute -left-3 flex items-center justify-center w-6 h-6 rounded-full border text-xs font-semibold"
                   :class="[
-                    process.id === flowInstance.currentProcess?.id
+                    i === flowInstance.step 
                       ? 'bg-yellow-500 text-gray-900 border-yellow-500'
                       : isDarkMode
                         ? 'bg-[#1c1e1f] text-gray-300 border-[#2c2f31]'
