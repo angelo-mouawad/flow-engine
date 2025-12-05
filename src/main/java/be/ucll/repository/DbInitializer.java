@@ -40,7 +40,7 @@ public class DbInitializer {
       flowInstanceRepository.deleteAll();
       requestSubmissionRepository.deleteAll();
 
-      Request absence = new Request("Absence", "ABSENCE_REQUEST", true, new String[]{"adam@glackit.be", "zbi@dkchi.ma"}, 2);
+      Request absence = new Request("Absence", "ABSENCE_REQUEST", true, new String[]{"adam@glackit.be", "stef@gmail.com"}, 2);
       Request absence2 = new Request("Absence",  "ABSENCE_REQUEST", false, new String[]{}, 0);
       Approval approval = new Approval("Approval");
       Notification notification = new Notification("Notification", new EmailNotificationType());
