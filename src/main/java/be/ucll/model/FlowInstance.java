@@ -75,7 +75,6 @@ public class FlowInstance {
         return flowDefinition.getProcesses();
     }
 
-    @JsonIgnore
     public Process getCurrentProcess() {
         if(step >= flowDefinition.getProcesses().size()){
             return null;
