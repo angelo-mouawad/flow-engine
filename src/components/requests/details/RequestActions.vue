@@ -45,7 +45,7 @@ const handleAction = async (type: "approve" | "decline") => {
     <div class="flex flex-col sm:flex-row gap-4 sm:justify-center">
       <button
         type="button"
-        class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         :disabled="actionLoading"
         @click="handleAction('approve')"
       >
@@ -53,7 +53,7 @@ const handleAction = async (type: "approve" | "decline") => {
       </button>
       <button
         type="button"
-        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        class="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         :disabled="actionLoading"
         @click="handleAction('decline')"
       >

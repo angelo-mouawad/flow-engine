@@ -61,19 +61,6 @@ watch(
 const goBack = () => {
   router.push({ name: "FlowDefinitions" });
 };
-
-const formatDate = (value?: string | Date) => {
-  if (!value) return "—";
-  try {
-    return new Date(value).toLocaleDateString("en-GB", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  } catch {
-    return String(value);
-  }
-};
 </script>
 
 <template>
@@ -93,13 +80,10 @@ const formatDate = (value?: string | Date) => {
           <h1 class="text-2xl font-semibold mt-1">
             {{ flowDefinition?.title || "Flow definition details" }}
           </h1>
-          <p class="text-sm mt-1" :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">
-            Last updated: <span class="font-semibold">{{ formatDate(flowDefinition?.updatedAt) }}</span>
-          </p>
         </div>
         <button
           type="button"
-          class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-6 rounded-md shadow-sm transition-colors cursor-pointer self-start sm:self-auto"
+          class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-6 rounded-md shadow-sm transition-colors cursor-pointer"
           @click="goBack"
         >
           Back to list
@@ -129,7 +113,6 @@ const formatDate = (value?: string | Date) => {
 
       <div v-else class="space-y-8">
         <FlowDetails :selected-definition="flowDefinition" />
-
       </div>
     </div>
   </div>

@@ -3,7 +3,6 @@ import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import FlowDefinitionService from "../../services/FlowDefinitionService";
 import FlowDiagram from "./FlowDiagram.vue";
-import ProcessService from "../../services/ProcessService";
 import type {
   NotificationType,
   Process,
@@ -24,11 +23,6 @@ const description = ref("");
 const steps = ref<Process[]>([]);
 
 const showProcessMenu = ref(false);
-const allProcesses = ref<Process[]>([]);
-
-(async () => {
-  allProcesses.value = await ProcessService.getProcess();
-})();
 
 const addProcess = (processType: ProcessType) => {
   let newProcess: Process;
@@ -273,12 +267,7 @@ watch(
 
           <button
             @click="goBackToFlowDef"
-            class="flex items-center w-fit mb-2 transition-colors font-medium mt-2 cursor-pointer"
-            :class="
-              isDarkMode
-                ? 'text-gray-200 hover:text-white'
-                : 'text-yellow-700 hover:text-yellow-500'
-            "
+            class="flex items-center w-fit mb-2 transition-colors font-medium mt-2 cursor-pointer text-sidebarprimary hover:text-yellow-600"
           >
             <svg
               class="w-4 h-4 mr-2 mt-0.5"
@@ -311,12 +300,14 @@ watch(
           <div class="mb-4 grid grid-cols-2 gap-4 w-full">
             <div>
               <label
+                for="flowName"
                 class="block text-sm font-bold mb-2"
                 :class="labelTextColor"
               >
                 Flow Name
               </label>
               <input
+                id="flowName"
                 v-model="flowName"
                 type="text"
                 placeholder="Enter flow name"
@@ -335,10 +326,11 @@ watch(
           </div>
 
           <div class="mb-4 w-full">
-            <label class="block text-sm font-bold mb-2" :class="labelTextColor">
+            <label class="block text-sm font-bold mb-2" :class="labelTextColor" for="flowDescription">
               Description
             </label>
             <textarea
+              id="flowDescription"
               v-model="description"
               rows="4"
               placeholder="Describe what this flow does"
@@ -387,7 +379,7 @@ watch(
               <button
                 @click="deleteStep(index)"
                 type="button"
-                class="flex items-center gap-1 font-semibold text-sm transition-colors"
+                class="flex items-center gap-1 font-semibold text-sm transition-colors cursor-pointer"
                 :class="
                   isDarkMode
                     ? 'text-red-300 hover:text-red-200'
@@ -415,10 +407,12 @@ watch(
               <label
                 class="block text-sm font-bold mb-2"
                 :class="labelTextColor"
+                for="flowProcess"
               >
                 Process Name
               </label>
               <input
+                id="flowProcess"
                 v-model="step.name"
                 type="text"
                 placeholder="Enter process name"
@@ -434,15 +428,17 @@ watch(
             <template v-if="step.processType === 'REQUEST'">
               <div class="mb-4">
                 <label
+                  for="flowRequestType"
                   class="block text-sm font-bold mb-2"
                   :class="labelTextColor"
                 >
                   Request Type
                 </label>
                 <select
+                  id="flowRequestType"
                   v-model="step.requestTypeName"
+                  class="shadow border rounded w-full py-2 px-3 transition-colors duration-200 cursor-pointer"
                   :class="[
-                    'shadow border rounded w-full py-2 px-3 transition-colors duration-200',
                     isDarkMode
                       ? 'bg-[#1c1e1f] border-[#2c2f31] text-white'
                       : 'bg-white border-gray-300 text-gray-700',
@@ -459,11 +455,12 @@ watch(
                   v-model="step.approvable"
                   type="checkbox"
                   :id="`approvable-${index}`"
-                  class="mr-2 h-4 w-4"
+                  class="mr-2 h-5 w-5 cursor-pointer border rounded-md appearance-none transition-colors checked:bg-sidebarprimary"
+                  :class="isDarkMode ? 'bg-[#181a1b] border-[#2c2f31]' : 'bg-gray-50 bg-gray-200'"
                 />
                 <label
                   :for="`approvable-${index}`"
-                  class="text-sm font-bold"
+                  class="text-sm font-bold cursor-pointer"
                   :class="labelTextColor"
                 >
                   Requires Approval
@@ -473,12 +470,14 @@ watch(
               <template v-if="step.approvable">
                 <div class="mb-4">
                   <label
+                    for="flowMinApprovalsChecker"
                     class="block text-sm font-bold mb-2"
                     :class="labelTextColor"
                   >
                     Minimum Approvals Required
                   </label>
                   <input
+                    id="flowMinApprovalsChecker"
                     v-model.number="step.minApprovals"
                     type="number"
                     min="1"
@@ -494,6 +493,7 @@ watch(
 
                 <div class="mb-4">
                   <label
+                    for="flowApprovers"
                     class="block text-sm font-bold mb-2"
                     :class="labelTextColor"
                   >
@@ -501,8 +501,9 @@ watch(
                   </label>
 
                   <select
+                    id="flowApprovers"
+                    class="shadow border rounded w-full py-2 px-3 mb-2 transition-colors duration-200 cursor-pointer"
                     :class="[
-                      'shadow border rounded w-full py-2 px-3 mb-2 transition-colors duration-200',
                       isDarkMode
                         ? 'bg-[#1c1e1f] border-[#2c2f31] text-white'
                         : 'bg-white border-gray-300 text-gray-700',
@@ -530,13 +531,13 @@ watch(
                       v-for="(email, emailIndex) in step.approvableBy"
                       :key="emailIndex"
                       class="flex items-center justify-between px-3 py-2 rounded"
-                      :class="isDarkMode ? 'bg-[#242628]' : 'bg-gray-100'"
+                      :class="isDarkMode ? 'bg-[#1c1e1f]' : 'bg-gray-100'"
                     >
                       <span class="text-sm">{{ email }}</span>
                       <button
                         @click="removeApprover(index, emailIndex)"
                         type="button"
-                        class="flex items-center gap-1 text-red-500 hover:text-red-700 text-sm font-semibold"
+                        class="flex items-center gap-1 text-red-500 hover:text-red-700 text-sm font-semibold cursor-pointer"
                       >
                         <svg
                           class="w-4 h-4"
@@ -562,15 +563,17 @@ watch(
             <template v-if="step.processType === 'NOTIFICATION'">
               <div class="mb-4">
                 <label
+                  for="flowNotificationType"
                   class="block text-sm font-bold mb-2"
                   :class="labelTextColor"
                 >
                   Notification Type
                 </label>
                 <select
+                  id="flowNotificationType"
                   v-model="step.notificationType"
+                  class="shadow border rounded w-full py-2 px-3 transition-colors duration-200 cursor-pointer"
                   :class="[
-                    'shadow border rounded w-full py-2 px-3 transition-colors duration-200',
                     isDarkMode
                       ? 'bg-[#1c1e1f] border-[#2c2f31] text-white'
                       : 'bg-white border-gray-300 text-gray-700',
@@ -589,7 +592,7 @@ watch(
           <button
             @click="showProcessMenu = !showProcessMenu"
             type="button"
-            class="w-full rounded-lg border-2 border-dashed py-4 text-center mt-2 transition-colors"
+            class="w-full rounded-lg border-2 border-dashed py-4 text-center mt-2 transition-colors cursor-pointer"
             :class="
               isDarkMode
                 ? 'border-gray-600 text-gray-200 hover:border-gray-400 hover:bg-[#242628]'
