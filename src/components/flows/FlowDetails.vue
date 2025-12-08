@@ -76,21 +76,6 @@ const formatDate = (dateValue?: string | Date) => {
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
-
-const formatDate = (dateValue?: string | Date) => {
-  if (!dateValue) return "—";
-  try {
-    return new Date(dateValue).toLocaleString("en-GB", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return String(dateValue);
-  }
-};
 </script>
 
 <template>
