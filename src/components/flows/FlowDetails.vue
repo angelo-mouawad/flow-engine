@@ -59,10 +59,6 @@ async function saveChanges() {
     console.error("Failed to save flow definition:", err);
   }
 }
-
-const themeStore = useThemeStore();
-const isDarkMode = computed(() => themeStore.isDarkMode);
-
 const formatDate = (dateValue?: string | Date) => {
   if (!dateValue) return "—";
   try {
@@ -77,6 +73,9 @@ const formatDate = (dateValue?: string | Date) => {
     return String(dateValue);
   }
 };
+
+const themeStore = useThemeStore();
+const isDarkMode = computed(() => themeStore.isDarkMode);
 </script>
 
 <template>

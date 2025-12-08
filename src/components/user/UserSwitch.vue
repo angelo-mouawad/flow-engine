@@ -40,6 +40,7 @@ const setUser = (name: string) => {
   }
 
   isOpen.value = false;
+  window.location.reload();
 }
 
 </script>
