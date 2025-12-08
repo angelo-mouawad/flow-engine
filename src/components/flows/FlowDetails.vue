@@ -76,69 +76,125 @@ const formatDate = (dateValue?: string | Date) => {
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
+
+const formatDate = (dateValue?: string | Date) => {
+  if (!dateValue) return "—";
+  try {
+    return new Date(dateValue).toLocaleString("en-GB", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return String(dateValue);
+  }
+};
 </script>
 
 <template>
-  <div v-if="!isEditing" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+  <div v-if="!isEditing" class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div
-      v-for="(label, key) in {
-        Name: props.selectedDefinition?.title,
-        'Updated At': formatDate(props.selectedDefinition?.updatedAt),
-        Description: props.selectedDefinition?.description,
-      }"
-      :key="key"
       class="rounded-md p-4 border transition-colors duration-200"
-      :class="isDarkMode ? 'bg-[#1c1e1f] border-[#2c2f31]' : 'bg-gray-50 border-gray-200'"
+      :class="isDarkMode ? 'bg-[#181a1b] border-[#2c2f31]' : 'bg-gray-50 border-gray-200'"
     >
-      <div class="text-xs font-medium" :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">
-        {{ key }}
-      </div>
-      <div class="mt-1 text-lg font-semibold" :class="isDarkMode ? 'text-white' : 'text-gray-800'">
-        {{ label || "no value" }}
-      </div>
+      <p
+        class="text-xs font-medium uppercase tracking-wide"
+        :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'"
+      >
+        name
+      </p>
+      <p class="text-lg font-semibold mt-1">
+        {{ props.selectedDefinition?.title || "—" }}
+      </p>
+    </div>
+
+    <div
+      class="rounded-md p-4 border transition-colors duration-200"
+      :class="isDarkMode ? 'bg-[#181a1b] border-[#2c2f31]' : 'bg-gray-50 border-gray-200'"
+    >
+      <p
+        class="text-xs font-medium uppercase tracking-wide"
+        :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'"
+      >
+        last updated
+      </p>
+      <p class="text-lg font-semibold mt-1">{{ formatDate(props.selectedDefinition?.updatedAt) }}</p>
+    </div>
+    <div
+      class="rounded-md p-4 border transition-colors duration-200 col-span-full"
+      :class="isDarkMode ? 'bg-[#181a1b] border-[#2c2f31]' : 'bg-gray-50 border-gray-200'"
+    >
+      <p
+        class="text-xs font-medium uppercase tracking-wide"
+        :class="isDarkMode? 'text-gray-400' : 'text-gray-500'"
+      >
+        description
+      </p>
+      <p class="text-lg font-semibold mt-1">
+        {{ props.selectedDefinition?.description }}
+      </p>
     </div>
   </div>
-  <div v-if="isEditing" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+  <div v-if="isEditing" class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div
-      v-for="(label, key) in {
-        Name: props.selectedDefinition?.title,
-        'Updated At': formatDate(props.selectedDefinition?.updatedAt),
-        Description: props.selectedDefinition?.description,
-      }"
-      :key="key"
-      class="bg-gray-50 border border-gray-200 rounded-md p-4"
+      class="rounded-md p-4 border transition-colors duration-200"
+      :class="isDarkMode ? 'bg-[#181a1b] border-[#2c2d31]' : 'bg-gray-50 border-gray-200'"
     >
-      <div class="text-l font-semibold text-gray-500">{{ key }}</div>
-      <div class="mt-1">
-        <template v-if="key === 'Name'">
-          <input
-            v-model="nameInput"
-            class="w-full border border-gray-300 rounded-md p-2"
-            type="text"
-          />
-        </template>
-        <template v-else-if="key === 'Description'">
-          <input
-            v-model="descriptionInput"
-            class="w-full border border-gray-300 rounded-md p-2"
-            type="text"
-          />
-        </template>
-        <template v-else>
-          <div class="text-lg font-semibold text-gray-800">{{ label || 'no value' }}</div>
-        </template>
-      </div>
+      <p class="text-xs font-medium uppercase tracking-wide"
+        :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'"
+      >
+        name
+      </p>
+      <input
+        v-model="nameInput"
+        type="text"
+        class="w-full mt-2 border rounded-md p-2 outline-none transition-colors focus:border-sidebarprimary focus:ring-sidebarprimary"
+        :class="isDarkMode ? 'bg-[#181a1b] border-[#2c2d31]' : 'bg-gray-50 border-gray-200'"
+      />
+    </div>
+    <div
+      class="rounded-md p-4 border transition-colors duration-200"
+      :class="isDarkMode ? 'bg-[#181a1b] border-[#2c2d31]' : 'bg-gray-50 border-gray-200'"
+    >
+      <p 
+        class="text-xs font-medium uppercase tracking-wide"
+        :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'"
+      >
+        last updated
+      </p>
+      <p class="text-lg font-semibold mt-2 opacity-70">
+        {{ formatDate(props.selectedDefinition?.updatedAt) }}
+      </p>
+    </div>
+    <div
+      class="rounded-md p-4 border transition-colors duration-200 col-span-full"
+      :class="isDarkMode ? 'bg-[#1c1e1f] border-[#2c2d31]' : 'bg-gray-50 border-gray-200'"
+    >
+      <p 
+        class="text-xs font-medium uppercase tracking-wide"
+        :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'"
+      >
+        description
+      </p>
+      <textarea
+        v-model="descriptionInput"
+        rows="3"
+        class="w-full mt-2 border rounded-md outline-none p-2 focus:border-sidebarprimary focus:ring-sidebarprimary"
+        :class="isDarkMode ? 'bg-[#181a1b] border-[#2c2f31]' : 'bg-gray-50 border-gray-200'"
+      ></textarea>
     </div>
   </div>
   <div class="mt-5">
-    <p class="text-xs font-medium text-gray-500 mb-3">Diagram</p>
+    <p class="text-xs font-medium text-gray-500 mb-3">DIAGRAM</p>
     <div v-if="props.selectedDefinition?.processes && props.selectedDefinition.processes.length > 0">
       <FlowDiagram :processes="props.selectedDefinition.processes" />
     </div>
     <div
       v-else
       class="rounded-md p-4 border transition-colors duration-200 text-center"
-      :class="isDarkMode ? 'bg-[#1c1e1f] border-[#2c2f31] text-gray-300' : 'bg-gray-50 border-gray-200 text-gray-500'"
+      :class="isDarkMode ? 'bg-[#181a1b] border-[#2c2f31] text-gray-300' : 'bg-gray-50 border-gray-200 text-gray-500'"
     >
       <p>No processes in this flow</p>
     </div>
@@ -146,7 +202,7 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
   <div class="flex items-center justify-center gap-3">
     <button 
       v-if="!isEditing"
-      class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-6 border border-yellow-600 rounded-md shadow-sm transition-colors cursor-pointer mt-5"
+      class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-6 border border-yellow-600 rounded-md shadow-sm transition-colors cursor-pointer mt-2"
       type="button"
       @click="startEdit"
     >
@@ -156,7 +212,7 @@ const isDarkMode = computed(() => themeStore.isDarkMode);
       v-if="isEditing"
       @click="saveChanges"
       type="button"
-      class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-6 border border-yellow-600 rounded-md shadow-sm transition-colors cursor-pointer mt-5"
+      class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-6 border border-yellow-600 rounded-md shadow-sm transition-colors cursor-pointer mt-2"
     >
       Save
     </button>

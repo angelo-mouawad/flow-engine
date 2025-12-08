@@ -155,8 +155,8 @@ watch([nodes, edges], ([newNodes, newEdges]) => {
 }
 
 .flow-diagram-container--dark {
-  background-color: #1c1e1f;
-  border-color: #181a1b;
+  background-color: #181a1b;
+  border-color: #2c2f31;
 }
 
 .flow-diagram {
