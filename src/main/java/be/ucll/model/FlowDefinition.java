@@ -79,7 +79,7 @@ public class FlowDefinition {
     }
 
     public void setTitle(String title) {
-        this.title = title.replace(" ", "-").toLowerCase();
+        this.title = title; 
     }
 
     public void setDescription(String description) {

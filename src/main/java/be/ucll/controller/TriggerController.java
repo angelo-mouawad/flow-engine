@@ -17,6 +17,7 @@ import org.springframework.web.context.request.WebRequest;
 import be.ucll.controller.dto.FlowData;
 import be.ucll.service.FlowRunnerService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/trigger")
@@ -30,7 +31,7 @@ public class TriggerController {
     }
 
     @PostMapping("/{id}")
-    public void triggerFlow(@PathVariable String id, @RequestBody FlowData flowData, HttpServletRequest request){
+    public void triggerFlow(@PathVariable String id, @RequestBody @Valid FlowData flowData, HttpServletRequest request){
         StringBuffer url = request.getRequestURL();
         String uri = request.getRequestURI();
         String baseUrl = url.substring(0, url.indexOf(uri));
