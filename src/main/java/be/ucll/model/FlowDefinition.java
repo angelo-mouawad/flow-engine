@@ -2,7 +2,10 @@ package be.ucll.model;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -23,12 +26,15 @@ public class FlowDefinition {
     private String description;
     @NotEmpty
     private List<Process> processes;
+    private Set<String> triggerableBy = new HashSet<>();
+    private boolean anyTrigger = false;
 
     private LocalDateTime updatedAt;
 
-    public FlowDefinition(String title, String description, List<? extends Process> processes) {
+    public FlowDefinition(String title, String description, Set<String> triggerableBy, List<? extends Process> processes) {
         setTitle(title);
         setDescription(description);
+        setTriggerableBy(triggerableBy);
         setProcesses(processes);
         setUpdatedAt(LocalDateTime.now());
     }
@@ -43,6 +49,14 @@ public class FlowDefinition {
 
     public String getDescription() {
         return description;
+    }
+
+    public Set<String> getTriggerableBy() {
+        return triggerableBy;
+    }
+
+    public boolean isAnyTrigger() {
+        return anyTrigger;
     }
 
     public List<Process> getProcesses() {
@@ -70,6 +84,14 @@ public class FlowDefinition {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void setTriggerableBy(Set<String> triggerableBy) {
+        if (triggerableBy == null || triggerableBy.isEmpty()) {
+            anyTrigger = true;    
+        }else{
+            this.triggerableBy = triggerableBy;
+        }
     }
 
     public void setProcesses(List<? extends Process> processes) {

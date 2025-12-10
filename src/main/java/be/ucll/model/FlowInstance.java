@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import be.ucll.exception.DomainException;
 import be.ucll.model.enums.FlowStatus;
+import be.ucll.model.enums.RequestTypeEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -27,21 +28,28 @@ public class FlowInstance {
     private String title;
 
     @NotNull
+    private String triggeredBy;
+    @NotNull
+    private String callingURL;
+
+    @NotNull
     @JsonIgnore
     private FlowDefinition flowDefinition;
 
     @NotNull
     private FlowStatus flowStatus;
 
-    private Map<String, Map<String, Object>> data = new HashMap<>();
+    private Map<RequestTypeEnum, Map<String, Object>> data = new HashMap<>();
 
     private int step;
     private LocalDateTime updatedAt;
 
-    public FlowInstance(FlowDefinition flowDefinition, String title, Map<String, Map<String, Object>> data) {
+    public FlowInstance(FlowDefinition flowDefinition, String title, String triggeredBy, String callingURL, Map<RequestTypeEnum, Map<String, Object>> data) {
         step = 0;
         setFlowDefinition(flowDefinition);
         setTitle(title);
+        setTriggeredBy(triggeredBy);
+        setCallingURL(callingURL);
         setFlowStatus(FlowStatus.ACTIVE);
         setUpdatedAt(LocalDateTime.now());
         this.data = data;
@@ -55,12 +63,20 @@ public class FlowInstance {
         return title;
     }
 
-    public Map<String, Map<String, Object>> getData() {
-        return data;
+    public String getTriggeredBy() {
+        return triggeredBy;
+    }
+
+    public String getCallingURL() {
+        return callingURL;
     }
 
     public String getFlowDefinitionId() {
         return flowDefinition.getId();
+    }
+
+    public Map<RequestTypeEnum, Map<String, Object>> getData() {
+        return data;
     }
 
     public FlowStatus getFlowStatus() {
@@ -113,6 +129,14 @@ public class FlowInstance {
             throw new DomainException("FlowInstance Title cannot be empty");
 
         this.title = title;
+    }
+
+    public void setTriggeredBy(String triggeredBy) {
+        this.triggeredBy = triggeredBy;
+    }
+
+    public void setCallingURL(String callingURL) {
+        this.callingURL = callingURL;
     }
 
     public void setFlowStatus(FlowStatus status) {

@@ -2,6 +2,7 @@ package be.ucll.model.strategies.request;
 
 import be.ucll.exception.DomainException;
 import be.ucll.model.*;
+import be.ucll.model.enums.RequestTypeEnum;
 
 import java.time.ZonedDateTime;
 
@@ -30,7 +31,7 @@ public class ClockInRequestType implements RequestType {
     }
  
     @Override
-    public String getTypeName() {
-        return "CLOCKIN_REQUEST";
+    public RequestTypeEnum getTypeName() {
+        return RequestTypeEnum.CLOCKIN_REQUEST;
     }
 }

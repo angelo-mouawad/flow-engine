@@ -2,8 +2,11 @@ package be.ucll.controller.dto;
 
 import java.util.Map;
 
+import be.ucll.model.enums.RequestTypeEnum;
+
 public record FlowData(
     String title,
-    Map<String, Map<String, Object>> data
+    String triggeredBy,
+    Map<RequestTypeEnum, Map<String, Object>> data
         ) {
 }

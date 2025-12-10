@@ -2,6 +2,7 @@ package be.ucll.model.strategies.request;
 
 import be.ucll.exception.DomainException;
 import be.ucll.model.*;
+import be.ucll.model.enums.RequestTypeEnum;
 
 import java.time.LocalDate;
 
@@ -35,7 +36,7 @@ public class AbsenceRequestType implements RequestType {
     }
  
     @Override
-    public String getTypeName() {
-        return "ABSENCE_REQUEST";
+    public RequestTypeEnum getTypeName() {
+        return RequestTypeEnum.ABSENCE_REQUEST;
     }
 }

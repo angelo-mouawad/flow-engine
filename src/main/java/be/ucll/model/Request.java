@@ -3,6 +3,7 @@ package be.ucll.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import be.ucll.model.enums.ProcessType;
+import be.ucll.model.enums.RequestTypeEnum;
 import be.ucll.model.strategies.request.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,9 +19,9 @@ public class Request extends Process{
 
     @NotNull
     @NotBlank(message = "requestTypeName is required")
-    private String requestTypeName;
+    private RequestTypeEnum requestTypeName;
 
-    public Request(String name, String requestTypeName, boolean approvable, String[] approvableBy, int minApprovals){
+    public Request(String name, RequestTypeEnum requestTypeName, boolean approvable, String[] approvableBy, int minApprovals){
         super(name, ProcessType.REQUEST);
         setRequestType(requestTypeName);
         this.approvable = approvable;
@@ -40,7 +41,7 @@ public class Request extends Process{
         return requestType;
     }
 
-    public String getRequestTypeName(){
+    public RequestTypeEnum getRequestTypeName(){
         return requestTypeName;
     }
 
@@ -56,7 +57,7 @@ public class Request extends Process{
         return approvableBy;
     }
 
-    public void setRequestType(String requestTypeName) {
+    public void setRequestType(RequestTypeEnum requestTypeName) {
         this.requestTypeName = requestTypeName;
         this.requestType = RequestTypeFactory.fromTypeName(requestTypeName);
     }

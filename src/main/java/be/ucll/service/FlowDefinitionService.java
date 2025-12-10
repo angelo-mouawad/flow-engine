@@ -34,21 +34,23 @@ public class FlowDefinitionService {
         FlowDefinition flow = new FlowDefinition(
                 input.title(),
                 input.description(),
+                input.triggerableBy(),
                 input.processes()
         );
 
         return flowDefinitionRepository.save(flow);
     }
 
-    public FlowDefinition updateFlowDefinition(FlowDefinitionInput updatedFlowDefintion, String id) {
-        FlowDefinition oldFlowDefinition = flowDefinitionRepository.findById(id)
+    public FlowDefinition updateFlowDefinition(FlowDefinitionInput input, String id) {
+        FlowDefinition flowDefinition = flowDefinitionRepository.findById(id)
           .orElseThrow(() -> new ServiceException("No id found"));
 
-        oldFlowDefinition.setTitle(updatedFlowDefintion.title());
-        oldFlowDefinition.setDescription(updatedFlowDefintion.description());
-        oldFlowDefinition.setProcesses(updatedFlowDefintion.processes());
+        flowDefinition.setTitle(input.title());
+        flowDefinition.setDescription(input.description());
+        flowDefinition.setTriggerableBy(input.triggerableBy());
+        flowDefinition.setProcesses(input.processes());
 
-        return flowDefinitionRepository.save(oldFlowDefinition);
+        return flowDefinitionRepository.save(flowDefinition);
     }
 
     public void deleteFlowDefinition(String id) {

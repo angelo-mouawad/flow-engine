@@ -59,13 +59,4 @@ public abstract class Process {
     private void setProcessType(ProcessType processType) {
         this.processType = processType;
     }
-
-    public LocalDateTime getCreatedAt() {
-        if (flowInstanceId == null) return null;
-
-        return new ObjectId(flowInstanceId).getDate()
-            .toInstant()
-            .atZone(ZoneOffset.UTC)
-            .toLocalDateTime();
-    }
 }

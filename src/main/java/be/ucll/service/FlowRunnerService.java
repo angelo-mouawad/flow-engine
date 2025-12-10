@@ -4,6 +4,7 @@ import be.ucll.exception.ServiceException;
 import be.ucll.model.*;
 import be.ucll.model.Process;
 import be.ucll.model.enums.FlowStatus;
+import be.ucll.model.enums.RequestTypeEnum;
 import be.ucll.repository.FlowDefinitionRepository;
 import be.ucll.repository.FlowInstanceRepository;
 
@@ -26,19 +27,23 @@ public class FlowRunnerService {
     @Autowired
     private RequestService requestService;
 
-    public void instantiateFlow(String id, FlowData flowData){
+    public void instantiateFlow(String id, String url, FlowData flowData){
 
         FlowDefinition fd =  flowDefinitionRepository.findById(id)
             .orElseThrow(()-> new ServiceException("Flow id does not exist"));
 
-        FlowInstance flowInstance = new FlowInstance(fd, flowData.title(), flowData.data());
+        if (!fd.isAnyTrigger() && !fd.getTriggerableBy().contains(flowData.triggeredBy())) {
+            throw new ServiceException("Flow is not triggerable by " + flowData.triggeredBy());
+        }
+
+        FlowInstance flowInstance = new FlowInstance(fd, flowData.title(), flowData.triggeredBy(), url, flowData.data());
         flowInstance = flowInstanceRepository.save(flowInstance);
         runFlow(flowInstance);
     }
 
     private void runFlow(FlowInstance flowInstance){
         try{
-            Map<String, Map<String, Object>> data = flowInstance.getData();
+            Map<RequestTypeEnum, Map<String, Object>> data = flowInstance.getData();
 
             while (flowInstance.getCurrentProcess() != null) {
                 Process current = flowInstance.getCurrentProcess();
