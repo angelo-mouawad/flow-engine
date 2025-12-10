@@ -13,11 +13,14 @@ export type FlowDefinition = {
   processes: Process[];
   flowInstances?: FlowInstance[];
   updatedAt?: Date;
+  triggerableBy: string[];
+  anyTrigger: boolean;
 };
 
 export type FlowDefinitionPayload = {
   title: string;
   description: string;
+  triggerableBy: string[];
   processes: Process[];
 };
 
@@ -31,6 +34,8 @@ export type FlowInstance = {
   processes: Process[];
   updatedAt: Date;
   flowDefinition?: FlowDefinition | null;
+  triggeredBy: string;
+  callingURL: string;
 };
 
 type ProcessBase = {
