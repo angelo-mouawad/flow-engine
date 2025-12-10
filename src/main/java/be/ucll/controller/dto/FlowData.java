@@ -4,6 +4,7 @@ import java.util.Map;
 
 import be.ucll.model.enums.RequestTypeEnum;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public record FlowData(
@@ -14,7 +15,7 @@ public record FlowData(
     @NotBlank
     String triggeredBy,
     @NotNull
-    @NotBlank
+    @NotEmpty
     Map<RequestTypeEnum, Map<String, Object>> data
         ) {
 }
