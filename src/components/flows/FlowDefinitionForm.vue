@@ -5,7 +5,6 @@ import FlowDefinitionService from "../../services/FlowDefinitionService";
 import FlowDiagram from "./FlowDiagram.vue";
 import vSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
-import "../../assets/vue-select-custom.css";
 import type {
   NotificationType,
   Process,
@@ -353,10 +352,6 @@ watch(
               :reduce="(user: any) => user.email"
               placeholder="Search and select users..."
               multiple
-              :class="[
-                'vue-select-custom',
-                isDarkMode ? 'vue-select-dark' : '',
-              ]"
             >
               <template #option="{ name, email, role }">
                 <div class="flex justify-between items-center">
@@ -468,10 +463,6 @@ watch(
                   label="label"
                   placeholder="Select request type..."
                   :clearable="false"
-                  :class="[
-                    'vue-select-custom',
-                    isDarkMode ? 'vue-select-dark' : '',
-                  ]"
                 />
               </div>
 
@@ -536,10 +527,6 @@ watch(
                     :reduce="(user: any) => user.email"
                     placeholder="Search and select approvers..."
                     multiple
-                    :class="[
-                      'vue-select-custom',
-                      isDarkMode ? 'vue-select-dark' : '',
-                    ]"
                   >
                     <template #option="{ name, email, role }">
                       <div class="flex justify-between items-center">
@@ -577,10 +564,6 @@ watch(
                   label="label"
                   placeholder="Select notification type..."
                   :clearable="false"
-                  :class="[
-                    'vue-select-custom',
-                    isDarkMode ? 'vue-select-dark' : '',
-                  ]"
                 />
               </div>
             </template>

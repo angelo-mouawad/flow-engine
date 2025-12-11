@@ -36,3 +36,105 @@ body {
   border-color: var(--surface-border);
   color: var(--text-color);
 }
+
+/* vue select */
+:root {
+  --vs-colors--lightest: rgba(60, 60, 60, 0.26);
+  --vs-colors--light: rgba(60, 60, 60, 0.5);
+  --vs-colors--dark: #374151;
+  --vs-colors--darkest: rgba(0, 0, 0, 0.15);
+
+  --vs-search-input-color: #374151;
+  --vs-search-input-bg: #ffffff;
+  --vs-search-input-placeholder-color: #9ca3af;
+
+  --vs-font-size: 1rem;
+  --vs-line-height: 1.4;
+
+  --vs-border-color: var(--surface-border);
+  --vs-border-width: 1px;
+  --vs-border-style: solid;
+  --vs-border-radius: 0.375rem;
+
+  --vs-selected-bg: #f5f5f5;
+  --vs-selected-color: var(--text-color);
+  --vs-selected-border-color: var(--surface-border);
+  --vs-selected-border-width: 1px;
+
+  --vs-dropdown-bg: var(--surface-bg);
+  --vs-dropdown-color: var(--text-color);
+  --vs-dropdown-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --vs-dropdown-max-height: 200px;
+  --vs-dropdown-z-index: 1000;
+
+  --vs-dropdown-option-color: var(--text-color);
+  --vs-dropdown-option-padding: 0.5rem 0.75rem;
+
+  --vs-dropdown-option--active-bg: #f3f4f6;
+  --vs-dropdown-option--active-color: #111827;
+
+  --vs-controls-color: #6b7280;
+  --vs-controls--deselect-color: #6b7280;
+}
+
+:root.theme-dark {
+  --vs-colors--dark: #f3f4f6;
+
+  --vs-search-input-color: var(--text-color);
+  --vs-search-input-bg: var(--surface-bg);
+
+  --vs-border-color: var(--surface-border);
+
+  --vs-selected-bg: #1c1e1f;
+  --vs-selected-color: var(--text-color);
+  --vs-selected-border-color: var(--surface-border);
+
+  --vs-dropdown-bg: var(--surface-bg);
+  --vs-dropdown-color: var(--text-color);
+
+  --vs-dropdown-option-color: var(--text-color);
+
+  --vs-dropdown-option--active-bg: #242628;
+  --vs-dropdown-option--active-color: #ffffff;
+
+  --vs-controls-color: #9ca3af;
+  --vs-controls--deselect-color: #9ca3af;
+}
+
+.v-select .vs__dropdown-toggle {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transition: background-color 0.2s, border-color 0.2s;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--vs-search-input-bg);
+}
+
+.v-select .vs__selected-options {
+  padding: 0;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  overflow: hidden;
+  flex: 1;
+}
+
+.v-select .vs__search,
+.v-select .vs__search:focus {
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+  background-color: transparent;
+}
+
+.v-select .vs__search::placeholder {
+  color: #9ca3af;
+}
+
+.v-select .vs__selected {
+  margin: 0 4px 0 0;
+  border-radius: 0.25rem;
+  max-width: 100%;
+}
+
+.v-select .vs__deselect:hover {
+  fill: #ef4444;
+}
