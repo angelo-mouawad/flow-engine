@@ -41,6 +41,7 @@ export type FlowInstance = {
 type ProcessBase = {
   id?: string;
   name: string;
+  step?: number;
 };
 
 export type Request = ProcessBase & {
@@ -53,6 +54,7 @@ export type Request = ProcessBase & {
 
 export type Approval = ProcessBase & {
   processType: "APPROVAL";
+  requestSteps: number[];
 };
 
 export type Notification = ProcessBase & {

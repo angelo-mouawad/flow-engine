@@ -36,25 +36,39 @@ const addProcess = (processType: ProcessType) => {
       approvable: false,
       minApprovals: 1,
       approvableBy: [],
+      step: steps.value.length,
     };
   } else if (processType === "APPROVAL") {
     newProcess = {
       processType: "APPROVAL",
+      requestSteps: [],
       name: "",
+      step: steps.value.length + 1,
     };
   } else {
     newProcess = {
       processType: "NOTIFICATION",
       name: "",
       notificationType: "" as NotificationType,
+      step: steps.value.length + 1,
     };
   }
   steps.value.push(newProcess);
+  // Ensure sequential step numbers after any addition
+  renumberSteps();
   showProcessMenu.value = false;
 };
 
 const deleteStep = (index: number) => {
   steps.value.splice(index, 1);
+  // Recalculate step numbers after deletion
+  renumberSteps();
+};
+
+const renumberSteps = () => {
+  steps.value.forEach((s, i) => {
+    s.step = i;
+  });
 };
 
 const validateFlowDefinition = (): boolean => {
@@ -517,7 +531,7 @@ watch(
                     class="block text-sm font-bold mb-2"
                     :class="labelTextColor"
                   >
-                    Approvers (Email Addresses)
+                    Approvers
                   </label>
 
                   <v-select
@@ -537,6 +551,30 @@ watch(
                   </v-select>
                 </div>
               </template>
+            </template>
+
+            <template v-if="step.processType === 'APPROVAL'">
+              <div class="mb-4">
+                <label
+                  for="flowApprovalTargets"
+                  class="block text-sm font-bold mb-2"
+                  :class="labelTextColor"
+                >
+                  Select Request Process(es) to Approve
+                </label>
+
+                <v-select
+                  v-model="step.requestSteps"
+                  :options="steps.filter(p => p.processType === 'REQUEST').map(p => ({ label: p.name || 'Request Process', value: p.step }))"
+                  label="label"
+                  :reduce="(option: any) => option.value"
+                  placeholder="Select request processes to approve..."
+                  multiple
+                />
+                <p class="text-xs text-gray-500 mt-2">
+                  Choose one or more request processes that this approval will handle.
+                </p>
+              </div>
             </template>
 
             <template v-if="step.processType === 'NOTIFICATION'">
