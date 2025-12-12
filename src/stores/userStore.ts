@@ -16,6 +16,10 @@ const USERS: User[] = [
   { name: "Jolie", role: "User", email: "jolie@gmail.com" },
   { name: "Samip", role: "Manager", email: "samip@glackit.be" },
   { name: "Annie", role: "Manager", email: "annie@glackit.be" },
+  { name: "Laïs", role: "User", email: "lais@glackit.be" },
+  { name: "Mouad", role: "User", email: "mouad@glackit.be" },
+  { name: "Angelo", role: "User", email: "angelo@glackit.be" },
+  { name: "Zakaria", role: "User", email: "zakaria@glackit.be" },
 ];
 
 export const useUserStore = defineStore("userStore", {
