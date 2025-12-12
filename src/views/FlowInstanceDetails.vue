@@ -174,6 +174,16 @@ const formatDate = (dateValue?: string | Date) => {
               Current process: <span class="font-semibold">{{ flowInstance.currentProcess.name || "—" }}</span>
             </p>
           </div>
+
+          <div
+            class="rounded-md p-4 border transition-colors duration-200"
+            :class="isDarkMode ? 'bg-[#181a1b] border-[#2c2f31]' : 'bg-gray-50 border-gray-200'"
+          >
+            <p class="text-xs font-medium uppercase tracking-wide" :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">
+              Triggered by
+            </p>
+            <p class="text-lg font-semibold mt-1">{{ flowInstance.triggeredBy || '—' }}</p>
+          </div>
         </div>
 
         <div>

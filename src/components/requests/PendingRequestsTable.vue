@@ -56,7 +56,7 @@ const sortRequests = (key: SortKey) => {
   requests.value.sort((a, b) => {
     let res = 0;
     if (key === "Request Type")
-      res = compare(a.requestType.toLowerCase(), b.requestType.toLowerCase());
+      res = compare(a.requestTypeName.toLowerCase(), b.requestTypeName.toLowerCase());
     else if (key === "Submitted By")
       res = compare(
         a.data.allFields.submittedBy,
@@ -110,7 +110,7 @@ const filteredRequests = computed(() => {
   const search = props.searchQuery.toLowerCase().trim();
 
   return requests.value.filter((req) => {
-    const reqTypeMatch = req.requestType.toLowerCase().includes(search);
+    const reqTypeMatch = req.requestTypeName.toLowerCase().includes(search);
 
     const searchableData = JSON.stringify(Object.values(req.data.allFields))
       .toLowerCase()
@@ -188,7 +188,7 @@ const filteredRequests = computed(() => {
         class="cursor-pointer transition-colors"
         :class="isDarkMode ? 'hover:bg-[#242628]' : 'hover:bg-gray-100'"
       >
-        <td class="pl-4 py-2 font-medium">{{ r.requestType }}</td>
+        <td class="pl-4 py-2 font-medium">{{ r.requestTypeName }}</td>
         <td
           class="pl-4 py-2"
           :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
