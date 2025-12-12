@@ -1,14 +1,24 @@
 <script setup lang="ts">
-import type { FlowDefinition } from "../../types";
-import { ref, onMounted, computed } from "vue";
+import type {
+  FlowDefinition,
+  NotificationType,
+  RequestType,
+} from "../../types";
+import { computed, onMounted, ref, withDefaults } from "vue";
 import { useRouter } from "vue-router";
 import FlowDefinitionService from "../../services/FlowDefinitionService";
 import deleteIcon from "/images/delete1.png.webp";
 import { useThemeStore } from "../../stores/themeStore";
 
-const props = defineProps<{
-  searchQuery: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    searchQuery: string;
+    filters?: Record<string, boolean>;
+  }>(),
+  {
+    filters: () => ({}),
+  }
+);
 
 const loading = ref(false);
 const flowDefinitions = ref<FlowDefinition[]>([]);
@@ -83,22 +93,122 @@ const goToDetails = (id: string) => {
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
 
-const filteredFlowDefinitions = computed(() => {
-  if (!props.searchQuery.trim()) {
-    return flowDefinitions.value;
+const selectedFilters = computed(() => props.filters || {});
+const hasActiveFilters = computed(() =>
+  Object.values(selectedFilters.value).some(Boolean)
+);
+
+const hasProcessType = (
+  def: FlowDefinition,
+  processType: "REQUEST" | "NOTIFICATION" | "APPROVAL"
+) => {
+  return (def.processes ?? []).some(
+    (process) => process.processType === processType
+  );
+};
+
+const hasRequestType = (def: FlowDefinition, type: RequestType) => {
+  return (def.processes ?? []).some(
+    (process) =>
+      process.processType === "REQUEST" && process.requestTypeName === type
+  );
+};
+
+const hasNotificationType = (def: FlowDefinition, type: NotificationType) => {
+  return (def.processes ?? []).some(
+    (process) =>
+      process.processType === "NOTIFICATION" &&
+      process.notificationType === type
+  );
+};
+
+const parentFilterKeys = ["request", "notification", "approval"] as const;
+
+const matchesSelectedFilters = (def: FlowDefinition) => {
+  if (!hasActiveFilters.value) {
+    return true;
   }
 
-  const search = props.searchQuery.toLowerCase().trim();
+  const currentFilters = selectedFilters.value;
 
-  return flowDefinitions.value.filter((def) => {
-    const searchableData = JSON.stringify(Object.values(def))
-      .toLowerCase()
-      .replace(/"id":\s*"[^"]*"/gi, "")
-      .replace(/"[a-f0-9-]{36}"/gi, "")
-      .replace(/\bid\b:\s*"[^"]*"/gi, "");
+  return parentFilterKeys.every((key) => {
+    if (key === "approval") {
+      if (!currentFilters.approval) {
+        return true;
+      }
+      return hasProcessType(def, "APPROVAL");
+    }
 
-    return searchableData.includes(search);
+    if (key === "request") {
+      const childOptions = [
+        { key: "request-absence", type: "ABSENCE_REQUEST" as RequestType },
+        { key: "request-clock-in", type: "CLOCKIN_REQUEST" as RequestType },
+      ];
+      const activeChildren = childOptions.filter(
+        (child) => currentFilters[child.key]
+      );
+      const shouldFilter =
+        currentFilters.request || activeChildren.length > 0;
+      if (!shouldFilter) {
+        return true;
+      }
+      if (activeChildren.length === 0) {
+        return hasProcessType(def, "REQUEST");
+      }
+      return activeChildren.some((child) => hasRequestType(def, child.type));
+    }
+
+    if (key === "notification") {
+      const childOptions = [
+        {
+          key: "notification-email",
+          type: "EMAIL_NOTIFICATION" as NotificationType,
+        },
+        {
+          key: "notification-pop-up",
+          type: "POPUP_NOTIFICATION" as NotificationType,
+        },
+      ];
+      const activeChildren = childOptions.filter(
+        (child) => currentFilters[child.key]
+      );
+      const shouldFilter =
+        currentFilters.notification || activeChildren.length > 0;
+      if (!shouldFilter) {
+        return true;
+      }
+      if (activeChildren.length === 0) {
+        return hasProcessType(def, "NOTIFICATION");
+      }
+      return activeChildren.some((child) =>
+        hasNotificationType(def, child.type)
+      );
+    }
+
+    return true;
   });
+};
+
+const filteredFlowDefinitions = computed(() => {
+  const trimmedQuery = props.searchQuery.trim().toLowerCase();
+
+  const baseList = trimmedQuery
+    ? flowDefinitions.value.filter((def) => {
+        const searchableData = JSON.stringify(Object.values(def))
+          .toLowerCase()
+          .replace(/"id":\s*"[^"]*"/gi, "")
+          .replace(/"[a-f0-9-]{36}"/gi, "")
+          .replace(/\bid\b:\s*"[^"]*"/gi, "");
+
+        return searchableData.includes(trimmedQuery);
+      })
+    : flowDefinitions.value;
+
+  if (!hasActiveFilters.value) {
+    return baseList;
+  }
+
+  return baseList.filter((def) => matchesSelectedFilters(def));
 });
 </script>
 
