@@ -71,7 +71,7 @@ export type AbsenceData = {
 
 export type RequestSubmission = {
   id: string;
-  requestType: RequestType;
+  requestTypeName: RequestType;
   status: Status;
   data: AbsenceData;
   submittedAt: Date;
