@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import FlowDefinitionsTable from "./FlowDefinitionsTable.vue";
 import FlowInstancesTable from "./FlowInstancesTable.vue";
+import FilterButton from "./FilterButton.vue";
 import { useThemeStore } from "../../stores/themeStore";
 
 const props = defineProps(["isDefinition"]);
@@ -10,6 +11,18 @@ const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
 
 const searchQuery = ref("");
+const activeFilters = ref<Record<string, boolean>>({});
+const filtersVisible = ref(false);
+const filterPanelTargetId = "flow-definitions-filter-panel";
+const filterPanelTargetSelector = `#${filterPanelTargetId}`;
+
+const handleFilterChange = (payload: Record<string, boolean>) => {
+  activeFilters.value = { ...payload };
+};
+
+const handleFilterVisibility = (visible: boolean) => {
+  filtersVisible.value = visible;
+};
 </script>
 
 <template>
@@ -30,7 +43,7 @@ const searchQuery = ref("");
       </h2>
 
       <div
-        class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between mb-3 gap-2 sm:gap-4"
+        class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 mb-3 sm:justify-between"
       >
         <div class="relative flex-1 w-full max-w-md">
           <svg
@@ -59,34 +72,67 @@ const searchQuery = ref("");
           />
         </div>
 
-        <RouterLink v-if="props.isDefinition" to="/flow-definitions/new">
-          <button
-            class="rounded-md px-4 py-1 bg-yellow-500 text-sm font-medium cursor-pointer hover:bg-yellow-600 flex items-center gap-2"
-          >
-            <svg
-              class="w-4 h-4 text-gray-800"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        <div
+          v-if="props.isDefinition"
+          class="flex items-center gap-2 w-full sm:w-auto sm:ml-auto sm:justify-end"
+        >
+          <FilterButton
+            :panel-target="filterPanelTargetSelector"
+            @change="handleFilterChange"
+            @visibility-change="handleFilterVisibility"
+          />
+          <RouterLink to="/flow-definitions/new">
+            <button
+              class="rounded-md px-4 py-1.5 bg-yellow-500 text-sm font-medium cursor-pointer hover:bg-yellow-600 flex items-center gap-2"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            <span class="text-gray-800">New flow</span>
-          </button>
-        </RouterLink>
+              <svg
+                class="w-4 h-4 text-gray-800"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              <span class="text-gray-800">New flow</span>
+            </button>
+          </RouterLink>
+        </div>
       </div>
 
       <div
+        v-if="props.isDefinition"
+        class="mt-2 flex flex-col gap-4 lg:flex-row items-start"
+      >
+        <div
+          class="flex-1 overflow-x-auto rounded-md shadow-sm border transition-colors duration-300"
+          :class="isDarkMode ? 'border-[#2c2f31]' : 'border-gray-200'"
+        >
+          <FlowDefinitionsTable
+            :searchQuery="searchQuery"
+            :filters="activeFilters"
+          />
+        </div>
+        <div
+          :id="filterPanelTargetId"
+          class="overflow-hidden transition-all duration-300"
+          :style="{
+            width: filtersVisible ? '220px' : '0px',
+            opacity: filtersVisible ? 1 : 0,
+          }"
+        ></div>
+      </div>
+
+      <div
+        v-else
         class="overflow-x-auto rounded-md shadow-sm border mt-2 transition-colors duration-300"
         :class="isDarkMode ? 'border-[#2c2f31]' : 'border-gray-200'"
       >
-        <FlowDefinitionsTable v-if="props.isDefinition" :searchQuery="searchQuery" />
-        <FlowInstancesTable v-else :searchQuery="searchQuery" />
+        <FlowInstancesTable :searchQuery="searchQuery" />
       </div>
     </div>
   </div>
