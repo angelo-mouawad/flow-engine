@@ -188,7 +188,7 @@ const filteredRequests = computed(() => {
         class="cursor-pointer transition-colors"
         :class="isDarkMode ? 'hover:bg-[#242628]' : 'hover:bg-gray-100'"
       >
-        <td class="pl-4 py-2 font-medium">{{ r.requestTypeName }}</td>
+        <td class="pl-4 py-2 font-medium">{{ r.requestTypeName.toLowerCase().replace("_", " ") }}</td>
         <td
           class="pl-4 py-2"
           :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
