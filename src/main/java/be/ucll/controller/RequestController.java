@@ -46,12 +46,12 @@ public class RequestController {
 
     @PutMapping("/approve/{id}")
     public void approveRequest(@PathVariable String id, @RequestHeader("UserEmail") String user){
-        approvalService.approveRequest(id, RequestStatus.APPROVED, user);
+        approvalService.handleRequest(id, RequestStatus.APPROVED, user);
     }
 
     @PutMapping("/decline/{id}")
     public void declineRequest(@PathVariable String id, @RequestHeader("UserEmail") String user){
-        approvalService.approveRequest(id, RequestStatus.DECLINED, user);
+        approvalService.handleRequest(id, RequestStatus.DECLINED, user);
     }
 
     @ExceptionHandler(RuntimeException.class)

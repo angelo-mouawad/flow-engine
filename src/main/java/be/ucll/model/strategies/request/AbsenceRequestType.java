@@ -2,6 +2,7 @@ package be.ucll.model.strategies.request;
 
 import be.ucll.exception.DomainException;
 import be.ucll.model.*;
+import be.ucll.model.enums.RequestStatus;
 import be.ucll.model.enums.RequestTypeEnum;
 
 import java.time.LocalDate;
@@ -9,7 +10,7 @@ import java.time.LocalDate;
 public class AbsenceRequestType implements RequestType {
  
     @Override
-    public void validate(RequestData data) {
+    public RequestStatus validate(RequestData data) {
         String startDateStr = data.getField("startDate", String.class);
         String endDateStr = data.getField("endDate", String.class);
         String submittedBy = data.getField("submittedBy", String.class);
@@ -33,6 +34,8 @@ public class AbsenceRequestType implements RequestType {
         if (submittedBy == null || submittedBy.isBlank()) {
             throw new DomainException("User is required for absence request");
         }
+
+        return RequestStatus.PENDING;
     }
  
     @Override

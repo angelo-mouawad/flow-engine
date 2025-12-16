@@ -33,6 +33,8 @@ public abstract class Process {
     @JsonIgnore
     private String flowInstanceId;
 
+    private int step = 0;
+
     protected Process() {}
 
     public Process(String name, ProcessType processType){ 
@@ -52,11 +54,19 @@ public abstract class Process {
         return processType;
     }
 
+    public int getStep() {
+        return step;
+    }
+
     public void setFlowInstanceId(String flowInstanceId) {
         this.flowInstanceId = flowInstanceId;
     }
 
     private void setProcessType(ProcessType processType) {
         this.processType = processType;
+    }
+
+    public void setStep(int step) {
+        this.step = step;
     }
 }

@@ -2,6 +2,7 @@ package be.ucll.model.strategies.request;
 
 import be.ucll.exception.DomainException;
 import be.ucll.model.*;
+import be.ucll.model.enums.RequestStatus;
 import be.ucll.model.enums.RequestTypeEnum;
 
 import java.time.ZonedDateTime;
@@ -9,7 +10,7 @@ import java.time.ZonedDateTime;
 public class ClockInRequestType implements RequestType {
     
     @Override
-    public void validate(RequestData data) {
+    public RequestStatus validate(RequestData data) {
         String startTimeStr = data.getField("startTime", String.class);
         String endTimeStr = data.getField("endTime", String.class);
         String submittedBy = data.getField("submittedBy", String.class);
@@ -24,10 +25,14 @@ public class ClockInRequestType implements RequestType {
         if (startTime.isAfter(endTime)) {
             throw new DomainException("Start time cannot be after end time");
         }
+
+        //TODO: approve if within working hours
         
         if (submittedBy == null || submittedBy.isBlank()) {
             throw new DomainException("User is required for absence request");
         }
+
+        return RequestStatus.PENDING;
     }
  
     @Override

@@ -3,8 +3,10 @@ package be.ucll.model;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -29,22 +31,25 @@ public class FlowInstance {
 
     @NotNull
     private String triggeredBy;
+
     @NotNull
     private String callingURL;
 
-    @NotNull
-    @JsonIgnore
+    @NotNull @JsonIgnore
     private FlowDefinition flowDefinition;
 
     @NotNull
     private FlowStatus flowStatus;
+
+    @JsonIgnore
+    private Set<RequestSubmission> submissions = new HashSet<>();
 
     private Map<RequestTypeEnum, Map<String, Object>> data = new HashMap<>();
 
     private int step;
     private LocalDateTime updatedAt;
 
-    public FlowInstance(FlowDefinition flowDefinition, String title, String triggeredBy, String callingURL, Map<RequestTypeEnum, Map<String, Object>> data) {
+    public FlowInstance(FlowDefinition flowDefinition, String title, String triggeredBy, Map<RequestTypeEnum, Map<String, Object>> data, String callingURL) {
         step = 0;
         setFlowDefinition(flowDefinition);
         setTitle(title);
@@ -55,16 +60,16 @@ public class FlowInstance {
         this.data = data;
     }
 
-    public String getId() {
-        return id.toString();
+    public String getId() { 
+        return id; 
     }
 
-    public String getTitle() {
-        return title;
+    public String getTitle() { 
+        return title; 
     }
 
-    public String getTriggeredBy() {
-        return triggeredBy;
+    public String getTriggeredBy() { 
+        return triggeredBy; 
     }
 
     public String getCallingURL() {
@@ -87,16 +92,20 @@ public class FlowInstance {
         return step;
     }
 
+    public Set<RequestSubmission> getSubmissions() {
+        return submissions;
+    }
+
     public List<Process> getProcesses() {
         return flowDefinition.getProcesses();
     }
 
     public Process getCurrentProcess() {
-        if(step >= flowDefinition.getProcesses().size()){
+        if(step >= getProcesses().size()){
             return null;
         }
 
-        return flowDefinition.getProcesses().get(step);
+        return getProcesses().get(step);
     }
 
     public LocalDateTime getCreatedAt() {
@@ -113,9 +122,7 @@ public class FlowInstance {
         return updatedAt;
     }
 
-    public void nextProcess(){
-        step++;
-    }
+    public void nextProcess() { step++; }
 
     private void setFlowDefinition(FlowDefinition flowDefinition) {
         if (flowDefinition == null) 
@@ -131,8 +138,12 @@ public class FlowInstance {
         this.title = title;
     }
 
+    public void addSubmission(RequestSubmission submission) {
+        submissions.add(submission);
+    }
+
     public void setTriggeredBy(String triggeredBy) {
-        this.triggeredBy = triggeredBy;
+        this.triggeredBy = triggeredBy != null? triggeredBy: null;
     }
 
     public void setCallingURL(String callingURL) {

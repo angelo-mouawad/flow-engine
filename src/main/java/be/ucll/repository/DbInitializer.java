@@ -45,22 +45,22 @@ public class DbInitializer {
 
       Request absence = new Request("Absence", RequestTypeEnum.ABSENCE_REQUEST, true, new String[]{"adam@glackit.be", "stef@gmail.com"}, 2);
       Request absence2 = new Request("Absence",  RequestTypeEnum.ABSENCE_REQUEST, false, new String[]{}, 0);
-      Approval approval = new Approval("Approval");
+      Approval approval = new Approval("Approval", Set.of(0));
       Notification notification = new Notification("Notification", "POPUP_NOTIFICATION");
 
       Set<String> triggers = new HashSet<>(Set.of(
-                  "adam@glakit.be",
-                  "samip@glakit.be",
-                  "annie@glakit.be",
-                  "lais@glakit.be",
-                  "mouad@glakit.be",
-                  "angelo@glakit.be"
+                  "adam@glackit.be",
+                  "samip@glackit.be",
+                  "annie@glackit.be",
+                  "lais@glackit.be",
+                  "mouad@glackit.be",
+                  "angelo@glackit.be"
                   ));
 
       Set<String> seniors = new HashSet<>(Set.of(
-                  "adam@glakit.be",
-                  "samip@glakit.be",
-                  "annie@glakit.be"
+                  "adam@glackit.be",
+                  "samip@glackit.be",
+                  "annie@glackit.be"
                   ));
 
       FlowDefinition fd1 = new FlowDefinition(
@@ -79,7 +79,6 @@ public class DbInitializer {
 
       flowDefinitionRepository.saveAll(fds);
 
-      RequestData data = new RequestData();
       /*
        *"ABSENCE_REQUEST": {
        *    "startDate": "2025-11-10",
@@ -88,16 +87,17 @@ public class DbInitializer {
        *    "reason": "sickness",
        *} 
        */
-      data.setField("startDate", "2025-11-10");
-      data.setField("endDate", "2025-11-19");
-      data.setField("submittedBy", "lais@glakit.be");
-      data.setField("reason", "sickness");
+      Map<String, Object> data = new HashMap<>();
+      data.put("startDate", "2025-11-10");
+      data.put("endDate", "2025-11-19");
+      data.put("submittedBy", "lais@glakit.be");
+      data.put("reason", "sickness");
 
       Map<RequestTypeEnum, Map<String, Object>> rqdata = new HashMap<>();
-      rqdata.put(absence.getRequestTypeName(), data.getAllFields());
+      rqdata.put(absence.getRequestTypeName(), data);
 
-      FlowData flowData = new FlowData("hamid senior absence approval", "lais@glakit.be",rqdata);
-      FlowData flowData2 = new FlowData("hamid absence no approval",  "lais@glakit.be",rqdata);
+      FlowData flowData = new FlowData("hamid senior absence approval", "lais@glackit.be",rqdata);
+      FlowData flowData2 = new FlowData("hamid absence no approval",  "lais@glackit.be",rqdata);
 
       String url = "https://front-end-team30-wpp-team-30.apps.okd.ucll.cloud/";
 

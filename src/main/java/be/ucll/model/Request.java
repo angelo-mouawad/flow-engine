@@ -3,6 +3,7 @@ package be.ucll.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import be.ucll.model.enums.ProcessType;
+import be.ucll.model.enums.RequestStatus;
 import be.ucll.model.enums.RequestTypeEnum;
 import be.ucll.model.strategies.request.*;
 import jakarta.validation.constraints.NotBlank;
@@ -30,11 +31,12 @@ public class Request extends Process{
     }
 
     public RequestSubmission submit(RequestData requestData) {
-        requestType.validate(requestData);
+        RequestStatus status = requestType.validate(requestData);
         
         return new RequestSubmission(
                 requestData, 
-                this);
+                this,
+                status);
     }
 
     public RequestType getRequestType() {

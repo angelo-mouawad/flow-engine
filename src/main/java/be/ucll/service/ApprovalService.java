@@ -20,7 +20,7 @@ public class ApprovalService {
         this.flowRunnerService = flowRunnerService;
     }
 
-    public void approveRequest(String requestId, RequestStatus status, String user) {
+    public void handleRequest(String requestId, RequestStatus status, String user) {
         RequestSubmission submission = requestSubmissionRepository.findById(requestId)
             .orElseThrow(() -> new ServiceException("Request not found"));
 

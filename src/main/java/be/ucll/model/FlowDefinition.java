@@ -2,7 +2,6 @@ package be.ucll.model;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,7 +39,7 @@ public class FlowDefinition {
     }
 
     public String getId() {
-        return id.toString();
+        return id;
     }
 
     public String getTitle() {
@@ -63,6 +62,10 @@ public class FlowDefinition {
         return processes;
     }
 
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
     public LocalDateTime getCreatedAt() {
 
         if (id == null) 
@@ -74,15 +77,17 @@ public class FlowDefinition {
             .toLocalDateTime();
     }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
     public void setTitle(String title) {
+        if (title == null || title.isBlank()) 
+            throw new DomainException("FlowDefinition Title cannot be blank");
+
         this.title = title; 
     }
 
     public void setDescription(String description) {
+        if (description == null || description.isBlank()) 
+            throw new DomainException("FlowDefinition Description cannot be blank");
+
         this.description = description;
     }
 
@@ -91,11 +96,16 @@ public class FlowDefinition {
             anyTrigger = true;    
         }else{
             this.triggerableBy = triggerableBy;
+            anyTrigger = false;
         }
     }
 
     public void setProcesses(List<? extends Process> processes) {
         this.processes = List.copyOf(processes) ;
+        for (int i = 0; i < processes.size(); i++) {
+            Process current = this.processes.get(i);
+            current.setStep(i);
+        }
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {

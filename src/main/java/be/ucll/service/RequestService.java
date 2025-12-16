@@ -47,10 +47,10 @@ public class RequestService {
         return requests;
     }
     
-    public void processRequest(Request request, Map<String, Object> data){
+    public RequestSubmission processRequest(Request request, Map<String, Object> data){
         RequestData rqData = new RequestData(data);
 
         RequestSubmission submission = request.submit(rqData);
-        requestSubmissionRepository.save(submission);
+        return requestSubmissionRepository.save(submission);
     }
 }

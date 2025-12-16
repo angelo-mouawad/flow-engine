@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import be.ucll.exception.DomainException;
 import be.ucll.model.enums.RequestStatus;
+import be.ucll.model.enums.RequestTypeEnum;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -32,9 +33,10 @@ public class RequestSubmission {
     private LocalDateTime submittedAt;
     private LocalDateTime processedAt;
 
-    public RequestSubmission(RequestData requestData, Request request){
+    public RequestSubmission(RequestData requestData, Request request, RequestStatus status){
         setData(requestData);
         setRequest(request);
+        setStatus(status);
         setSubmittedAt(LocalDateTime.now());
     }
 
@@ -117,6 +119,14 @@ public class RequestSubmission {
 
     public Request getRequest() {
         return request;
+    }
+
+    public int getRequestStep(){
+        return request.getStep();
+    }
+
+    public RequestTypeEnum getRequestTypeName() {
+        return request.getRequestTypeName();
     }
 
     public LocalDateTime getSubmittedAt() {
