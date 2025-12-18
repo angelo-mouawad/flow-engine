@@ -4,7 +4,7 @@ import type {
   NotificationType,
   RequestType,
 } from "../../types";
-import { computed, onMounted, ref, withDefaults } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import FlowDefinitionService from "../../services/FlowDefinitionService";
 import deleteIcon from "/images/delete1.png.webp";
