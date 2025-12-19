@@ -2,9 +2,6 @@ package be.ucll.model.strategies.notification;
 
 import java.util.Map;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class NotificationTypeFactory {
     private final Map<String, NotificationType> types;
     

@@ -2,12 +2,9 @@ package be.ucll.model.strategies.notification;
 
 import java.util.List;
 
-import org.springframework.stereotype.Component;
-
 import be.ucll.model.FlowInstance;
 import be.ucll.service.WebSocketNotificationService;
 
-@Component
 public class PopUpNotificationType implements NotificationType{
     
     @Override
