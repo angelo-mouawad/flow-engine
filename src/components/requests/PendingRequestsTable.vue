@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { RequestSubmission } from "../../types";
+import type { FlowInstance, RequestSubmission } from "../../types";
 import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import RequestService from "../../services/RequestService";
@@ -33,6 +33,7 @@ const props = defineProps<{ searchQuery: string }>();
 const loading = ref(false);
 const requests = ref<RequestSubmission[]>([]);
 const error = ref<string | null>(null);
+const flowInstancesById = ref<Record<string, FlowInstance>>({});
 const tableKeys = [
   "Request Type",
   "Submitted By",
@@ -61,19 +62,12 @@ const sortRequests = (key: SortKey) => {
         a.data.allFields.submittedBy.toLowerCase(),
         b.data.allFields.submittedBy.toLowerCase()
       );
-    else if (key === "Submitted By")
-      res = compare(
-        a.data.allFields.reason.toLowerCase(),
-        b.data.allFields.reason.toLowerCase()
-      );
     else if (key === "Submitted At")
-      res =
-        new Date(a.data.allFields.endDate).getTime() -
-        new Date(b.data.allFields.endDate).getTime();
+      res = new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
     else if (key === "Flow Instance Name")
       res = compare(
-        a.data.allFields.reason.toLowerCase(),
-        b.data.allFields.reason.toLowerCase()
+        (flowInstancesById.value[a.flowInstanceId]?.title || "").toLowerCase(),
+        (flowInstancesById.value[b.flowInstanceId]?.title || "").toLowerCase()
       );
     return sortOrder.value === "asc" ? res : -res;
   });
@@ -83,8 +77,18 @@ const fetchRequests = async () => {
   loading.value = true;
   error.value = null;
   try {
-    requests.value = await RequestService.getRequests();
+    const reqs = await RequestService.getRequests();
+    requests.value = Array.isArray(reqs)
+      ? reqs.map(r => ({
+          ...r,
+          submittedAt: r.submittedAt ? new Date(r.submittedAt) : new Date(),
+          processedAt: r.processedAt ? new Date(r.processedAt) : new Date(),
+        }))
+      : [];
     sortRequests(sortKey.value);
+
+    // Fetch related flow instances so the table can display titles
+    await fetchFlowInstances();
   } catch (e) {
     error.value = e instanceof Error ? e.message : "Error fetching requests";
   } finally {
@@ -94,9 +98,20 @@ const fetchRequests = async () => {
 
 const fetchFlowInstances = async () => {
   try {
-    await FlowInstanceService.getFlowInstanceById();
+    const ids = Array.from(new Set(requests.value.map(r => r.flowInstanceId)));
+    const flowInstances = await Promise.all(ids.map((id) => FlowInstanceService.getFlowInstanceById(id)));
+
+    const nextMap: Record<string, FlowInstance> = {};
+    for (const instance of flowInstances) {
+      nextMap[instance.id] = instance;
+    }
+    flowInstancesById.value = nextMap;
+
+    return flowInstances;
   } catch (e) {
     console.error("Error fetching flow instances:", e);
+    flowInstancesById.value = {};
+    return [];
   }
 };
 
@@ -213,7 +228,7 @@ const filteredRequests = computed(() => {
           class="pl-4 py-2"
           :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
         >
-          {{ FlowInstanceService.getFlowInstanceById(r.flowInstanceId)?.title || 'No Name Found' }}
+          {{ flowInstancesById[r.flowInstanceId]?.title || 'No Name Found' }}
         </td>
       </tr>
     </tbody>
