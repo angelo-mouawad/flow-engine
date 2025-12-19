@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import be.ucll.model.enums.ProcessType;
 import be.ucll.model.strategies.notification.NotificationType;
-import be.ucll.model.strategies.notification.NotificationTypeFactory;
 
 public class Notification extends Process {
 
@@ -12,10 +11,9 @@ public class Notification extends Process {
     private NotificationType notificationType;
     private String notificationTypeName;
 
-    public Notification(String name, String notificationTypeName){
+    public Notification(String name, String notificationTypeName) {
         super(name, ProcessType.NOTIFICATION);
         this.notificationTypeName = notificationTypeName;
-        this.notificationType = NotificationTypeFactory.fromTypeName(notificationTypeName);
     }
 
     public NotificationType getNotificationType() {
@@ -24,5 +22,9 @@ public class Notification extends Process {
 
     public String getNotificationTypeName() {
         return notificationTypeName;
+    }
+
+    public void setNotificationType(NotificationType notificationType) {
+        this.notificationType = notificationType;
     }
 }

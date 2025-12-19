@@ -1,10 +1,5 @@
 package be.ucll.model;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-
-import org.bson.types.ObjectId;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

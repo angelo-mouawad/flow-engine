@@ -7,18 +7,19 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import be.ucll.controller.dto.FlowData;
 import be.ucll.model.*;
 import be.ucll.model.enums.RequestTypeEnum;
 import be.ucll.service.FlowRunnerService;
-import jakarta.annotation.PostConstruct;
 
 @Component
 @Profile("dev")
-public class DbInitializer {
+public class DbInitializer{
 
     private FlowInstanceRepository flowInstanceRepository;
     private FlowDefinitionRepository flowDefinitionRepository;
@@ -29,14 +30,14 @@ public class DbInitializer {
     public DbInitializer(FlowRunnerService flowRunnerService, 
             RequestSubmissionRepository requestSubmissionRepository, 
             FlowDefinitionRepository flowDefinitionRepository, 
-            FlowInstanceRepository flowInstanceRepository){
+            FlowInstanceRepository flowInstanceRepository) {
         this.flowRunnerService = flowRunnerService;
         this.flowInstanceRepository = flowInstanceRepository;
         this.flowDefinitionRepository = flowDefinitionRepository;
         this.requestSubmissionRepository = requestSubmissionRepository;
     }
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
     public void initialize(){
 
       flowDefinitionRepository.deleteAll();

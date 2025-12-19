@@ -6,6 +6,8 @@ import be.ucll.model.Process;
 import be.ucll.model.enums.FlowStatus;
 import be.ucll.model.enums.RequestStatus;
 import be.ucll.model.enums.RequestTypeEnum;
+import be.ucll.model.strategies.notification.NotificationType;
+import be.ucll.model.strategies.notification.NotificationTypeFactory;
 import be.ucll.repository.FlowDefinitionRepository;
 import be.ucll.repository.FlowInstanceRepository;
 
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import be.ucll.controller.dto.FlowData;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,6 +32,9 @@ public class FlowRunnerService {
 
     @Autowired
     private RequestService requestService;
+
+    @Autowired
+    private NotificationTypeFactory notificationTypeFactory;
 
     public void instantiateFlow(String id, String url, FlowData flowData){
 
@@ -66,18 +73,39 @@ public class FlowRunnerService {
                     }
                     case Approval approval -> {
 
-                        Set<Integer> requestSteps = approval.getRequestSteps();
+                        Set<Integer> requestStepsApproval = approval.getRequestSteps();
                         boolean shouldWait = flowInstance.getSubmissions()
                             .stream()
-                            .anyMatch(rq -> requestSteps.contains(rq.getRequestStep() ));
+                            .anyMatch(rq -> requestStepsApproval.contains(rq.getRequestStep() ));
 
                         if (!shouldWait) break;
 
                         updateFlowStatus(flowInstance, FlowStatus.PENDING);
+
+                        notifyApprovers(flowInstance, approval);
+
                         return;
                     }
-                    case Notification notification -> {
-                        //TODO: Notify in NotificationService
+                    case Notification notification -> {                        
+                        NotificationType notificationType = notificationTypeFactory.fromTypeName(notification.getNotificationTypeName());
+                        notification.setNotificationType(notificationType);
+
+                        List<String> users = flowInstance.getSubmissions()
+                            .stream()
+                            .map(RequestSubmission::getRequest)
+                            .distinct()
+                            .flatMap(rq -> Arrays.stream(rq.getApprovableBy()))
+                            .distinct()
+                            .toList();
+
+                        String message = String.format(
+                            "Flow \"%s\" is now at step: %s", 
+                            flowInstance.getTitle(), 
+                            current.getName()
+                        );
+
+                        notificationType.send(users, message, flowInstance);
+                        break;
                     }
                     default -> { break; }
                 }
@@ -123,5 +151,30 @@ public class FlowRunnerService {
         flowInstance.setFlowStatus(status);
         flowInstance.setUpdatedAt(LocalDateTime.now());
         flowInstanceRepository.save(flowInstance);
+    }
+
+    private void notifyApprovers(FlowInstance flowInstance, Approval approval) {
+        NotificationType notificationType = notificationTypeFactory.fromTypeName("POPUP_NOTIFICATION");
+
+        flowInstance.getSubmissions().stream()
+            .filter(submission -> approval.getRequestSteps().contains(submission.getRequestStep()))
+            .map(RequestSubmission::getRequest)
+            .distinct()
+            .forEach(rq -> {
+                List<String> users = Arrays.asList(rq.getApprovableBy());
+                String message = rq.isApprovable()
+                    ? String.format(
+                        "Flow \"%s\" is awaiting your approval for: %s", 
+                        flowInstance.getTitle(),
+                        rq.getName()
+                      )
+                    : String.format(
+                        "Flow \"%s\" has submitted: %s", 
+                        flowInstance.getTitle(),
+                        rq.getName()
+                      );
+
+                notificationType.send(users, message, flowInstance);
+            });
     }
 }

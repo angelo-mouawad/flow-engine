@@ -1,18 +1,24 @@
 package be.ucll.model.strategies.notification;
 
-import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class NotificationTypeFactory {
-    private static final Map<String, NotificationType> NOTIFICATION_TYPES = new HashMap<>();
+    private final Map<String, NotificationType> types;
     
-    static {
-        NOTIFICATION_TYPES.put("POPUP_NOTIFICATION", new PopUpNotificationType());
-        NOTIFICATION_TYPES.put("EMAIL_NOTIFICATION", new EmailNotificationType());
+    public NotificationTypeFactory(
+        PopUpNotificationType popUpNotificationType,
+        EmailNotificationType emailNotificationType) {
+        this.types = Map.of(
+            "POPUP_NOTIFICATION", popUpNotificationType,
+            "EMAIL_NOTIFICATION", emailNotificationType
+        );
     }
     
-    public static NotificationType fromTypeName(String typeName) {
-        NotificationType type = NOTIFICATION_TYPES.get(typeName);
+    public NotificationType fromTypeName(String typeName) {
+        NotificationType type = types.get(typeName);
         if (type == null) {
             throw new IllegalArgumentException("Unknown request type: " + typeName);
         }
