@@ -60,6 +60,16 @@ export type Notification = ProcessBase & {
   notificationType: NotificationType;
 };
 
+export type ClockInData = {
+  allFields: {
+    startTime: Date;
+    endTime: Date;
+    date: Date;
+    submittedBy: string;
+  };
+};
+
+
 export type AbsenceData = {
   allFields: {
     startDate: Date;
@@ -73,7 +83,11 @@ export type RequestSubmission = {
   id: string;
   requestTypeName: RequestType;
   status: Status;
-  data: AbsenceData;
+  data: {
+    allFields: {
+      [key: string]: any;
+    }
+  };
   submittedAt: Date;
   processedAt: Date;
   flowInstanceId: string;

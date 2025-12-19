@@ -5,6 +5,7 @@ import { useRouter } from "vue-router";
 import RequestService from "../../services/RequestService";
 import { useThemeStore } from "../../stores/themeStore";
 import { useUserStore } from "../../stores/userStore";
+import FlowInstanceService from "../../services/FlowInstanceService";
 
 const userStore = useUserStore();
 
@@ -21,7 +22,6 @@ window.addEventListener("storage", (event) => {
   }
 });
 
-
 watch(currentUserEmail, (newEmail, oldEmail) => {
   if (newEmail && newEmail !== oldEmail) {
     fetchRequests();
@@ -36,14 +36,13 @@ const error = ref<string | null>(null);
 const tableKeys = [
   "Request Type",
   "Submitted By",
-  "Start Date",
-  "End Date",
-  "Reason",
+  "Submitted At",
+  "Flow Instance Name"
 ] as const;
 
 type SortKey = (typeof tableKeys)[number];
 
-const sortKey = ref<SortKey>("Start Date");
+const sortKey = ref<SortKey>("Submitted At");
 
 const sortOrder = ref<"asc" | "desc">("asc");
 
@@ -59,18 +58,19 @@ const sortRequests = (key: SortKey) => {
       res = compare(a.requestTypeName.toLowerCase(), b.requestTypeName.toLowerCase());
     else if (key === "Submitted By")
       res = compare(
-        a.data.allFields.submittedBy,
+        a.data.allFields.submittedBy.toLowerCase(),
         b.data.allFields.submittedBy.toLowerCase()
       );
-    else if (key === "Start Date")
-      res =
-        new Date(a.data.allFields.startDate).getTime() -
-        new Date(b.data.allFields.startDate).getTime();
-    else if (key === "End Date")
+    else if (key === "Submitted By")
+      res = compare(
+        a.data.allFields.reason.toLowerCase(),
+        b.data.allFields.reason.toLowerCase()
+      );
+    else if (key === "Submitted At")
       res =
         new Date(a.data.allFields.endDate).getTime() -
         new Date(b.data.allFields.endDate).getTime();
-    else if (key === "Reason")
+    else if (key === "Flow Instance Name")
       res = compare(
         a.data.allFields.reason.toLowerCase(),
         b.data.allFields.reason.toLowerCase()
@@ -89,6 +89,14 @@ const fetchRequests = async () => {
     error.value = e instanceof Error ? e.message : "Error fetching requests";
   } finally {
     loading.value = false;
+  }
+};
+
+const fetchFlowInstances = async () => {
+  try {
+    await FlowInstanceService.getFlowInstanceById();
+  } catch (e) {
+    console.error("Error fetching flow instances:", e);
   }
 };
 
@@ -199,19 +207,13 @@ const filteredRequests = computed(() => {
           class="pl-4 py-2"
           :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
         >
-          {{ r.data.allFields.startDate }}
+          {{ r.submittedAt.toLocaleDateString() }} {{ r.submittedAt.toLocaleTimeString() }}
         </td>
         <td
           class="pl-4 py-2"
           :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
         >
-          {{ r.data.allFields.endDate }}
-        </td>
-        <td
-          class="pl-4 py-2"
-          :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
-        >
-          {{ r.data.allFields.reason }}
+          {{ FlowInstanceService.getFlowInstanceById(r.flowInstanceId)?.title || 'No Name Found' }}
         </td>
       </tr>
     </tbody>
