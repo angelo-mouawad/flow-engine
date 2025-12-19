@@ -106,11 +106,15 @@ const handleFilterVisibility = (visible: boolean) => {
 
       <div
         v-if="props.isDefinition"
-        class="mt-2 flex flex-col gap-4 lg:flex-row items-start"
+        class="mt-2 flex flex-col overflow-visible lg:items-start"
+        :class="filtersVisible ? 'lg:flex-row lg:gap-4' : 'lg:flex-row lg:gap-0'"
       >
         <div
-          class="flex-1 overflow-x-auto rounded-md shadow-sm border transition-colors duration-300"
-          :class="isDarkMode ? 'border-[#2c2f31]' : 'border-gray-200'"
+          class="w-full overflow-x-auto rounded-md shadow-sm border transition-colors duration-300"
+          :class="[
+            filtersVisible ? 'lg:flex-1' : 'lg:w-full',
+            isDarkMode ? 'border-[#2c2f31]' : 'border-gray-200'
+          ]"
         >
           <FlowDefinitionsTable
             :searchQuery="searchQuery"
@@ -119,7 +123,7 @@ const handleFilterVisibility = (visible: boolean) => {
         </div>
         <div
           :id="filterPanelTargetId"
-          class="overflow-hidden transition-all duration-300"
+          class="mt-4 overflow-hidden transition-all duration-300 lg:mt-0 lg:ml-0"
           :style="{
             width: filtersVisible ? '220px' : '0px',
             opacity: filtersVisible ? 1 : 0,
