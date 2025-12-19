@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { RequestSubmission } from "../../types";
+import type { FlowInstance, RequestSubmission } from "../../types";
 import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import RequestService from "../../services/RequestService";
 import { useThemeStore } from "../../stores/themeStore";
 import { useUserStore } from "../../stores/userStore";
+import FlowInstanceService from "../../services/FlowInstanceService";
 
 const userStore = useUserStore();
 
@@ -21,7 +22,6 @@ window.addEventListener("storage", (event) => {
   }
 });
 
-
 watch(currentUserEmail, (newEmail, oldEmail) => {
   if (newEmail && newEmail !== oldEmail) {
     fetchRequests();
@@ -33,17 +33,17 @@ const props = defineProps<{ searchQuery: string }>();
 const loading = ref(false);
 const requests = ref<RequestSubmission[]>([]);
 const error = ref<string | null>(null);
+const flowInstancesById = ref<Record<string, FlowInstance>>({});
 const tableKeys = [
   "Request Type",
   "Submitted By",
-  "Start Date",
-  "End Date",
-  "Reason",
+  "Submitted At",
+  "Flow Instance Name"
 ] as const;
 
 type SortKey = (typeof tableKeys)[number];
 
-const sortKey = ref<SortKey>("Start Date");
+const sortKey = ref<SortKey>("Submitted At");
 
 const sortOrder = ref<"asc" | "desc">("asc");
 
@@ -59,21 +59,15 @@ const sortRequests = (key: SortKey) => {
       res = compare(a.requestTypeName.toLowerCase(), b.requestTypeName.toLowerCase());
     else if (key === "Submitted By")
       res = compare(
-        a.data.allFields.submittedBy,
+        a.data.allFields.submittedBy.toLowerCase(),
         b.data.allFields.submittedBy.toLowerCase()
       );
-    else if (key === "Start Date")
-      res =
-        new Date(a.data.allFields.startDate).getTime() -
-        new Date(b.data.allFields.startDate).getTime();
-    else if (key === "End Date")
-      res =
-        new Date(a.data.allFields.endDate).getTime() -
-        new Date(b.data.allFields.endDate).getTime();
-    else if (key === "Reason")
+    else if (key === "Submitted At")
+      res = new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
+    else if (key === "Flow Instance Name")
       res = compare(
-        a.data.allFields.reason.toLowerCase(),
-        b.data.allFields.reason.toLowerCase()
+        (flowInstancesById.value[a.flowInstanceId]?.title || "").toLowerCase(),
+        (flowInstancesById.value[b.flowInstanceId]?.title || "").toLowerCase()
       );
     return sortOrder.value === "asc" ? res : -res;
   });
@@ -83,12 +77,41 @@ const fetchRequests = async () => {
   loading.value = true;
   error.value = null;
   try {
-    requests.value = await RequestService.getRequests();
+    const reqs = await RequestService.getRequests();
+    requests.value = Array.isArray(reqs)
+      ? reqs.map(r => ({
+          ...r,
+          submittedAt: r.submittedAt ? new Date(r.submittedAt) : new Date(),
+          processedAt: r.processedAt ? new Date(r.processedAt) : new Date(),
+        }))
+      : [];
     sortRequests(sortKey.value);
+
+    // Fetch related flow instances so the table can display titles
+    await fetchFlowInstances();
   } catch (e) {
     error.value = e instanceof Error ? e.message : "Error fetching requests";
   } finally {
     loading.value = false;
+  }
+};
+
+const fetchFlowInstances = async () => {
+  try {
+    const ids = Array.from(new Set(requests.value.map(r => r.flowInstanceId)));
+    const flowInstances = await Promise.all(ids.map((id) => FlowInstanceService.getFlowInstanceById(id)));
+
+    const nextMap: Record<string, FlowInstance> = {};
+    for (const instance of flowInstances) {
+      nextMap[instance.id] = instance;
+    }
+    flowInstancesById.value = nextMap;
+
+    return flowInstances;
+  } catch (e) {
+    console.error("Error fetching flow instances:", e);
+    flowInstancesById.value = {};
+    return [];
   }
 };
 
@@ -199,19 +222,13 @@ const filteredRequests = computed(() => {
           class="pl-4 py-2"
           :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
         >
-          {{ r.data.allFields.startDate }}
+          {{ r.submittedAt.toLocaleDateString() }} {{ r.submittedAt.toLocaleTimeString() }}
         </td>
         <td
           class="pl-4 py-2"
           :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
         >
-          {{ r.data.allFields.endDate }}
-        </td>
-        <td
-          class="pl-4 py-2"
-          :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
-        >
-          {{ r.data.allFields.reason }}
+          {{ flowInstancesById[r.flowInstanceId]?.title || 'No Name Found' }}
         </td>
       </tr>
     </tbody>
