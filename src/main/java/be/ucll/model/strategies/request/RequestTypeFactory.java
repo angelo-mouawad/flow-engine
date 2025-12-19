@@ -15,6 +15,9 @@ public class RequestTypeFactory {
         REQUEST_TYPES.put(
                 RequestTypeEnum.CLOCKIN_REQUEST, 
                 new ClockInRequestType());
+        REQUEST_TYPES.put(
+                RequestTypeEnum.TASK_CHANGE_REQUEST, 
+                new TaskChangeRequestType());
     }
     
     public static RequestType fromTypeName(RequestTypeEnum typeName) {

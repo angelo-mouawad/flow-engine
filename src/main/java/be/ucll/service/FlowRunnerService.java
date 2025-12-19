@@ -6,8 +6,6 @@ import be.ucll.model.Process;
 import be.ucll.model.enums.FlowStatus;
 import be.ucll.model.enums.RequestStatus;
 import be.ucll.model.enums.RequestTypeEnum;
-import be.ucll.model.strategies.notification.NotificationType;
-import be.ucll.model.strategies.notification.NotificationTypeFactory;
 import be.ucll.repository.FlowDefinitionRepository;
 import be.ucll.repository.FlowInstanceRepository;
 
@@ -16,8 +14,6 @@ import org.springframework.stereotype.Service;
 
 import be.ucll.controller.dto.FlowData;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,25 +30,36 @@ public class FlowRunnerService {
     private RequestService requestService;
 
     @Autowired
-    private NotificationTypeFactory notificationTypeFactory;
+    private NotificationService notificationService;
+
+    @Autowired
+    private TriggerService triggerService;
+
 
     public void instantiateFlow(String id, String url, FlowData flowData){
+        try{
+            FlowDefinition fd =  flowDefinitionRepository.findById(id)
+                .orElseThrow(()-> new ServiceException("Flow id does not exist"));
 
-        FlowDefinition fd =  flowDefinitionRepository.findById(id)
-            .orElseThrow(()-> new ServiceException("Flow id does not exist"));
+            if (!fd.isAnyTrigger() && !fd.getTriggerableBy().contains(flowData.triggeredBy())) {
+                throw new ServiceException("Flow is not triggerable by " + flowData.triggeredBy());
+            }
 
-        if (!fd.isAnyTrigger() && !fd.getTriggerableBy().contains(flowData.triggeredBy())) {
-            throw new ServiceException("Flow is not triggerable by " + flowData.triggeredBy());
+            FlowInstance flowInstance = new FlowInstance(fd, 
+                    flowData.title(), 
+                    flowData.triggeredBy(), 
+                    flowData.data(),
+                    url);
+
+            flowInstance = flowInstanceRepository.save(flowInstance);
+            triggerService.SendCallback(url, flowInstance.getId());
+
+            runFlow(flowInstance);
+
+        }catch(Exception e){
+            triggerService.SendCallback(url, "");
+            throw e;
         }
-
-        FlowInstance flowInstance = new FlowInstance(fd, 
-                flowData.title(), 
-                flowData.triggeredBy(), 
-                flowData.data(),
-                url);
-
-        flowInstance = flowInstanceRepository.save(flowInstance);
-        runFlow(flowInstance);
     }
 
     private void runFlow(FlowInstance flowInstance){
@@ -74,37 +81,24 @@ public class FlowRunnerService {
                     case Approval approval -> {
 
                         Set<Integer> requestStepsApproval = approval.getRequestSteps();
+                        // Checks if the approval's mapped request has been submitted
                         boolean shouldWait = flowInstance.getSubmissions()
                             .stream()
                             .anyMatch(rq -> requestStepsApproval.contains(rq.getRequestStep() ));
 
+                        // wait only if the assigned request is submitted
                         if (!shouldWait) break;
 
                         updateFlowStatus(flowInstance, FlowStatus.PENDING);
-
-                        notifyApprovers(flowInstance, approval);
-
                         return;
                     }
-                    case Notification notification -> {                        
-                        NotificationType notificationType = notificationTypeFactory.fromTypeName(notification.getNotificationTypeName());
-                        notification.setNotificationType(notificationType);
+                    case Notification notification -> {
+                        int requestStep = notification.getRequestStep();
+                        Request rq = (Request) flowInstance.getProcesses()
+                            .get(requestStep);
 
-                        List<String> users = flowInstance.getSubmissions()
-                            .stream()
-                            .map(RequestSubmission::getRequest)
-                            .distinct()
-                            .flatMap(rq -> Arrays.stream(rq.getApprovableBy()))
-                            .distinct()
-                            .toList();
-
-                        String message = String.format(
-                            "Flow \"%s\" is now at step: %s", 
-                            flowInstance.getTitle(), 
-                            current.getName()
-                        );
-
-                        notificationType.send(users, message, flowInstance);
+                        notification.setRequest(rq);
+                        notificationService.sendNotification(notification);
                         break;
                     }
                     default -> { break; }
@@ -116,6 +110,7 @@ public class FlowRunnerService {
             }
 
             updateFlowStatus(flowInstance, FlowStatus.SUCCESS);
+            triggerService.SendCallback(flowInstance.getCallingURL(), flowInstance.getId());
 
             //TODO: Send FlowInstance back to Calling URL
         } catch(Exception e) {
@@ -151,30 +146,5 @@ public class FlowRunnerService {
         flowInstance.setFlowStatus(status);
         flowInstance.setUpdatedAt(LocalDateTime.now());
         flowInstanceRepository.save(flowInstance);
-    }
-
-    private void notifyApprovers(FlowInstance flowInstance, Approval approval) {
-        NotificationType notificationType = notificationTypeFactory.fromTypeName("POPUP_NOTIFICATION");
-
-        flowInstance.getSubmissions().stream()
-            .filter(submission -> approval.getRequestSteps().contains(submission.getRequestStep()))
-            .map(RequestSubmission::getRequest)
-            .distinct()
-            .forEach(rq -> {
-                List<String> users = Arrays.asList(rq.getApprovableBy());
-                String message = rq.isApprovable()
-                    ? String.format(
-                        "Flow \"%s\" is awaiting your approval for: %s", 
-                        flowInstance.getTitle(),
-                        rq.getName()
-                      )
-                    : String.format(
-                        "Flow \"%s\" has submitted: %s", 
-                        flowInstance.getTitle(),
-                        rq.getName()
-                      );
-
-                notificationType.send(users, message, flowInstance);
-            });
     }
 }

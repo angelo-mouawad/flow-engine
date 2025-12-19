@@ -1,27 +1,25 @@
 package be.ucll.model.strategies.notification;
 
-import java.util.List;
-
-import be.ucll.model.FlowInstance;
-import be.ucll.service.WebSocketNotificationService;
+import be.ucll.model.Request;
+import be.ucll.model.enums.NotificationTypeEnum;
 
 public class PopUpNotificationType implements NotificationType{
     
     @Override
-    public String getTypeName() {
-        return "POPUP_NOTIFICATION";
-    }
-
-    private final WebSocketNotificationService wsService;
-
-    public PopUpNotificationType(WebSocketNotificationService wsService) {
-        this.wsService = wsService;
+    public NotificationTypeEnum getTypeName() {
+        return NotificationTypeEnum.POPUP_NOTIFICATON;
     }
 
     @Override
-    public void send(List<String> users, String message, FlowInstance flowInstance) {
-        for (String user : users) {
-            wsService.sendToUser(user, message);
-        }
+    public String generateMessage(Request rq) {
+        String message = String.format(
+                    "Request \"%s\" has been submitted", 
+                    rq.getName());
+
+        if(rq.isApprovable()){
+            message += " and is awaiting approval";
+        }    
+
+        return message;
     }
 }

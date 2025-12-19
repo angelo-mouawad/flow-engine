@@ -11,10 +11,10 @@ public class AbsenceRequestType implements RequestType {
  
     @Override
     public RequestStatus validate(RequestData data) {
-        String startDateStr = data.getField("startDate", String.class);
-        String endDateStr = data.getField("endDate", String.class);
-        String submittedBy = data.getField("submittedBy", String.class);
-        String reason = data.getField("reason", String.class);
+        String startDateStr = data.getField("Start_Date", String.class);
+        String endDateStr = data.getField("End_Date", String.class);
+        String submittedBy = data.getField("Submitted_By", String.class);
+        String reason = data.getField("Reason", String.class);
 
         LocalDate startDate = LocalDate.parse(startDateStr);
         LocalDate endDate = LocalDate.parse(endDateStr); 

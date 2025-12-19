@@ -1,18 +1,18 @@
 package be.ucll.model.strategies.notification;
 
-import java.util.List;
-
-import be.ucll.model.FlowInstance;
+import be.ucll.model.Request;
+import be.ucll.model.RequestSubmission;
+import be.ucll.model.enums.NotificationTypeEnum;
 
 public class EmailNotificationType implements NotificationType{
     
     @Override
-    public String getTypeName() {
-        return "EMAIL_NOTIFICATION";
+    public NotificationTypeEnum getTypeName() {
+        return NotificationTypeEnum.EMAIL_NOTIFICATON;
     }
 
     @Override
-    public void send(List<String> users, String message, FlowInstance flowInstance) {
-        // TODO
+    public String generateMessage(Request rq) {
+        return null;
     }
 }

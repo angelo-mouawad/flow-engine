@@ -1,11 +1,10 @@
 package be.ucll.model.strategies.notification;
 
-import java.util.List;
-
-import be.ucll.model.FlowInstance;
+import be.ucll.model.Request;
+import be.ucll.model.enums.NotificationTypeEnum;
 
 public interface NotificationType {
-    String getTypeName();
+    NotificationTypeEnum getTypeName();
 
-    void send(List<String> users, String message, FlowInstance flowInstance);
+    String generateMessage(Request rq);
 }
