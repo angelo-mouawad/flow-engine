@@ -63,6 +63,8 @@ const formatFieldValue = (value: unknown) => {
   return String(value);
 };
 
+
+
 const displayedFields = computed(() => {
   const req = props.request;
   if (!req) return [];
@@ -99,16 +101,16 @@ const displayedFields = computed(() => {
     :class="isDarkMode ? 'bg-[#181a1b] border-[#2c2f31] text-white' : 'bg-gray-50 border-gray-200 text-gray-900'">
     <table class="w-full text-sm">
       <tbody>
-        <tr v-for="field in displayedFields" :key="field.key" class="border-b last:border-b-0"
+        <tr v-for="key, value in request.data.allFields" :key="key" class="border-b last:border-b-0"
           :class="isDarkMode ? 'border-[#2c2f31]' : 'border-gray-200'">
           <th
             class="px-4 py-3 text-left w-1/3 font-semibold"
             :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
           >
-            {{ field.label }}
+            {{ value }}
           </th>
           <td class="px-4 py-3">
-            {{ field.value }}
+            {{ key }}
           </td>
         </tr>
         <tr v-if="displayedFields.length === 0">
