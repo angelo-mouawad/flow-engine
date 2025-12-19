@@ -10,14 +10,14 @@ import RequestDetails from '../views/RequestDetails.vue';
 import PendingRequestsOverview from '../views/PendingRequestsOverview.vue';
 
 const routes = [
-  { path: '/', name: 'Home', component: WelcomeGrid },
-  { path: '/flow-definitions', name: 'FlowDefinitions', component: FlowDefinitionOverview },
-  { path: '/flow-definitions/:id', name: 'FlowDefinitionDetails', component: FlowDefinitionDetails },
-  { path: '/flow-instances', name: 'FlowInstances', component: FlowInstancesOverview },
-  { path: '/flow-instances/:id', name: 'FlowInstanceDetails', component: FlowInstanceDetails },
-  { path: '/flow-definitions/new', name: 'FlowDefinitionsNew', component: FlowDefinitionForm, meta: { requiresAdmin: true } },
-  { path: '/pending-requests', name: 'PendingRequests', component: PendingRequestsOverview },
-  { path: '/pending-requests/:id', name: 'RequestDetails', component: RequestDetails },
+  { path: '/', name: 'Home', component: WelcomeGrid, meta: { title: 'Home | GlacKIT' } },
+  { path: '/flow-definitions', name: 'FlowDefinitions', component: FlowDefinitionOverview, meta: { title: 'Flow Definitions | GlacKIT' } },
+  { path: '/flow-definitions/:id', name: 'FlowDefinitionDetails', component: FlowDefinitionDetails, meta: { title: 'Flow Definitions | GlacKIT' } },
+  { path: '/flow-instances', name: 'FlowInstances', component: FlowInstancesOverview, meta: { title: 'Flow Instances | GlacKIT' } },
+  { path: '/flow-instances/:id', name: 'FlowInstanceDetails', component: FlowInstanceDetails, meta: { title: 'Flow Instances | GlacKIT' } },
+  { path: '/flow-definitions/new', name: 'FlowDefinitionsNew', component: FlowDefinitionForm, meta: { requiresAdmin: true, title: 'Flow Definitions | GlacKIT' } },
+  { path: '/pending-requests', name: 'PendingRequests', component: PendingRequestsOverview, meta: { title: 'Manage Requests | GlacKIT' } },
+  { path: '/pending-requests/:id', name: 'RequestDetails', component: RequestDetails, meta: { title: 'Manage Requests | GlacKIT' } },
 ];
 
 const router = createRouter({
@@ -36,6 +36,13 @@ router.beforeEach((to, from, next) => {
   }
 
   next();
+});
+
+router.afterEach((to) => {
+  const title = to.meta?.title as string | undefined;
+  if (title) {
+    document.title = title;
+  }
 });
 
 export default router;
