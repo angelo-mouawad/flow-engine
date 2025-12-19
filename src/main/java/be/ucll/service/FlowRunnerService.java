@@ -29,23 +29,37 @@ public class FlowRunnerService {
     @Autowired
     private RequestService requestService;
 
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private TriggerService triggerService;
+
+
     public void instantiateFlow(String id, String url, FlowData flowData){
+        try{
+            FlowDefinition fd =  flowDefinitionRepository.findById(id)
+                .orElseThrow(()-> new ServiceException("Flow id does not exist"));
 
-        FlowDefinition fd =  flowDefinitionRepository.findById(id)
-            .orElseThrow(()-> new ServiceException("Flow id does not exist"));
+            if (!fd.isAnyTrigger() && !fd.getTriggerableBy().contains(flowData.triggeredBy())) {
+                throw new ServiceException("Flow is not triggerable by " + flowData.triggeredBy());
+            }
 
-        if (!fd.isAnyTrigger() && !fd.getTriggerableBy().contains(flowData.triggeredBy())) {
-            throw new ServiceException("Flow is not triggerable by " + flowData.triggeredBy());
+            FlowInstance flowInstance = new FlowInstance(fd, 
+                    flowData.title(), 
+                    flowData.triggeredBy(), 
+                    flowData.data(),
+                    url);
+
+            flowInstance = flowInstanceRepository.save(flowInstance);
+            triggerService.SendCallback(url, flowInstance.getId());
+
+            runFlow(flowInstance);
+
+        }catch(Exception e){
+            triggerService.SendCallback(url, "");
+            throw e;
         }
-
-        FlowInstance flowInstance = new FlowInstance(fd, 
-                flowData.title(), 
-                flowData.triggeredBy(), 
-                flowData.data(),
-                url);
-
-        flowInstance = flowInstanceRepository.save(flowInstance);
-        runFlow(flowInstance);
     }
 
     private void runFlow(FlowInstance flowInstance){
@@ -66,18 +80,26 @@ public class FlowRunnerService {
                     }
                     case Approval approval -> {
 
-                        Set<Integer> requestSteps = approval.getRequestSteps();
+                        Set<Integer> requestStepsApproval = approval.getRequestSteps();
+                        // Checks if the approval's mapped request has been submitted
                         boolean shouldWait = flowInstance.getSubmissions()
                             .stream()
-                            .anyMatch(rq -> requestSteps.contains(rq.getRequestStep() ));
+                            .anyMatch(rq -> requestStepsApproval.contains(rq.getRequestStep() ));
 
+                        // wait only if the assigned request is submitted
                         if (!shouldWait) break;
 
                         updateFlowStatus(flowInstance, FlowStatus.PENDING);
                         return;
                     }
                     case Notification notification -> {
-                        //TODO: Notify in NotificationService
+                        int requestStep = notification.getRequestStep();
+                        Request rq = (Request) flowInstance.getProcesses()
+                            .get(requestStep);
+
+                        notification.setRequest(rq);
+                        notificationService.sendNotification(notification);
+                        break;
                     }
                     default -> { break; }
                 }
@@ -88,6 +110,7 @@ public class FlowRunnerService {
             }
 
             updateFlowStatus(flowInstance, FlowStatus.SUCCESS);
+            triggerService.SendCallback(flowInstance.getCallingURL(), flowInstance.getId());
 
             //TODO: Send FlowInstance back to Calling URL
         } catch(Exception e) {

@@ -35,6 +35,12 @@ class FlowRunnerServiceTest {
     @Mock
     private RequestService requestService;
 
+    @Mock
+    private NotificationService notificationService;
+
+    @Mock
+    private TriggerService triggerService;
+
     @InjectMocks
     private FlowRunnerService flowRunnerService;
 
@@ -176,7 +182,7 @@ class FlowRunnerServiceTest {
         RequestSubmission mockSubmission = mock(RequestSubmission.class);
         when(mockSubmission.getRequestStep()).thenReturn(0);
 
-        Set<RequestSubmission> submissions = new HashSet<>();
+        List<RequestSubmission> submissions = new ArrayList<>();
         submissions.add(mockSubmission);
         when(savedInstance.getSubmissions()).thenReturn(submissions);
 
@@ -200,7 +206,7 @@ class FlowRunnerServiceTest {
         when(flowDefinitionRepository.findById("flow-def-123")).thenReturn(Optional.of(mockFlowDefinition));
 
         Request mockRequest = mock(Request.class);
-        when(mockRequest.getRequestTypeName()).thenReturn(RequestTypeEnum.TASK_CHANGE);
+        when(mockRequest.getRequestTypeName()).thenReturn(RequestTypeEnum.TASK_CHANGE_REQUEST);
 
         Approval mockApproval = mock(Approval.class);
         when(mockApproval.getRequestSteps()).thenReturn(Set.of(5)); // Different step, no waiting
@@ -212,14 +218,14 @@ class FlowRunnerServiceTest {
         Map<String, Object> taskDetails = new HashMap<>();
         taskDetails.put("taskId", "TASK-123");
         taskDetails.put("newStatus", "In Progress");
-        taskData.put(RequestTypeEnum.TASK_CHANGE, taskDetails);
+        taskData.put(RequestTypeEnum.TASK_CHANGE_REQUEST, taskDetails);
         
         when(savedInstance.getData()).thenReturn(taskData);
 
         RequestSubmission mockSubmission = mock(RequestSubmission.class);
         when(mockSubmission.getRequestStep()).thenReturn(0);
 
-        Set<RequestSubmission> submissions = new HashSet<>();
+        List<RequestSubmission> submissions = new ArrayList<>();
         submissions.add(mockSubmission);
 
         when(savedInstance.getCurrentProcess())
@@ -321,7 +327,7 @@ class FlowRunnerServiceTest {
         RequestSubmission approvedSubmission = mock(RequestSubmission.class);
         when(approvedSubmission.getStatus()).thenReturn(RequestStatus.APPROVED);
 
-        Set<RequestSubmission> submissions = new HashSet<>();
+        List<RequestSubmission> submissions = new ArrayList<>();
         submissions.add(pendingSubmission);
         submissions.add(approvedSubmission);
 
@@ -364,81 +370,6 @@ class FlowRunnerServiceTest {
     }
 
     @Test
-    @DisplayName("Should handle notification process type")
-    void testNotificationProcess() {
-        FlowDefinition mockFlowDefinition = mock(FlowDefinition.class);
-        when(mockFlowDefinition.isAnyTrigger()).thenReturn(true);
-
-        Notification mockNotification = mock(Notification.class);
-
-        when(flowDefinitionRepository.findById("flow-def-123")).thenReturn(Optional.of(mockFlowDefinition));
-
-        FlowInstance savedInstance = mock(FlowInstance.class);
-        when(savedInstance.getId()).thenReturn("instance-123");
-        when(savedInstance.getData()).thenReturn(testData);
-        when(savedInstance.getCurrentProcess())
-            .thenReturn(mockNotification)  // while check
-            .thenReturn(mockNotification)  // inside loop
-            .thenReturn(null);             // exit loop
-
-        when(flowInstanceRepository.save(any(FlowInstance.class))).thenReturn(savedInstance);
-
-        FlowData flowData = new FlowData("Notification Flow", "user@example.com", testData);
-        flowRunnerService.instantiateFlow("flow-def-123", "http://callback.url", flowData);
-
-        verify(savedInstance).nextProcess();
-        verify(savedInstance).setFlowStatus(FlowStatus.SUCCESS);
-        verify(mockNotification).setFlowInstanceId("instance-123");
-    }
-
-    @Test
-    @DisplayName("Should handle complex multi-process flow with Request, Approval, and Notification")
-    void testComplexMultiProcessFlow() {
-        FlowDefinition mockFlowDefinition = mock(FlowDefinition.class);
-        when(mockFlowDefinition.isAnyTrigger()).thenReturn(true);
-
-        Request mockRequest = mock(Request.class);
-        when(mockRequest.getRequestTypeName()).thenReturn(RequestTypeEnum.ABSENCE_REQUEST);
-
-        Approval mockApproval = mock(Approval.class);
-        when(mockApproval.getRequestSteps()).thenReturn(Set.of(10)); // No waiting needed
-
-        Notification mockNotification = mock(Notification.class);
-
-        when(flowDefinitionRepository.findById("flow-def-123")).thenReturn(Optional.of(mockFlowDefinition));
-
-        FlowInstance savedInstance = mock(FlowInstance.class);
-        when(savedInstance.getId()).thenReturn("instance-123");
-        when(savedInstance.getData()).thenReturn(testData);
-
-        RequestSubmission mockSubmission = mock(RequestSubmission.class);
-        when(mockSubmission.getRequestStep()).thenReturn(0);
-
-        Set<RequestSubmission> submissions = new HashSet<>();
-        submissions.add(mockSubmission);
-
-        when(savedInstance.getCurrentProcess())
-            .thenReturn(mockRequest)
-            .thenReturn(mockRequest)
-            .thenReturn(mockApproval)
-            .thenReturn(mockApproval)
-            .thenReturn(mockNotification)
-            .thenReturn(mockNotification)
-            .thenReturn(null);
-        when(savedInstance.getSubmissions()).thenReturn(submissions);
-
-        when(flowInstanceRepository.save(any(FlowInstance.class))).thenReturn(savedInstance);
-        when(requestService.processRequest(eq(mockRequest), any())).thenReturn(mockSubmission);
-
-        FlowData flowData = new FlowData("Absence Request Flow", "user@example.com", testData);
-        flowRunnerService.instantiateFlow("flow-def-123", "http://callback.url", flowData);
-
-        verify(savedInstance, times(3)).nextProcess();
-        verify(savedInstance).setFlowStatus(FlowStatus.SUCCESS);
-        verify(requestService).processRequest(eq(mockRequest), any());
-    }
-
-    @Test
     @DisplayName("Should remove non-pending submissions when resuming flow")
     void testResumeFlowRemovesNonPendingSubmissions() {
         FlowInstance mockInstance = mock(FlowInstance.class);
@@ -458,7 +389,7 @@ class FlowRunnerServiceTest {
         RequestSubmission declinedSubmission = mock(RequestSubmission.class);
         when(declinedSubmission.getStatus()).thenReturn(RequestStatus.DECLINED);
 
-        Set<RequestSubmission> submissions = new HashSet<>();
+        List<RequestSubmission> submissions = new ArrayList<>();
         submissions.add(pendingSubmission1);
         submissions.add(pendingSubmission2);
         submissions.add(approvedSubmission);

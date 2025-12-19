@@ -7,18 +7,20 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import be.ucll.controller.dto.FlowData;
 import be.ucll.model.*;
+import be.ucll.model.enums.NotificationTypeEnum;
 import be.ucll.model.enums.RequestTypeEnum;
 import be.ucll.service.FlowRunnerService;
-import jakarta.annotation.PostConstruct;
 
 @Component
 @Profile("dev")
-public class DbInitializer {
+public class DbInitializer{
 
     private FlowInstanceRepository flowInstanceRepository;
     private FlowDefinitionRepository flowDefinitionRepository;
@@ -29,14 +31,14 @@ public class DbInitializer {
     public DbInitializer(FlowRunnerService flowRunnerService, 
             RequestSubmissionRepository requestSubmissionRepository, 
             FlowDefinitionRepository flowDefinitionRepository, 
-            FlowInstanceRepository flowInstanceRepository){
+            FlowInstanceRepository flowInstanceRepository) {
         this.flowRunnerService = flowRunnerService;
         this.flowInstanceRepository = flowInstanceRepository;
         this.flowDefinitionRepository = flowDefinitionRepository;
         this.requestSubmissionRepository = requestSubmissionRepository;
     }
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
     public void initialize(){
 
       flowDefinitionRepository.deleteAll();
@@ -46,7 +48,7 @@ public class DbInitializer {
       Request absence = new Request("Absence", RequestTypeEnum.ABSENCE_REQUEST, true, new String[]{"adam@glackit.be", "stef@gmail.com"}, 2);
       Request absence2 = new Request("Absence",  RequestTypeEnum.ABSENCE_REQUEST, false, new String[]{}, 0);
       Approval approval = new Approval("Approval", Set.of(0));
-      Notification notification = new Notification("Notification", "POPUP_NOTIFICATION");
+      Notification notification = new Notification("Notification", NotificationTypeEnum.POPUP_NOTIFICATON, List.of("adam@glackit.be"), 0);
 
       Set<String> triggers = new HashSet<>(Set.of(
                   "adam@glackit.be",
@@ -73,7 +75,7 @@ public class DbInitializer {
               "Absence Reporting alternate", 
               "Receive absence requests for processsing", 
               triggers,
-              List.of(notification, absence2));
+              List.of(absence2, notification));
 
       List<FlowDefinition> fds = List.of(fd1, fd2);
 
@@ -81,17 +83,17 @@ public class DbInitializer {
 
       /*
        *"ABSENCE_REQUEST": {
-       *    "startDate": "2025-11-10",
-       *    "endDate": "2025-11-19",
-       *    "submittedBy": "lais@glakit.be",
-       *    "reason": "sickness",
+       *    "Start_Date": "2025-11-10",
+       *    "End_Date": "2025-11-19",
+       *    "Submitted_By": "lais@glakit.be",
+       *    "Reason": "sickness",
        *} 
        */
       Map<String, Object> data = new HashMap<>();
-      data.put("startDate", "2025-11-10");
-      data.put("endDate", "2025-11-19");
-      data.put("submittedBy", "lais@glakit.be");
-      data.put("reason", "sickness");
+      data.put("Start_Date", "2025-11-10");
+      data.put("End_Date", "2025-11-19");
+      data.put("Submitted_By", "lais@glakit.be");
+      data.put("Reason", "sickness");
 
       Map<RequestTypeEnum, Map<String, Object>> rqdata = new HashMap<>();
       rqdata.put(absence.getRequestTypeName(), data);
@@ -99,7 +101,7 @@ public class DbInitializer {
       FlowData flowData = new FlowData("hamid senior absence approval", "lais@glackit.be",rqdata);
       FlowData flowData2 = new FlowData("hamid absence no approval",  "lais@glackit.be",rqdata);
 
-      String url = "https://front-end-team30-wpp-team-30.apps.okd.ucll.cloud/";
+      String url = "http://test.be";
 
       flowRunnerService.instantiateFlow(fd1.getId(), url, flowData);
       flowRunnerService.instantiateFlow(fd2.getId(), url, flowData2);

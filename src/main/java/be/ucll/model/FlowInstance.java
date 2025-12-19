@@ -2,11 +2,10 @@ package be.ucll.model;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -42,7 +41,7 @@ public class FlowInstance {
     private FlowStatus flowStatus;
 
     @JsonIgnore
-    private Set<RequestSubmission> submissions = new HashSet<>();
+    private List<RequestSubmission> submissions = new ArrayList<>();
 
     private Map<RequestTypeEnum, Map<String, Object>> data = new HashMap<>();
 
@@ -92,7 +91,7 @@ public class FlowInstance {
         return step;
     }
 
-    public Set<RequestSubmission> getSubmissions() {
+    public List<RequestSubmission> getSubmissions() {
         return submissions;
     }
 
