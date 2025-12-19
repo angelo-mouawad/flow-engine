@@ -7,7 +7,7 @@ public class PopUpNotificationType implements NotificationType{
     
     @Override
     public NotificationTypeEnum getTypeName() {
-        return NotificationTypeEnum.POPUP_NOTIFICATON;
+        return NotificationTypeEnum.POPUP_NOTIFICATION;
     }
 
     @Override

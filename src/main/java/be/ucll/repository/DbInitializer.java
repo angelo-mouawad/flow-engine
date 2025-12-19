@@ -48,7 +48,7 @@ public class DbInitializer{
       Request absence = new Request("Absence", RequestTypeEnum.ABSENCE_REQUEST, true, new String[]{"adam@glackit.be", "stef@gmail.com"}, 2);
       Request absence2 = new Request("Absence",  RequestTypeEnum.ABSENCE_REQUEST, false, new String[]{}, 0);
       Approval approval = new Approval("Approval", Set.of(0));
-      Notification notification = new Notification("Notification", NotificationTypeEnum.POPUP_NOTIFICATON, List.of("adam@glackit.be"), 0);
+      Notification notification = new Notification("Notification", NotificationTypeEnum.POPUP_NOTIFICATION, List.of("adam@glackit.be"), 0);
 
       Set<String> triggers = new HashSet<>(Set.of(
                   "adam@glackit.be",

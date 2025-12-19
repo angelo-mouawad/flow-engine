@@ -13,10 +13,10 @@ public class NotificationTypeFactory {
     
     static {
         NOTIFICATION_TYPES.put(
-                NotificationTypeEnum.EMAIL_NOTIFICATON, 
+                NotificationTypeEnum.EMAIL_NOTIFICATION, 
                 new EmailNotificationType());
         NOTIFICATION_TYPES.put(
-                NotificationTypeEnum.POPUP_NOTIFICATON, 
+                NotificationTypeEnum.POPUP_NOTIFICATION, 
                 new PopUpNotificationType());
     }
     

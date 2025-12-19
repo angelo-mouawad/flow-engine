@@ -1,6 +1,6 @@
 package be.ucll.model.enums;
 
 public enum NotificationTypeEnum{
-    EMAIL_NOTIFICATON,
-    POPUP_NOTIFICATON
+    EMAIL_NOTIFICATION,
+    POPUP_NOTIFICATION
 }
