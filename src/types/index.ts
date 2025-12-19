@@ -60,6 +60,8 @@ export type Approval = ProcessBase & {
 export type Notification = ProcessBase & {
   processType: "NOTIFICATION";
   notificationType: NotificationType;
+  toNotify?: string[];
+  requestStep?: number;
 };
 
 export type AbsenceData = {
