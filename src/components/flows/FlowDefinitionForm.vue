@@ -50,18 +50,39 @@ const addProcess = (processType: ProcessType) => {
       processType: "NOTIFICATION",
       name: "",
       notificationType: "" as NotificationType,
+      toNotify: [],
+      requestStep: undefined,
       step: steps.value.length + 1,
     };
   }
   steps.value.push(newProcess);
-  // Ensure sequential step numbers after any addition
   renumberSteps();
   showProcessMenu.value = false;
 };
 
 const deleteStep = (index: number) => {
   steps.value.splice(index, 1);
-  // Recalculate step numbers after deletion
+
+  steps.value.forEach((step) => {
+    if (step.processType === "APPROVAL" && Array.isArray(step.requestSteps)) {
+      step.requestSteps = step.requestSteps
+        .map((reqIndex) => {
+          if (reqIndex === index) return null; 
+          if (reqIndex > index) return reqIndex - 1; 
+          return reqIndex;
+        })
+        .filter((reqIndex): reqIndex is number => reqIndex !== null);
+    }
+
+    if (step.processType === "NOTIFICATION" && typeof step.requestStep === "number") {
+      if (step.requestStep === index) {
+        step.requestStep = undefined; 
+      } else if (step.requestStep > index) {
+        step.requestStep = step.requestStep - 1; 
+      }
+    }
+  });
+  
   renumberSteps();
 };
 
@@ -565,7 +586,9 @@ watch(
 
                 <v-select
                   v-model="step.requestSteps"
-                  :options="steps.filter(p => p.processType === 'REQUEST').map(p => ({ label: p.name || 'Request Process', value: p.step }))"
+                  :options="steps
+                    .filter((p, i) => p.processType === 'REQUEST' && i < index)
+                    .map(p => ({ label: p.name || 'Request Process', value: p.step }))"
                   label="label"
                   :reduce="(option: any) => option.value"
                   placeholder="Select request processes to approve..."
@@ -603,6 +626,58 @@ watch(
                   placeholder="Select notification type..."
                   :clearable="false"
                 />
+              </div>
+
+              <div class="mb-4">
+                <label
+                  for="flowNotificationUsers"
+                  class="block text-sm font-bold mb-2"
+                  :class="labelTextColor"
+                >
+                  Select User(s) to Notify
+                </label>
+
+                <v-select
+                  v-model="step.toNotify"
+                  :options="availableTriggers"
+                  label="name"
+                  :reduce="(user: any) => user.email"
+                  placeholder="Search and select users to notify..."
+                  multiple
+                >
+                  <template #option="{ name, email, role }">
+                    <div class="flex justify-between items-center">
+                      <span>{{ name }} ({{ email }})</span>
+                      <span class="text-xs opacity-75">{{ role }}</span>
+                    </div>
+                  </template>
+                </v-select>
+                <p class="text-xs text-gray-500 mt-2">
+                  Leave empty to use default notification recipients.
+                </p>
+              </div>
+
+              <div class="mb-4">
+                <label
+                  for="flowNotificationTargets"
+                  class="block text-sm font-bold mb-2"
+                  :class="labelTextColor"
+                >
+                  Select Request Process to Approve
+                </label>
+
+                <v-select
+                  v-model="step.requestStep"
+                  :options="steps
+                    .filter((p, i) => p.processType === 'REQUEST' && i < index)
+                    .map(p => ({ label: p.name || 'Request Process', value: p.step }))"
+                  label="label"
+                  :reduce="(option: any) => option.value"
+                  placeholder="Select a request process to approve..."
+                />
+                <p class="text-xs text-gray-500 mt-2">
+                  Choose the request process this notification will relate to.
+                </p>
               </div>
             </template>
           </div>
