@@ -15,6 +15,7 @@ public class MeetingRequest implements RequestType {
         String location = data.getField("Location", String.class);
         String timeStr = data.getField("Time", String.class);
         String duration = data.getField("Duration", String.class);
+        String submittedBy = data.getField("Submitted_By", String.class);
 
         ZonedDateTime time =  ZonedDateTime.parse(timeStr);
 
@@ -27,11 +28,15 @@ public class MeetingRequest implements RequestType {
         }
 
         if (duration == null || duration.isBlank()) {
-            throw new DomainException("location is required for meeting request");
+            throw new DomainException("duration is required for meeting request");
         }
 
         if (time == null) {
-            throw new DomainException("User is required for absence request");
+            throw new DomainException("time is required for meeting request");
+        }
+
+        if (submittedBy == null || submittedBy.isBlank()) {
+            throw new DomainException("User is required for meeting request");
         }
 
         return RequestStatus.PENDING;
@@ -39,7 +44,7 @@ public class MeetingRequest implements RequestType {
  
     @Override
     public RequestTypeEnum getTypeName() {
-        return RequestTypeEnum.TASK_CHANGE_REQUEST;
+        return RequestTypeEnum.MEETING_REQUEST;
     }
 }
 

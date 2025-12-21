@@ -18,6 +18,9 @@ public class RequestTypeFactory {
         REQUEST_TYPES.put(
                 RequestTypeEnum.TASK_CHANGE_REQUEST, 
                 new TaskChangeRequestType());
+        REQUEST_TYPES.put(
+                RequestTypeEnum.MEETING_REQUEST, 
+                new MeetingRequest());
     }
     
     public static RequestType fromTypeName(RequestTypeEnum typeName) {
