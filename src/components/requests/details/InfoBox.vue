@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { RequestSubmission, RequestType } from "../../../types";
+import type { RequestSubmission } from "../../../types";
 import { useThemeStore } from "../../../stores/themeStore";
 
-const props = defineProps<{
-  request: RequestSubmission;
+defineProps<{ 
+    request: RequestSubmission; 
 }>();
 
 const themeStore = useThemeStore();
@@ -36,7 +36,6 @@ const formatFieldValue = (value: unknown) => {
   return String(value);
 };
 
-
 </script>
 
 <template>
@@ -50,7 +49,7 @@ const formatFieldValue = (value: unknown) => {
             class="px-4 py-3 text-left w-1/3 font-semibold"
             :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
           >
-              {{ key.replace("_", " ") }}
+              {{ (key as string).replace("_", " ") }}
           </th>
           <td class="px-4 py-3">
               {{ formatFieldValue(value) }}
