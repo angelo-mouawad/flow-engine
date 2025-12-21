@@ -54,7 +54,6 @@ public class Notification extends Process {
     }
 
     public void setRequest(Request request) {
-        System.out.println(request.getName());
         this.request = request;
     }
 

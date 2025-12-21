@@ -33,6 +33,7 @@ public class NotificationService {
         String message = notification.getMessage();
 
         for (String user: notification.getToNotify()) {
+            System.out.println(message + " -> " + user);
             messagingTemplate.convertAndSend(
                     "/topic/notification/" + user,
                     new NotificationMessage(message));

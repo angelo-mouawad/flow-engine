@@ -75,7 +75,12 @@ public class FlowRunnerService {
                         RequestSubmission submission = requestService.processRequest(
                                 request,
                                 data.get(request.getRequestTypeName())); 
-                        flowInstance.addSubmission(submission);
+
+                        if (submission.isApprovable() && 
+                                submission.getStatus() == RequestStatus.PENDING){
+                            flowInstance.addSubmission(submission);
+                        }
+
                         break;
                     }
                     case Approval approval -> {

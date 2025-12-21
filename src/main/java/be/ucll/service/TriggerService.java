@@ -29,7 +29,7 @@ public class TriggerService {
             requestBody.put("StatusMessage", statusMessage);
             requestBody.put("FlowId", id);
 
-            String response = webClient.post()
+            webClient.post()
                 .uri(url)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
@@ -38,7 +38,7 @@ public class TriggerService {
                 .block();
 
         } catch (WebClientException e) {
-            throw new ServiceException("Service unavailable at " + url + ": " + e.getMessage());
+            System.out.println("Service unavailable at " + url + ": " + e.getMessage());
         } catch (ServiceException e) {
             throw new ServiceException("Unexpected Error: " + e.getMessage());
         }

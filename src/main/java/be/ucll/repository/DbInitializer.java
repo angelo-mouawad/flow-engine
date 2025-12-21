@@ -45,9 +45,11 @@ public class DbInitializer{
       flowInstanceRepository.deleteAll();
       requestSubmissionRepository.deleteAll();
 
-      Request absence = new Request("Absence", RequestTypeEnum.ABSENCE_REQUEST, true, new String[]{"adam@glackit.be", "stef@gmail.com"}, 2);
-      Request absence2 = new Request("Absence",  RequestTypeEnum.ABSENCE_REQUEST, false, new String[]{}, 0);
+      Request absence = new Request("Absence", RequestTypeEnum.ABSENCE_REQUEST, true, new String[]{"adam@glackit.be", "samip@glackit.be"}, 2);
+      Request absence2 = new Request("Absence no approval",  RequestTypeEnum.ABSENCE_REQUEST, false, new String[]{}, 0);
+      Request clockin = new Request("clockIN", RequestTypeEnum.CLOCKIN_REQUEST, true, new String[]{"adam@glackit.be", "samip@glackit.be"}, 2);
       Approval approval = new Approval("Approval", Set.of(0));
+      Approval approval2 = new Approval("Approval", Set.of(2));
       Notification notification = new Notification("Notification", NotificationTypeEnum.POPUP_NOTIFICATION, List.of("adam@glackit.be"), 0);
 
       Set<String> triggers = new HashSet<>(Set.of(
@@ -75,9 +77,15 @@ public class DbInitializer{
               "Absence Reporting alternate", 
               "Receive absence requests for processsing", 
               triggers,
-              List.of(absence2, notification));
+              List.of(clockin, approval, notification));
 
-      List<FlowDefinition> fds = List.of(fd1, fd2);
+      FlowDefinition fd3 = new FlowDefinition(
+              "Absence Reporting alternate", 
+              "Receive absence requests for processsing", 
+              triggers,
+              List.of(absence2, notification, clockin, approval2));
+
+      List<FlowDefinition> fds = List.of(fd1, fd2, fd3);
 
       flowDefinitionRepository.saveAll(fds);
 
@@ -95,15 +103,30 @@ public class DbInitializer{
       data.put("Submitted_By", "lais@glakit.be");
       data.put("Reason", "sickness");
 
+      Map<String, Object> data2 = new HashMap<>();
+      data2.put("Start_Time", "2025-12-19T15:30:00+01:00");
+      data2.put("End_Time", "2025-12-19T20:30:00+01:00");
+      data2.put("Date", "2025-11-19");
+      data2.put("Submitted_By", "lais@glakit.be");
+
       Map<RequestTypeEnum, Map<String, Object>> rqdata = new HashMap<>();
       rqdata.put(absence.getRequestTypeName(), data);
 
+      Map<RequestTypeEnum, Map<String, Object>> rqdata2 = new HashMap<>();
+      rqdata2.put(clockin.getRequestTypeName(), data2);
+
+      Map<RequestTypeEnum, Map<String, Object>> rqdata3 = new HashMap<>();
+      rqdata3.put(absence2.getRequestTypeName(), data);
+      rqdata3.put(clockin.getRequestTypeName(), data2);
+
       FlowData flowData = new FlowData("hamid senior absence approval", "lais@glackit.be",rqdata);
-      FlowData flowData2 = new FlowData("hamid absence no approval",  "lais@glackit.be",rqdata);
+      FlowData flowData2 = new FlowData("hamid clockin approval",  "lais@glackit.be", rqdata2);
+      FlowData flowData3 = new FlowData("hamid clockin approval",  "adam@glackit.be", rqdata3);
 
       String url = "http://test.be";
 
       flowRunnerService.instantiateFlow(fd1.getId(), url, flowData);
       flowRunnerService.instantiateFlow(fd2.getId(), url, flowData2);
+      flowRunnerService.instantiateFlow(fd3.getId(), url, flowData3);
     }
 }
