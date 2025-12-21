@@ -67,10 +67,7 @@ watch(
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
           <p class="text-sm font-medium" :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">Request</p>
-          <h1 class="text-2xl font-semibold mt-1">{{ request?.requestTypeName || "Request details" }}</h1>
-          <p class="text-sm mt-1" :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">
-            Submitted by: <span class="font-semibold">{{ request?.data?.allFields?.submittedBy || "—" }}</span>
-          </p>
+          <h1 class="text-2xl font-semibold mt-1">{{ request?.requestTypeName.replace("_", " ") || "Request details" }}</h1>
         </div>
         <button type="button" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2 px-6 rounded-md shadow-sm transition-colors cursor-pointer self-start sm:self-auto" @click="goBack">
           Back to list
