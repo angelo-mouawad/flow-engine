@@ -10,8 +10,9 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "processType"
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "processType",
+    visible = true
 )
 @JsonSubTypes({
     @JsonSubTypes.Type(value = Request.class, name = "REQUEST"),

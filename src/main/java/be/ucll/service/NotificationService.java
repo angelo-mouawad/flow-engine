@@ -27,7 +27,7 @@ public class NotificationService {
 
             default -> {break;}
         }
-    } 
+    }
 
     private void sendPopUp(Notification notification){
         String message = notification.getMessage();
