@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import SideBar from "./components/main/SideBar.vue";
 import Header from "./components/main/Header.vue";
-import { computed, watchEffect } from "vue";
+import { computed, watch, watchEffect } from "vue";
 import { useRoleStore } from "./stores/roleStore";
 import { useThemeStore } from "./stores/themeStore";
 import { useUserStore } from "./stores/userStore";
+import { useNotificationStore } from "./stores/notificationStore";
 
+const notificationStore = useNotificationStore();
 const roleStore = useRoleStore();
+const userStore = useUserStore();
 const currentRole = computed({
   get: () => roleStore.role,
   set: (v) => roleStore.setRole(v),
@@ -20,11 +23,22 @@ if (typeof window !== "undefined") {
     document.documentElement.classList.toggle("theme-dark", isDarkMode.value);
     document.body.classList.toggle("theme-dark", isDarkMode.value);
   });
-}
+};
+
+watch(
+  () => userStore.currentUser,
+  (newUser) => {
+    if (newUser) {
+      notificationStore.connectWebSocket();
+    } else {
+      notificationStore.disconnectWebSocket();
+    }
+  },
+  { immediate: true }
+);
 
 window.addEventListener("storage", (event) => {
   if (event.key === "user") {
-    const userStore = useUserStore();
     userStore.loadFromStorage();
   }
 });

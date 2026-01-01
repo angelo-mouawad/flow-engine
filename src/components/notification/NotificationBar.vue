@@ -1,26 +1,18 @@
 <script setup lang="ts">
-import { useToast } from "vue-toastification";
-import { useNotificationStore } from "../../stores/NotificationStore";
+import { useNotificationStore } from "../../stores/notificationStore";
 
-const toast = useToast();
-const { addNotification } = useNotificationStore();
+const notificationStore = useNotificationStore();
 
 const notifySuccess = () => {
-  const msg = "Operation completed successfully!";
-  toast.success(msg);
-  addNotification(msg, "success");
+  notificationStore.addNotification("Operation completed successfully!", "success");
 };
 
 const notifyError = () => {
-  const msg = "Something went wrong!";
-  toast.error(msg);
-  addNotification(msg, "error");
+  notificationStore.addNotification("Something went wrong!", "error");
 };
 
 const notifyInfo = () => {
-  const msg = "This is an informational message.";
-  toast.info(msg);
-  addNotification(msg, "info");
+  notificationStore.addNotification("This is an informational message.", "info");
 };
 </script>
 
@@ -30,23 +22,29 @@ const notifyInfo = () => {
   >
     <button
       @click="notifySuccess"
-      class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow-md transition-colors"
+      class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg shadow-md transition-all active:scale-95"
     >
       ✅ Success
     </button>
 
     <button
       @click="notifyError"
-      class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow-md transition-colors"
+      class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg shadow-md transition-all active:scale-95"
     >
       ❌ Error
     </button>
 
     <button
       @click="notifyInfo"
-      class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow-md transition-colors"
+      class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg shadow-md transition-all active:scale-95"
     >
       ℹ️ Info
     </button>
   </div>
 </template>
+
+<style scoped>
+button:active {
+  transform: scale(0.95);
+}
+</style>

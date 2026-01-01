@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 import FlowCard from "../components/dashboard/FlowCard.vue";
 import StatsCard from "../components/dashboard/StatsCard.vue";
 import FlowInstancesTable from "../components/flows/FlowInstancesTable.vue";
@@ -8,17 +8,10 @@ import type { FlowInstance, Status, FlowDefinition } from "../types";
 import FlowInstanceService from "../services/FlowInstanceService";
 import FlowDefinitionService from "../services/FlowDefinitionService";
 import { useThemeStore } from "../stores/themeStore";
+import { useUserStore } from "../stores/userStore";
 
-const user = ref<any>(null)
-const stored = sessionStorage.getItem("user")
-
-if (stored) {
-  user.value = JSON.parse(stored)
-}
-
-const isManager = () => {
-  return user.value?.role === "Manager";
-}
+const userStore = useUserStore();
+const isManager = () => userStore.isManager;
 
 const flowInstances = ref<FlowInstance[]>([]);
 const flowDefinitions = ref<FlowDefinition[]>([]);
@@ -50,6 +43,8 @@ const stats = computed(() => {
 });
 
 const fetchFlowInstances = async () => {
+  if (!userStore.currentUser) return;
+
   loading.value = true;
   error.value = null;
   try {
@@ -67,6 +62,8 @@ const fetchFlowInstances = async () => {
 };
 
 const fetchFlowDefinitions = async () => {
+  if (!userStore.currentUser) return;
+
   try {
     const defs = await FlowDefinitionService.getFlowDefinitions();
     flowDefinitions.value = defs;
@@ -75,11 +72,24 @@ const fetchFlowDefinitions = async () => {
   }
 };
 
-onMounted(() => {
-  fetchFlowInstances();
-  fetchFlowDefinitions();
-  pollInterval = window.setInterval(fetchFlowInstances, 5000);
-});
+watch(
+  () => userStore.currentUser,
+  (newUser) => {
+    if (newUser) {
+      fetchFlowInstances();
+      fetchFlowDefinitions();
+      if (!pollInterval) {
+        pollInterval = window.setInterval(fetchFlowInstances, 5000);
+      }
+    } else {
+      flowDefinitions.value = [];
+      flowInstances.value = [];
+      clearInterval(pollInterval);
+      pollInterval = 0;
+    }
+  },
+  { immediate: true }
+)
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);

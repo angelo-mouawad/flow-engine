@@ -7,5 +7,8 @@ export default defineConfig({
     vue(),
     tailwindcss(),
   ],
+  define: {
+    global: 'window'
+  }
 })
 
