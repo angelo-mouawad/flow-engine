@@ -663,7 +663,7 @@ watch(
                   class="block text-sm font-bold mb-2"
                   :class="labelTextColor"
                 >
-                  Select Request Process to Approve
+                  Select Request Process to Notify About
                 </label>
 
                 <v-select
