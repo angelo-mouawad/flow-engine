@@ -205,8 +205,12 @@ const saveFlow = async () => {
             processData.name = "Absence Request";
           } else if (requestTypeName === "CLOCKIN_REQUEST") {
             processData.name = "Clock-In Request";
+          } else if (requestTypeName === "TASK_CHANGE_REQUEST") {
+            processData.name = "Task-Change Request";
+          } else if (requestTypeName === "MEETING_REQUEST") {
+            processData.name = "Meeting Request";
           } else {
-            processData.name = "Request Process";
+            processData.name = "Request Process"
           }
         } else if (processData.processType === "APPROVAL") {
           processData.name = "Approval Process";
@@ -493,6 +497,8 @@ watch(
                   :options="[
                     { label: 'Absence Request', value: 'ABSENCE_REQUEST' },
                     { label: 'Clock-In Request', value: 'CLOCKIN_REQUEST' },
+                    { label: 'Task-Change Request', value: 'TASK_CHANGE_REQUEST' },
+                    { label: 'Meeting Request', value: 'MEETING_REQUEST' }
                   ]"
                   :reduce="(option: any) => option.value"
                   label="label"

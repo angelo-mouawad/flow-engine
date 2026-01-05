@@ -143,6 +143,8 @@ const matchesSelectedFilters = (def: FlowDefinition) => {
       const childOptions = [
         { key: "request-absence", type: "ABSENCE_REQUEST" as RequestType },
         { key: "request-clock-in", type: "CLOCKIN_REQUEST" as RequestType },
+        { key: "request-meeting", type: "MEETING_REQUEST" as RequestType },
+        { key: "request-task-change", type: "TASK_CHANGE_REQUEST" as RequestType }
       ];
       const activeChildren = childOptions.filter(
         (child) => currentFilters[child.key]

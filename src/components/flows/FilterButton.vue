@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref, withDefaults } from "vue";
+import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -39,6 +39,8 @@ const filterGroups = reactive<FilterItem[]>([
     children: [
       { key: "absence", label: "Absence", checked: false },
       { key: "clock-in", label: "Clock In", checked: false },
+      { key: "task-change", label: "Task Change", checked: false },
+      { key: "meeting", label: "Meeting", checked: false }
     ],
   },
   {
