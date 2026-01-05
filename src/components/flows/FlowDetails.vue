@@ -185,7 +185,7 @@ const remainingFor = (list?: string[] | null) => Math.max(0, (list ?? []).length
             +{{ remainingCount }} more
           </span>
         </template>
-        <span v-else class="text-lg font-semibold mt-1">—</span>
+        <span v-else class="text-lg font-semibold mt-1">Everyone</span>
       </div>
     </div>
   </div>
