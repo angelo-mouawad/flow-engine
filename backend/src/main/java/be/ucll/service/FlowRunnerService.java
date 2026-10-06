@@ -1,155 +1,136 @@
 package be.ucll.service;
 
-import be.ucll.exception.ServiceException;
-import be.ucll.model.*;
-import be.ucll.model.Process;
-import be.ucll.model.enums.FlowStatus;
-import be.ucll.model.enums.RequestStatus;
-import be.ucll.model.enums.RequestTypeEnum;
-import be.ucll.repository.FlowDefinitionRepository;
-import be.ucll.repository.FlowInstanceRepository;
+import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import be.ucll.controller.dto.FlowData;
-import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Set;
+import be.ucll.controller.dto.TriggerResponse;
+import be.ucll.exception.DomainException;
+import be.ucll.exception.NotFoundException;
+import be.ucll.exception.ServiceException;
+import be.ucll.model.Approval;
+import be.ucll.model.FlowDefinition;
+import be.ucll.model.FlowInstance;
+import be.ucll.model.Notification;
+import be.ucll.model.Process;
+import be.ucll.model.Request;
+import be.ucll.model.RequestSubmission;
+import be.ucll.model.enums.FlowStatus;
+import be.ucll.repository.FlowDefinitionRepository;
+import be.ucll.repository.FlowInstanceRepository;
 
 @Service
 public class FlowRunnerService {
 
-    @Autowired
-    private FlowInstanceRepository flowInstanceRepository;
+    private static final Logger log = LoggerFactory.getLogger(FlowRunnerService.class);
 
-    @Autowired
-    private FlowDefinitionRepository flowDefinitionRepository;
+    private final FlowInstanceRepository flowInstanceRepository;
+    private final FlowDefinitionRepository flowDefinitionRepository;
+    private final RequestService requestService;
+    private final NotificationService notificationService;
+    private final CallbackService callbackService;
 
-    @Autowired
-    private RequestService requestService;
+    public FlowRunnerService(FlowInstanceRepository flowInstanceRepository,
+                             FlowDefinitionRepository flowDefinitionRepository,
+                             RequestService requestService,
+                             NotificationService notificationService,
+                             CallbackService callbackService) {
+        this.flowInstanceRepository = flowInstanceRepository;
+        this.flowDefinitionRepository = flowDefinitionRepository;
+        this.requestService = requestService;
+        this.notificationService = notificationService;
+        this.callbackService = callbackService;
+    }
 
-    @Autowired
-    private NotificationService notificationService;
+    public TriggerResponse instantiateFlow(String definitionId, FlowData flowData) {
+        FlowDefinition definition = flowDefinitionRepository.findById(definitionId)
+                .orElseThrow(() -> new NotFoundException("Flow definition " + definitionId + " does not exist"));
 
-    @Autowired
-    private TriggerService triggerService;
+        if (!definition.canBeTriggeredBy(flowData.triggeredBy())) {
+            throw new ServiceException("Flow is not triggerable by " + flowData.triggeredBy());
+        }
 
+        FlowInstance instance = flowInstanceRepository.save(new FlowInstance(
+                definition,
+                flowData.title(),
+                flowData.triggeredBy(),
+                flowData.data(),
+                flowData.callbackUrl()));
 
-    public void instantiateFlow(String id, String url, FlowData flowData){
-        try{
-            FlowDefinition fd =  flowDefinitionRepository.findById(id)
-                .orElseThrow(()-> new ServiceException("Flow id does not exist"));
+        run(instance);
+        return new TriggerResponse(instance.getId(), instance.getFlowStatus());
+    }
 
-            if (!fd.isAnyTrigger() && !fd.getTriggerableBy().contains(flowData.triggeredBy())) {
-                throw new ServiceException("Flow is not triggerable by " + flowData.triggeredBy());
+    public void resumeFlow(String flowInstanceId) {
+        FlowInstance instance = flowInstanceRepository.findById(flowInstanceId)
+                .orElseThrow(() -> new NotFoundException("Flow instance " + flowInstanceId + " does not exist"));
+
+        if (instance.getFlowStatus() != FlowStatus.PENDING) {
+            log.info("Flow instance {} is {}, nothing to resume", flowInstanceId, instance.getFlowStatus());
+            return;
+        }
+
+        instance.setFlowStatus(FlowStatus.ACTIVE);
+        flowInstanceRepository.save(instance);
+        run(instance);
+    }
+
+    private void run(FlowInstance instance) {
+        try {
+            Process current;
+            while ((current = instance.getCurrentProcess()) != null) {
+                if (mustWaitAt(instance, current)) {
+                    instance.setFlowStatus(FlowStatus.PENDING);
+                    flowInstanceRepository.save(instance);
+                    callbackService.send(instance.getCallbackUrl(), instance.getId(), CallbackService.PENDING);
+                    return;
+                }
+                instance.nextProcess();
+                flowInstanceRepository.save(instance);
             }
 
-            FlowInstance flowInstance = new FlowInstance(fd, 
-                    flowData.title(), 
-                    flowData.triggeredBy(), 
-                    flowData.data(),
-                    url);
-
-            flowInstance = flowInstanceRepository.save(flowInstance);
-            triggerService.SendCallback(url, flowInstance.getId());
-
-            runFlow(flowInstance);
-
-        }catch(Exception e){
-            triggerService.SendCallback(url, "");
+            instance.setFlowStatus(FlowStatus.SUCCESS);
+            flowInstanceRepository.save(instance);
+            callbackService.send(instance.getCallbackUrl(), instance.getId(), CallbackService.COMPLETED);
+        } catch (RuntimeException e) {
+            markFailed(instance, e);
             throw e;
         }
     }
 
-    private void runFlow(FlowInstance flowInstance){
-        try{
-            Map<RequestTypeEnum, Map<String, Object>> data = flowInstance.getData();
-
-            while (flowInstance.getCurrentProcess() != null) {
-                Process current = flowInstance.getCurrentProcess();
-                current.setFlowInstanceId(flowInstance.getId());
-
-                switch (current) {
-                    case Request request -> {
-                        RequestSubmission submission = requestService.processRequest(
-                                request,
-                                data.get(request.getRequestTypeName())); 
-
-                        if (submission.isApprovable() && 
-                                submission.getStatus() == RequestStatus.PENDING){
-                            flowInstance.addSubmission(submission);
-                        }
-
-                        break;
-                    }
-                    case Approval approval -> {
-
-                        Set<Integer> requestStepsApproval = approval.getRequestSteps();
-                        // Checks if the approval's mapped request has been submitted
-                        boolean shouldWait = flowInstance.getSubmissions()
-                            .stream()
-                            .anyMatch(rq -> requestStepsApproval.contains(rq.getRequestStep() ));
-
-                        // wait only if the assigned request is submitted
-                        if (!shouldWait) break;
-
-                        updateFlowStatus(flowInstance, FlowStatus.PENDING);
-                        return;
-                    }
-                    case Notification notification -> {
-                        int requestStep = notification.getRequestStep();
-                        Request rq = (Request) flowInstance.getProcesses()
-                            .get(requestStep);
-
-                        notification.setRequest(rq);
-                        notificationService.sendNotification(notification);
-                        break;
-                    }
-                    default -> { break; }
-                }
-
-                flowInstance.nextProcess();
-                flowInstance.setUpdatedAt(LocalDateTime.now());
-                flowInstanceRepository.save(flowInstance); 
+    private boolean mustWaitAt(FlowInstance instance, Process process) {
+        return switch (process) {
+            case Request request -> {
+                Map<String, Object> data = instance.getDataFor(request.getRequestTypeName());
+                RequestSubmission submission = requestService.processRequest(request, data, instance.getId());
+                log.debug("Request {} in flow {} submitted as {}", request.getLabel(), instance.getId(), submission.getStatus());
+                yield false;
             }
-
-            updateFlowStatus(flowInstance, FlowStatus.SUCCESS);
-            triggerService.SendCallback(flowInstance.getCallingURL(), flowInstance.getId());
-
-            //TODO: Send FlowInstance back to Calling URL
-        } catch(Exception e) {
-            updateFlowStatus(flowInstance, FlowStatus.FAILURE);
-            throw new ServiceException("Flow Execution Failed: "+ e.getMessage());
-        }
+            case Approval approval -> requestService.hasPendingSubmission(instance.getId(), approval.getRequestSteps());
+            case Notification notification -> {
+                Request request = null;
+                if (notification.getRequestStep() != null
+                        && instance.getProcess(notification.getRequestStep()) instanceof Request target) {
+                    request = target;
+                }
+                notificationService.send(notification, request, instance.getTitle());
+                yield false;
+            }
+            default -> throw new DomainException("Unsupported process at step " + process.getStep());
+        };
     }
 
-    public void resumeFlow(String id){
-        FlowInstance flowInstance = flowInstanceRepository.findById(id)
-            .orElseThrow(()-> new ServiceException("Flow Instance not found"));
-
-        if(flowInstance.getFlowStatus() != FlowStatus.PENDING){
-            throw new ServiceException("Flow is not PENDING");
+    private void markFailed(FlowInstance instance, RuntimeException cause) {
+        log.warn("Flow instance {} failed: {}", instance.getId(), cause.getMessage());
+        try {
+            instance.setFlowStatus(FlowStatus.FAILURE);
+            flowInstanceRepository.save(instance);
+        } catch (RuntimeException saveError) {
+            log.error("Could not mark flow instance {} as failed", instance.getId(), saveError);
         }
-
-        // Update Submissions
-        flowInstance.getSubmissions()
-            .removeAll(
-                    flowInstance.getSubmissions().stream()
-                    .filter(rq -> rq.getStatus() != RequestStatus.PENDING)
-                    .toList());
-
-        flowInstance.nextProcess();
-        flowInstance.setFlowStatus(FlowStatus.ACTIVE);
-        flowInstance.setUpdatedAt(LocalDateTime.now());
-        flowInstanceRepository.save(flowInstance); 
-
-        runFlow(flowInstance);
-    }
-
-    private void updateFlowStatus(FlowInstance flowInstance, FlowStatus status){
-        flowInstance.setFlowStatus(status);
-        flowInstance.setUpdatedAt(LocalDateTime.now());
-        flowInstanceRepository.save(flowInstance);
+        callbackService.send(instance.getCallbackUrl(), instance.getId(), CallbackService.FAILED);
     }
 }

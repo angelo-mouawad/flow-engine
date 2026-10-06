@@ -1,29 +1,31 @@
 package be.ucll.model;
 
+import java.util.Collections;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import be.ucll.model.enums.ProcessType;
 
-public class Approval extends Process{
+public class Approval extends Process {
 
-    private Set<Integer> requestSteps;
+    private Set<Integer> requestSteps = new TreeSet<>();
 
-    protected Approval() {}
+    protected Approval() {
+    }
 
     @JsonCreator
-    public Approval(@JsonProperty("name") String name, Set<Integer> requestStep) {
+    public Approval(@JsonProperty("name") String name,
+                    @JsonProperty("requestSteps") Set<Integer> requestSteps) {
         super(name, ProcessType.APPROVAL);
-        setRequestStep(requestStep);
+        if (requestSteps != null) {
+            requestSteps.stream().filter(step -> step != null).forEach(this.requestSteps::add);
+        }
     }
 
     public Set<Integer> getRequestSteps() {
-        return requestSteps;
-    }
-
-    public void setRequestStep(Set<Integer> requestStep) {
-        this.requestSteps = requestStep;
+        return Collections.unmodifiableSortedSet(new TreeSet<>(requestSteps));
     }
 }

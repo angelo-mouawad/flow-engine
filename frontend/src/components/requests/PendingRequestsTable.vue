@@ -6,21 +6,15 @@ import RequestService from "../../services/RequestService";
 import { useThemeStore } from "../../stores/themeStore";
 import { useUserStore } from "../../stores/userStore";
 import FlowInstanceService from "../../services/FlowInstanceService";
+import { errorMessage } from "../../services/api";
+import { formatDateTime, timeValue } from "../../utils/format";
+import { getFieldText } from "../../utils/fields";
 
 const userStore = useUserStore();
 
-const currentUserEmail = computed(() =>
-  userStore.currentUser?.email ??
-  JSON.parse(sessionStorage.getItem("currentUser") || "{}")?.email ??
-  null
-);
+const currentUserEmail = computed(() => userStore.currentUser?.email ?? null);
 
-window.addEventListener("storage", (event) => {
-  if (event.key === "currentUser" && event.newValue) {
-    const updatedUser = JSON.parse(event.newValue);
-    userStore.currentUser = updatedUser;
-  }
-});
+const submittedBy = (request: RequestSubmission) => getFieldText(request.data?.allFields, "Submitted_By");
 
 watch(currentUserEmail, (newEmail, oldEmail) => {
   if (newEmail && newEmail !== oldEmail) {
@@ -51,6 +45,11 @@ const sortRequests = (key: SortKey) => {
   sortOrder.value =
     sortKey.value === key && sortOrder.value === "asc" ? "desc" : "asc";
   sortKey.value = key;
+  applySort();
+};
+
+const applySort = () => {
+  const key = sortKey.value;
   const compare = (a: string | number, b: string | number) =>
     a < b ? -1 : a > b ? 1 : 0;
   requests.value.sort((a, b) => {
@@ -58,12 +57,9 @@ const sortRequests = (key: SortKey) => {
     if (key === "Request Type")
       res = compare(a.requestTypeName.toLowerCase(), b.requestTypeName.toLowerCase());
     else if (key === "Submitted By")
-      res = compare(
-        a.data.allFields.submittedBy.toLowerCase(),
-        b.data.allFields.submittedBy.toLowerCase()
-      );
+      res = compare(submittedBy(a).toLowerCase(), submittedBy(b).toLowerCase());
     else if (key === "Submitted At")
-      res = new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime();
+      res = timeValue(a.submittedAt) - timeValue(b.submittedAt);
     else if (key === "Flow Instance Name")
       res = compare(
         (flowInstancesById.value[a.flowInstanceId]?.title || "").toLowerCase(),
@@ -78,41 +74,27 @@ const fetchRequests = async () => {
   error.value = null;
   try {
     const reqs = await RequestService.getRequests();
-    requests.value = Array.isArray(reqs)
-      ? reqs.map(r => ({
-          ...r,
-          submittedAt: r.submittedAt ? new Date(r.submittedAt) : new Date(),
-          processedAt: r.processedAt ? new Date(r.processedAt) : new Date(),
-        }))
-      : [];
-    sortRequests(sortKey.value);
-
-    // Fetch related flow instances so the table can display titles
+    requests.value = Array.isArray(reqs) ? reqs : [];
+    applySort();
     await fetchFlowInstances();
   } catch (e) {
-    error.value = e instanceof Error ? e.message : "Error fetching requests";
+    error.value = errorMessage(e, "Error fetching requests");
   } finally {
     loading.value = false;
   }
 };
 
 const fetchFlowInstances = async () => {
-  try {
-    const ids = Array.from(new Set(requests.value.map(r => r.flowInstanceId)));
-    const flowInstances = await Promise.all(ids.map((id) => FlowInstanceService.getFlowInstanceById(id)));
+  const ids = Array.from(new Set(requests.value.map((r) => r.flowInstanceId).filter(Boolean)));
+  const results = await Promise.allSettled(ids.map((id) => FlowInstanceService.getFlowInstanceById(id)));
 
-    const nextMap: Record<string, FlowInstance> = {};
-    for (const instance of flowInstances) {
-      nextMap[instance.id] = instance;
+  const nextMap: Record<string, FlowInstance> = {};
+  for (const result of results) {
+    if (result.status === "fulfilled") {
+      nextMap[result.value.id] = result.value;
     }
-    flowInstancesById.value = nextMap;
-
-    return flowInstances;
-  } catch (e) {
-    console.error("Error fetching flow instances:", e);
-    flowInstancesById.value = {};
-    return [];
   }
+  flowInstancesById.value = nextMap;
 };
 
 onMounted(fetchRequests);
@@ -135,7 +117,7 @@ const filteredRequests = computed(() => {
   return requests.value.filter((req) => {
     const reqTypeMatch = req.requestTypeName.toLowerCase().includes(search);
 
-    const searchableData = JSON.stringify(Object.values(req.data.allFields))
+    const searchableData = JSON.stringify(Object.values(req.data?.allFields ?? {}))
       .toLowerCase()
       .replace(/"id":\s*"[^"]*"/gi, "")
       .replace(/"[a-f0-9-]{36}"/gi, "")
@@ -216,13 +198,13 @@ const filteredRequests = computed(() => {
           class="pl-4 py-2"
           :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
         >
-          {{ r.data.allFields.submittedBy }}
+          {{ submittedBy(r) || "-" }}
         </td>
         <td
           class="pl-4 py-2"
           :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
         >
-          {{ r.submittedAt.toLocaleDateString() }} {{ r.submittedAt.toLocaleTimeString() }}
+          {{ formatDateTime(r.submittedAt) }}
         </td>
         <td
           class="pl-4 py-2"

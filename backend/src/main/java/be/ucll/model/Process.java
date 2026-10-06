@@ -5,45 +5,34 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import be.ucll.model.enums.ProcessType;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 @JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.EXISTING_PROPERTY,
-    property = "processType",
-    visible = true
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        property = "processType",
+        visible = true
 )
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = Request.class, name = "REQUEST"),
-    @JsonSubTypes.Type(value = Approval.class, name = "APPROVAL"),
-    @JsonSubTypes.Type(value = Notification.class, name = "NOTIFICATION")
+        @JsonSubTypes.Type(value = Request.class, name = "REQUEST"),
+        @JsonSubTypes.Type(value = Approval.class, name = "APPROVAL"),
+        @JsonSubTypes.Type(value = Notification.class, name = "NOTIFICATION")
 })
 public abstract class Process {
 
-    @NotNull @NotBlank 
     private String name;
+    private ProcessType processType;
+    private int step;
 
-    @NotNull private ProcessType processType;
+    protected Process() {
+    }
 
-    @JsonIgnore
-    private String flowInstanceId;
-
-    private int step = 0;
-
-    protected Process() {}
-
-    public Process(String name, ProcessType processType){ 
-        this.name = name;
-        setProcessType(processType);
+    protected Process(String name, ProcessType processType) {
+        this.name = name == null ? null : name.trim();
+        this.processType = processType;
     }
 
     public String getName() {
-        return this.name;
-    }
-
-    public String getFlowInstanceId() {
-        return flowInstanceId;
+        return name;
     }
 
     public ProcessType getProcessType() {
@@ -54,15 +43,12 @@ public abstract class Process {
         return step;
     }
 
-    public void setFlowInstanceId(String flowInstanceId) {
-        this.flowInstanceId = flowInstanceId;
-    }
-
-    private void setProcessType(ProcessType processType) {
-        this.processType = processType;
-    }
-
     public void setStep(int step) {
         this.step = step;
+    }
+
+    @JsonIgnore
+    public String getLabel() {
+        return name == null || name.isBlank() ? processType + " at step " + step : "'" + name + "'";
     }
 }

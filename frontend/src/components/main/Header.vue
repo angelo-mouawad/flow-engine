@@ -21,10 +21,6 @@ const toggleTheme = () => {
 const notificationIcon = computed(() =>
   isDarkMode.value ? "/images/notification-white.png" : "/images/notification-black.png"
 );
-
-const emit = defineEmits<{
-  (e: "role-changed", payload: string): void;
-}>();
 </script>
 
 <template>
@@ -69,6 +65,6 @@ const emit = defineEmits<{
       <img :src="notificationIcon" alt="Notifications" class="w-5 h-5 sm:mr-2" />
       <span class="hidden sm:inline-flex items-center px-2">Notifications</span>
     </button>
-    <UserSwitch @role-changed="$emit('role-changed', $event)" />
+    <UserSwitch />
   </header>
 </template>

@@ -1,68 +1,20 @@
-import { useUserStore } from "../stores/userStore";
 import type { RequestSubmission } from "../types";
+import { apiRequest } from "./api";
 
-const getUserEmail = () => {
-  const storedUser = sessionStorage.getItem("currentUser");
-  if (storedUser) {
-    const parsed = JSON.parse(storedUser);
-    return parsed.email ?? "adam@glackit.be";
-  }
+const getRequests = () => apiRequest<RequestSubmission[]>("/request/pending", { asUser: true });
 
-  const userStore = useUserStore();
-  return userStore.currentUser?.email ?? "adam@glackit.be";
-};
+const getRequestById = (id: string) =>
+  apiRequest<RequestSubmission>(`/request/pending/${encodeURIComponent(id)}`, { asUser: true });
 
-const getRequests = async () => {
-  const email = getUserEmail();
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/request/pending`, {
-    method: 'GET',
-    headers: {
-      "UserEmail": email.replace('.', '_')
-    }
-  });
+const approveRequest = (id: string) =>
+  apiRequest<RequestSubmission>(`/request/approve/${encodeURIComponent(id)}`, { method: "PUT", asUser: true });
 
-  return await response.json() as RequestSubmission[];
-};
-
-const getRequestById = async (id: string) => {
-  const email = getUserEmail();
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/request/pending/${id}`, {
-    method: 'GET',
-    headers: {
-      "UserEmail": email.replace('.', '_')
-    }
-  });
-  if (!response.ok) {
-    throw new Error("Failed to load request");
-  }
-  return await response.json() as RequestSubmission;
-};
-
-const approveRequest = async (requestId: string) => {
-  const email = getUserEmail();
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/request/approve/${requestId}`, {
-    method: 'PUT',
-    headers: {
-      "UserEmail": email.replace('.', '_')
-    }
-  })
-  return response.ok
-}
-
-const declineRequest = async (requestId: string) => {
-  const email = getUserEmail();
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/request/decline/${requestId}`, {
-    method: 'PUT',
-    headers: {
-      "UserEmail": email.replace('.', '_')
-    }
-  })
-  return response.ok
-}
+const declineRequest = (id: string) =>
+  apiRequest<RequestSubmission>(`/request/decline/${encodeURIComponent(id)}`, { method: "PUT", asUser: true });
 
 export default {
   getRequests,
   getRequestById,
-  approveRequest,  
-  declineRequest
-}
+  approveRequest,
+  declineRequest,
+};

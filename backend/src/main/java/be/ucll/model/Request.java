@@ -1,49 +1,74 @@
 package be.ucll.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import be.ucll.exception.DomainException;
 import be.ucll.model.enums.ProcessType;
 import be.ucll.model.enums.RequestStatus;
 import be.ucll.model.enums.RequestTypeEnum;
-import be.ucll.model.strategies.request.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import be.ucll.model.strategies.request.RequestType;
+import be.ucll.model.strategies.request.RequestTypeFactory;
 
-public class Request extends Process{
+public class Request extends Process {
+
+    private RequestTypeEnum requestTypeName;
+    private boolean approvable;
+    private int minApprovals;
+    private List<String> approvableBy = new ArrayList<>();
+
+    protected Request() {
+    }
+
+    @JsonCreator
+    public Request(@JsonProperty("name") String name,
+                   @JsonProperty("requestTypeName") RequestTypeEnum requestTypeName,
+                   @JsonProperty("approvable") Boolean approvable,
+                   @JsonProperty("approvableBy") List<String> approvableBy,
+                   @JsonProperty("minApprovals") Integer minApprovals) {
+        super(name, ProcessType.REQUEST);
+        if (requestTypeName == null) {
+            throw new DomainException("Every request process needs a request type");
+        }
+        this.requestTypeName = requestTypeName;
+        this.approvable = Boolean.TRUE.equals(approvable);
+
+        if (this.approvable) {
+            this.approvableBy = normaliseEmails(approvableBy);
+            this.minApprovals = minApprovals == null || minApprovals == 0 ? this.approvableBy.size() : minApprovals;
+        }
+    }
+
+    public RequestSubmission submit(RequestData requestData, String flowInstanceId) {
+        RequestStatus validationResult = getRequestType().validate(requestData);
+        RequestStatus status = approvable ? validationResult : RequestStatus.APPROVED;
+        return new RequestSubmission(requestData, this, flowInstanceId, status);
+    }
+
+    public void validate() {
+        if (!approvable) {
+            return;
+        }
+        if (approvableBy.isEmpty()) {
+            throw new DomainException("Request " + getLabel() + " needs at least one approver");
+        }
+        if (minApprovals < 1 || minApprovals > approvableBy.size()) {
+            throw new DomainException("Request " + getLabel() + " needs between 1 and "
+                    + approvableBy.size() + " approvals, not " + minApprovals);
+        }
+    }
 
     @JsonIgnore
-    private RequestType requestType;
-
-    private boolean approvable = false;
-    private int minApprovals = 0;
-    private String[] approvableBy = {};
-
-    @NotNull
-    @NotBlank(message = "requestTypeName is required")
-    private RequestTypeEnum requestTypeName;
-
-    public Request(String name, RequestTypeEnum requestTypeName, boolean approvable, String[] approvableBy, int minApprovals){
-        super(name, ProcessType.REQUEST);
-        setRequestType(requestTypeName);
-        this.approvable = approvable;
-        setApprovableBy(approvableBy);
-        setMinApprovals(minApprovals);
-    }
-
-    public RequestSubmission submit(RequestData requestData) {
-        RequestStatus status = requestType.validate(requestData);
-        
-        return new RequestSubmission(
-                requestData, 
-                this,
-                status);
-    }
-
     public RequestType getRequestType() {
-        return requestType;
+        return RequestTypeFactory.fromTypeName(requestTypeName);
     }
 
-    public RequestTypeEnum getRequestTypeName(){
+    public RequestTypeEnum getRequestTypeName() {
         return requestTypeName;
     }
 
@@ -55,24 +80,20 @@ public class Request extends Process{
         return minApprovals;
     }
 
-    public String[] getApprovableBy() {
-        return approvableBy;
+    public List<String> getApprovableBy() {
+        return List.copyOf(approvableBy);
     }
 
-    public void setRequestType(RequestTypeEnum requestTypeName) {
-        this.requestTypeName = requestTypeName;
-        this.requestType = RequestTypeFactory.fromTypeName(requestTypeName);
-    }
-
-    public void setMinApprovals(int minApprovals) {
-        if (approvable) {
-            this.minApprovals = minApprovals == 0 ? approvableBy.length : minApprovals;
+    static List<String> normaliseEmails(List<String> emails) {
+        if (emails == null) {
+            return new ArrayList<>();
         }
-    }
-
-    public void setApprovableBy(String[] approvableBy) {
-        if (approvable) {
-            this.approvableBy = approvableBy;
+        LinkedHashSet<String> unique = new LinkedHashSet<>();
+        for (String email : emails) {
+            if (email != null && !email.isBlank()) {
+                unique.add(email.trim().toLowerCase());
+            }
         }
+        return new ArrayList<>(unique);
     }
 }

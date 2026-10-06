@@ -90,7 +90,7 @@ const edges = computed(() => {
       continue;
     }
 
-    const currentId = currentProcess.id || `process-${i}`; // it should change after backend processes update
+    const currentId = currentProcess.id || `process-${i}`;
     const nextId = nextProcess.id || `process-${i + 1}`;
 
     result.push({

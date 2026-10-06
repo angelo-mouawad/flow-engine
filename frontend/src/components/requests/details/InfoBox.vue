@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import type { RequestSubmission } from "../../../types";
 import { useThemeStore } from "../../../stores/themeStore";
+import { formatFieldValue, prettifyKey } from "../../../utils/fields";
 
 defineProps<{ 
     request: RequestSubmission; 
@@ -9,32 +10,6 @@ defineProps<{
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
-
-const tryFormatDate = (value: string | Date) => {
-  try {
-    const date = value instanceof Date ? value : new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      return null;
-    }
-    return date.toLocaleString();
-  } catch {
-    return null;
-  }
-};
-
-const formatFieldValue = (value: unknown) => {
-  if (value === null || value === undefined || value === "") return "—";
-  if (value instanceof Date) return value.toLocaleString();
-  if (typeof value === "boolean") return value ? "Yes" : "No";
-  if (typeof value === "number") return value.toString();
-  if (Array.isArray(value)) return value.join(", ");
-  if (typeof value === "object") return JSON.stringify(value, null, 2);
-  if (typeof value === "string") {
-    const formatted = tryFormatDate(value);
-    return formatted ?? value;
-  }
-  return String(value);
-};
 
 </script>
 
@@ -49,7 +24,7 @@ const formatFieldValue = (value: unknown) => {
             class="px-4 py-3 text-left w-1/3 font-semibold"
             :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
           >
-              {{ (key as string).replace("_", " ") }}
+              {{ prettifyKey(String(key)) }}
           </th>
           <td class="px-4 py-3">
               {{ formatFieldValue(value) }}

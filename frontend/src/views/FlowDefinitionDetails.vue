@@ -5,6 +5,7 @@ import type { FlowDefinition } from "../types";
 import FlowDefinitionService from "../services/FlowDefinitionService";
 import FlowDetails from "../components/flows/FlowDetails.vue";
 import { useThemeStore } from "../stores/themeStore";
+import { errorMessage } from "../services/api";
 
 const route = useRoute();
 const router = useRouter();
@@ -22,22 +23,8 @@ const fetchFlowDefinition = async (id: string) => {
   try {
     flowDefinition.value = await FlowDefinitionService.getFlowDefinitionById(id);
   } catch (err) {
-    try {
-      const definitions = await FlowDefinitionService.getFlowDefinitions();
-      const fallback = definitions.find((def) => def.id === id);
-      if (!fallback) {
-        throw err;
-      }
-      flowDefinition.value = fallback;
-      return;
-    } catch (fallbackErr) {
-      const message =
-        fallbackErr instanceof Error
-          ? fallbackErr.message
-          : "Failed to load flow definition";
-      error.value = message;
-      flowDefinition.value = null;
-    }
+    error.value = errorMessage(err, "Failed to load flow definition");
+    flowDefinition.value = null;
   } finally {
     loading.value = false;
   }

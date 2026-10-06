@@ -4,6 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import type { RequestSubmission } from "../types";
 import RequestService from "../services/RequestService";
 import { useThemeStore } from "../stores/themeStore";
+import { errorMessage } from "../services/api";
 
 import InfoBox from "../components/requests/details/InfoBox.vue";
 import RequestActions from "../components/requests/details/RequestActions.vue";
@@ -24,22 +25,8 @@ const fetchRequest = async (id: string) => {
   try {
     request.value = await RequestService.getRequestById(id);
   } catch (err) {
-    try {
-      const allRequests = await RequestService.getRequests();
-      const fallback = allRequests.find((req) => req.id === id);
-      if (!fallback) {
-        throw err;
-      }
-      request.value = fallback;
-      return;
-    } catch (fallbackErr) {
-      const message =
-        fallbackErr instanceof Error
-          ? fallbackErr.message
-          : "Failed to load request";
-      error.value = message;
-      request.value = null;
-    }
+    error.value = errorMessage(err, "Failed to load request");
+    request.value = null;
   } finally {
     loading.value = false;
   }

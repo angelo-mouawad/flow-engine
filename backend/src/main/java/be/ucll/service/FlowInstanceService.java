@@ -1,19 +1,23 @@
 package be.ucll.service;
 
-import be.ucll.exception.ServiceException;
-import be.ucll.model.FlowInstance;
-import be.ucll.repository.FlowInstanceRepository;
+import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import be.ucll.exception.NotFoundException;
+import be.ucll.model.FlowInstance;
+import be.ucll.repository.FlowInstanceRepository;
 
 @Service
 public class FlowInstanceService {
 
-    @Autowired
-    private FlowInstanceRepository flowInstanceRepository;
+    private final FlowInstanceRepository flowInstanceRepository;
+    private final RequestService requestService;
+
+    public FlowInstanceService(FlowInstanceRepository flowInstanceRepository, RequestService requestService) {
+        this.flowInstanceRepository = flowInstanceRepository;
+        this.requestService = requestService;
+    }
 
     public List<FlowInstance> findAllFlowInstances() {
         return flowInstanceRepository.findAll();
@@ -21,18 +25,14 @@ public class FlowInstanceService {
 
     public FlowInstance findFlowInstanceById(String id) {
         return flowInstanceRepository.findById(id)
-                .orElseThrow(() -> new ServiceException("No id found"));
+                .orElseThrow(() -> new NotFoundException("Flow instance " + id + " does not exist"));
     }
 
     public void deleteFlowInstanceById(String id) {
-        if (id == null) {
-            throw new ServiceException("id must now be null");
-        }
-
         if (!flowInstanceRepository.existsById(id)) {
-            throw new ServiceException(id);
+            throw new NotFoundException("Flow instance " + id + " does not exist");
         }
-
+        requestService.deleteForFlowInstance(id);
         flowInstanceRepository.deleteById(id);
     }
 }

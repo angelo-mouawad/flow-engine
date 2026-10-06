@@ -314,7 +314,7 @@ const filteredFlowDefinitions = computed(() => {
             :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
             style="max-width: 320px"
           >
-            {{ def.description || "—" }}
+            {{ def.description || "-" }}
           </td>
           <td
             class="px-4 py-2"

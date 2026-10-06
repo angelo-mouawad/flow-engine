@@ -1,5 +1,4 @@
 package be.ucll.controller.dto;
 
-public record NotificationMessage(
-    String message
-) {}
+public record NotificationMessage(String message, String type) {
+}

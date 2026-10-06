@@ -24,12 +24,11 @@ const stats = computed(() => {
     ACTIVE: 0,
     PENDING: 0,
     FAILURE: 0,
-    PAUSED: 0,
     SUCCESS: 0,
   };
 
   flowInstances.value.forEach((instance) => {
-    statuses[instance.flowStatus]++;
+    if (instance.flowStatus in statuses) statuses[instance.flowStatus]++;
   });
 
   return {
@@ -37,7 +36,6 @@ const stats = computed(() => {
     active: statuses.ACTIVE,
     pending: statuses.PENDING,
     failed: statuses.FAILURE,
-    paused: statuses.PAUSED,
     success: statuses.SUCCESS,
   };
 });
@@ -130,7 +128,6 @@ onUnmounted(() => {
           <StatsCard label="Active" :value="stats.active.toString()" color="#10b981" class="flex-shrink-0 w-44" />
           <StatsCard label="Pending" :value="stats.pending.toString()" color="#f59e0b" class="flex-shrink-0 w-44" />
           <StatsCard label="Failed" :value="stats.failed.toString()" color="#ef4444" class="flex-shrink-0 w-44" />
-          <StatsCard label="Paused" :value="stats.paused.toString()" color="#3b82f6" class="flex-shrink-0 w-44" />
           <StatsCard label="Success" :value="stats.success.toString()" color="#84cc16" class="flex-shrink-0 w-44" />
         </div>
       </div>

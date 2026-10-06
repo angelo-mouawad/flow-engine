@@ -1,46 +1,50 @@
 package be.ucll.service;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import be.ucll.controller.dto.NotificationMessage;
 import be.ucll.model.Notification;
-import be.ucll.model.strategies.notification.EmailNotificationType;
-import be.ucll.model.strategies.notification.PopUpNotificationType;
+import be.ucll.model.Request;
+import be.ucll.model.enums.NotificationTypeEnum;
 
 @Service
 public class NotificationService {
-    private final SimpMessagingTemplate messagingTemplate;
 
-    public NotificationService(SimpMessagingTemplate messagingTemplate) {
+    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
+
+    private final SimpMessageSendingOperations messagingTemplate;
+
+    public NotificationService(SimpMessageSendingOperations messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
     }
 
-    public void sendNotification(Notification notification) {
-
-        switch (notification.getNotificationType()) {
-
-            case EmailNotificationType email -> 
-                sendEmail(notification);
-
-            case PopUpNotificationType popup -> 
-                sendPopUp(notification);
-
-            default -> {break;}
+    public void send(Notification notification, Request request, String flowTitle) {
+        List<String> recipients = notification.recipientsFor(request);
+        if (recipients.isEmpty()) {
+            log.warn("Notification {} in flow \"{}\" has no recipients, skipping", notification.getLabel(), flowTitle);
+            return;
         }
-    }
 
-    private void sendPopUp(Notification notification){
-        String message = notification.getMessage();
+        String message = notification.messageFor(request, flowTitle);
 
-        for (String user: notification.getToNotify()) {
-            System.out.println(message + " -> " + user);
-            messagingTemplate.convertAndSend(
-                    "/topic/notification/" + user,
-                    new NotificationMessage(message));
+        if (notification.getNotificationType() == NotificationTypeEnum.EMAIL_NOTIFICATION) {
+            recipients.forEach(recipient ->
+                    log.info("Email delivery is not configured, would have emailed {}: {}", recipient, message));
+            return;
         }
-    }
 
-    private void sendEmail(Notification notification){
-        //TODO
+        for (String recipient : recipients) {
+            try {
+                messagingTemplate.convertAndSend("/topic/notification/" + recipient,
+                        new NotificationMessage(message, "info"));
+            } catch (RuntimeException e) {
+                log.warn("Could not push notification to {}: {}", recipient, e.getMessage());
+            }
+        }
     }
 }

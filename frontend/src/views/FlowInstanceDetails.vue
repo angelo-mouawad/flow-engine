@@ -4,6 +4,8 @@ import { useRoute, useRouter } from "vue-router";
 import FlowInstanceService from "../services/FlowInstanceService";
 import type { FlowInstance } from "../types";
 import { useThemeStore } from "../stores/themeStore";
+import { errorMessage } from "../services/api";
+import { formatDateTime } from "../utils/format";
 
 const route = useRoute();
 const router = useRouter();
@@ -21,9 +23,7 @@ const statusBadgeClasses = computed(() => {
     active: "bg-emerald-100 text-emerald-800",
     success: "bg-lime-100 text-lime-800",
     pending: "bg-amber-100 text-amber-800",
-    failed: "bg-red-100 text-red-800",
     failure: "bg-red-100 text-red-800",
-    paused: "bg-blue-100 text-blue-800",
   };
   return map[status ?? ""] || "bg-gray-200 text-gray-800";
 });
@@ -34,23 +34,8 @@ const fetchFlowInstance = async (id: string) => {
   try {
     flowInstance.value = await FlowInstanceService.getFlowInstanceById(id);
   } catch (err) {
-    // Fallback to fetching all instances if the direct endpoint is unavailable.
-    try {
-      const instances = await FlowInstanceService.getFlowInstances();
-      const fallback = instances.find((inst) => inst.id === id);
-      if (!fallback) {
-        throw err;
-      }
-      flowInstance.value = fallback;
-      return;
-    } catch (fallbackErr) {
-      const message =
-        fallbackErr instanceof Error
-          ? fallbackErr.message
-          : "Failed to load flow instance";
-      error.value = message;
-      flowInstance.value = null;
-    }
+    error.value = errorMessage(err, "Failed to load flow instance");
+    flowInstance.value = null;
   } finally {
     loading.value = false;
   }
@@ -75,20 +60,7 @@ const goBack = () => {
   router.push({ name: "FlowInstances" });
 };
 
-const formatDate = (dateValue?: string | Date) => {
-  if (!dateValue) return "—";
-  try {
-    return new Date(dateValue).toLocaleString("en-GB", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return String(dateValue);
-  }
-};
+const formatDate = (value?: string | null) => formatDateTime(value);
 </script>
 
 <template>
@@ -158,7 +130,7 @@ const formatDate = (dateValue?: string | Date) => {
               Flow Definition
             </p>
             <p class="text-lg font-semibold mt-1">
-              {{ flowInstance.title || "—" }}
+              {{ flowInstance.title || "-" }}
             </p>
           </div>
 
@@ -171,7 +143,7 @@ const formatDate = (dateValue?: string | Date) => {
             </p>
             <p class="text-lg font-semibold mt-1">{{ formatDate(flowInstance.updatedAt) }}</p>
             <p v-if="flowInstance.currentProcess != null" class="text-xs mt-2" :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">
-              Current process: <span class="font-semibold">{{ flowInstance.currentProcess.name || "—" }}</span>
+              Current process: <span class="font-semibold">{{ flowInstance.currentProcess.name || "-" }}</span>
             </p>
           </div>
 
@@ -182,7 +154,7 @@ const formatDate = (dateValue?: string | Date) => {
             <p class="text-xs font-medium uppercase tracking-wide" :class="isDarkMode ? 'text-gray-400' : 'text-gray-500'">
               Triggered by
             </p>
-            <p class="text-lg font-semibold mt-1">{{ flowInstance.triggeredBy || '—' }}</p>
+            <p class="text-lg font-semibold mt-1">{{ flowInstance.triggeredBy || '-' }}</p>
           </div>
         </div>
 

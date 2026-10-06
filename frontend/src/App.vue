@@ -1,29 +1,21 @@
 <script setup lang="ts">
 import SideBar from "./components/main/SideBar.vue";
 import Header from "./components/main/Header.vue";
-import { computed, watch, watchEffect } from "vue";
-import { useRoleStore } from "./stores/roleStore";
+import { computed, onBeforeUnmount, watch, watchEffect } from "vue";
 import { useThemeStore } from "./stores/themeStore";
 import { useUserStore } from "./stores/userStore";
 import { useNotificationStore } from "./stores/notificationStore";
 
 const notificationStore = useNotificationStore();
-const roleStore = useRoleStore();
 const userStore = useUserStore();
-const currentRole = computed({
-  get: () => roleStore.role,
-  set: (v) => roleStore.setRole(v),
-});
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
 
-if (typeof window !== "undefined") {
-  watchEffect(() => {
-    document.documentElement.classList.toggle("theme-dark", isDarkMode.value);
-    document.body.classList.toggle("theme-dark", isDarkMode.value);
-  });
-};
+watchEffect(() => {
+  document.documentElement.classList.toggle("theme-dark", isDarkMode.value);
+  document.body.classList.toggle("theme-dark", isDarkMode.value);
+});
 
 watch(
   () => userStore.currentUser,
@@ -37,10 +29,16 @@ watch(
   { immediate: true }
 );
 
-window.addEventListener("storage", (event) => {
+const syncUser = (event: StorageEvent) => {
   if (event.key === "user") {
     userStore.loadFromStorage();
   }
+};
+
+window.addEventListener("storage", syncUser);
+onBeforeUnmount(() => {
+  window.removeEventListener("storage", syncUser);
+  notificationStore.disconnectWebSocket();
 });
 </script>
 
@@ -57,7 +55,7 @@ window.addEventListener("storage", (event) => {
         class="sticky top-0 z-20 transition-colors duration-300"
         :class="isDarkMode ? 'bg-[#181a1b]' : 'bg-white'"
       >
-        <Header @role-changed="currentRole = $event" />
+        <Header />
       </div>
 
       <div class="flex-1">

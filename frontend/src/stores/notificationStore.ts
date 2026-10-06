@@ -1,32 +1,39 @@
-import { Client } from '@stomp/stompjs';
-import { ref } from 'vue';
-import SockJS from 'sockjs-client';
-import { defineStore } from 'pinia';
-import { useUserStore } from './userStore';
-import { useToast } from 'vue-toastification';
+import { Client } from "@stomp/stompjs";
+import { ref } from "vue";
+import SockJS from "sockjs-client";
+import { defineStore } from "pinia";
+import { useToast } from "vue-toastification";
+import { useUserStore } from "./userStore";
+import { apiBaseUrl } from "../services/api";
+
+export type NotificationKind = "success" | "error" | "info";
 
 export interface Notification {
-  id: number
-  message: string
-  type: 'success' | 'error' | 'info'
-  timestamp: Date
+  id: number;
+  message: string;
+  type: NotificationKind;
+  timestamp: Date;
 }
 
-export const useNotificationStore = defineStore('notifications', () => {
+const isKind = (value: unknown): value is NotificationKind =>
+  value === "success" || value === "error" || value === "info";
+
+export const useNotificationStore = defineStore("notifications", () => {
   const notifications = ref<Notification[]>([]);
   const isConnected = ref(false);
   let stompClient: Client | null = null;
+  let nextId = 1;
 
   const toast = useToast();
   const userStore = useUserStore();
 
-  const addNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
-    if (type === 'success') toast.success(message);
-    else if (type === 'error') toast.error(message);
+  const addNotification = (message: string, type: NotificationKind = "info") => {
+    if (type === "success") toast.success(message);
+    else if (type === "error") toast.error(message);
     else toast.info(message);
-    
+
     notifications.value.unshift({
-      id: Date.now(),
+      id: nextId++,
       message,
       type,
       timestamp: new Date(),
@@ -34,34 +41,40 @@ export const useNotificationStore = defineStore('notifications', () => {
   };
 
   const removeNotification = (id: number) => {
-    notifications.value = notifications.value.filter((n) => n.id !== id)
+    notifications.value = notifications.value.filter((n) => n.id !== id);
   };
 
   const connectWebSocket = () => {
     const userEmail = userStore.currentUser?.email;
-
-    if (!userEmail) {
-      console.log('[STOMP]: Connection postponed - No user selected.');
-      return;
-    }
-
-    if (stompClient?.active) return;
-
-    const socket = new SockJS(`${import.meta.env.VITE_API_URL}/ws`);
+    if (!userEmail || stompClient?.active) return;
 
     stompClient = new Client({
-      webSocketFactory: () => socket,
-      debug: (msg) => { if (import.meta.env.DEV) console.log(msg)},
+      webSocketFactory: () => new SockJS(`${apiBaseUrl}/ws`),
+      reconnectDelay: 5000,
+      debug: (msg) => {
+        if (import.meta.env.DEV) console.debug(msg);
+      },
       onConnect: () => {
         isConnected.value = true;
-        const topic = `/topic/notification/${userEmail}`;
-        stompClient?.subscribe(topic, (payload) => {
-          const data = JSON.parse(payload.body);
-          addNotification(data.message, data.type || 'info');
+        stompClient?.subscribe(`/topic/notification/${userEmail}`, (payload) => {
+          try {
+            const data = JSON.parse(payload.body);
+            if (typeof data?.message === "string") {
+              addNotification(data.message, isKind(data.type) ? data.type : "info");
+            }
+          } catch {
+            console.warn("Ignoring a notification that was not valid JSON");
+          }
         });
       },
       onDisconnect: () => {
         isConnected.value = false;
+      },
+      onWebSocketClose: () => {
+        isConnected.value = false;
+      },
+      onStompError: (frame) => {
+        console.warn("Notification channel error:", frame.headers.message);
       },
     });
 
@@ -70,10 +83,18 @@ export const useNotificationStore = defineStore('notifications', () => {
 
   const disconnectWebSocket = () => {
     if (stompClient) {
-      stompClient.deactivate();
-      isConnected.value = false;
+      void stompClient.deactivate();
+      stompClient = null;
     }
-  }
+    isConnected.value = false;
+  };
 
-  return { notifications, addNotification, removeNotification, isConnected, connectWebSocket, disconnectWebSocket, clearInterval }
+  return {
+    notifications,
+    addNotification,
+    removeNotification,
+    isConnected,
+    connectWebSocket,
+    disconnectWebSocket,
+  };
 });

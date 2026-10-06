@@ -1,22 +1,20 @@
 package be.ucll.service;
 
-import be.ucll.controller.dto.FlowDefinitionInput;
-import be.ucll.exception.ServiceException;
-import be.ucll.model.FlowDefinition;
-import be.ucll.repository.FlowDefinitionRepository;
+import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import be.ucll.controller.dto.FlowDefinitionInput;
+import be.ucll.exception.NotFoundException;
+import be.ucll.model.FlowDefinition;
+import be.ucll.repository.FlowDefinitionRepository;
 
 @Service
 public class FlowDefinitionService {
 
-    private FlowDefinitionRepository flowDefinitionRepository;
+    private final FlowDefinitionRepository flowDefinitionRepository;
 
-    @Autowired
-    public FlowDefinitionService(FlowDefinitionRepository flowDefinitionRepository){
+    public FlowDefinitionService(FlowDefinitionRepository flowDefinitionRepository) {
         this.flowDefinitionRepository = flowDefinitionRepository;
     }
 
@@ -26,36 +24,29 @@ public class FlowDefinitionService {
 
     public FlowDefinition findFlowDefinitionById(String id) {
         return flowDefinitionRepository.findById(id)
-                .orElseThrow(() -> new ServiceException("No id found"));
+                .orElseThrow(() -> new NotFoundException("Flow definition " + id + " does not exist"));
     }
 
     public FlowDefinition addFlowDefinition(FlowDefinitionInput input) {
-
-        FlowDefinition flow = new FlowDefinition(
+        FlowDefinition definition = new FlowDefinition(
                 input.title(),
                 input.description(),
                 input.triggerableBy(),
-                input.processes()
-        );
-
-        return flowDefinitionRepository.save(flow);
+                input.processes());
+        return flowDefinitionRepository.save(definition);
     }
 
     public FlowDefinition updateFlowDefinition(FlowDefinitionInput input, String id) {
-        FlowDefinition flowDefinition = flowDefinitionRepository.findById(id)
-          .orElseThrow(() -> new ServiceException("No id found"));
-
-        flowDefinition.setTitle(input.title());
-        flowDefinition.setDescription(input.description());
-        flowDefinition.setTriggerableBy(input.triggerableBy());
-        flowDefinition.setProcesses(input.processes());
-
-        return flowDefinitionRepository.save(flowDefinition);
+        FlowDefinition definition = findFlowDefinitionById(id);
+        definition.setTitle(input.title());
+        definition.setDescription(input.description());
+        definition.setTriggerableBy(input.triggerableBy());
+        definition.setProcesses(input.processes());
+        definition.touch();
+        return flowDefinitionRepository.save(definition);
     }
 
     public void deleteFlowDefinition(String id) {
-        FlowDefinition updatedFlowDefinition = flowDefinitionRepository.findById(id)
-                .orElseThrow(() -> new ServiceException("No id found"));;
-        flowDefinitionRepository.delete(updatedFlowDefinition);
+        flowDefinitionRepository.delete(findFlowDefinitionById(id));
     }
 }

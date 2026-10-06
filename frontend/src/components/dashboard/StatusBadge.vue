@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed } from 'vue';
 import type { Status } from '../../types';
 
 interface Props {
@@ -28,15 +28,10 @@ const statusConfig: Record<Status, { textColor: string; bgColor: string; label: 
     textColor: 'text-status-failure',
     bgColor: 'bg-status-failure',
     label: 'Failed'
-  },
-  PAUSED: {
-    textColor: 'text-status-paused',
-    bgColor: 'bg-status-paused',
-    label: 'Paused'
   }
 }
 
-const config = ref(statusConfig[props.status])
+const config = computed(() => statusConfig[props.status] ?? statusConfig.ACTIVE)
 
 </script>
 

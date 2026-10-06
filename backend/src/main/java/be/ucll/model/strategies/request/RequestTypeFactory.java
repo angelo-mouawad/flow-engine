@@ -1,32 +1,36 @@
 package be.ucll.model.strategies.request;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
+import be.ucll.exception.DomainException;
 import be.ucll.model.enums.RequestTypeEnum;
 
-public class RequestTypeFactory {
-    private static final Map<RequestTypeEnum, RequestType> REQUEST_TYPES = new HashMap<>();
-    
+public final class RequestTypeFactory {
+
+    private static final Map<RequestTypeEnum, RequestType> REQUEST_TYPES = new EnumMap<>(RequestTypeEnum.class);
+
     static {
-        REQUEST_TYPES.put(
-                RequestTypeEnum.ABSENCE_REQUEST, 
-                new AbsenceRequestType());
-        REQUEST_TYPES.put(
-                RequestTypeEnum.CLOCKIN_REQUEST, 
-                new ClockInRequestType());
-        REQUEST_TYPES.put(
-                RequestTypeEnum.TASK_CHANGE_REQUEST, 
-                new TaskChangeRequestType());
-        REQUEST_TYPES.put(
-                RequestTypeEnum.MEETING_REQUEST, 
-                new MeetingRequest());
+        register(new AbsenceRequestType());
+        register(new ClockInRequestType());
+        register(new TaskChangeRequestType());
+        register(new MeetingRequestType());
     }
-    
+
+    private RequestTypeFactory() {
+    }
+
+    private static void register(RequestType type) {
+        REQUEST_TYPES.put(type.getTypeName(), type);
+    }
+
     public static RequestType fromTypeName(RequestTypeEnum typeName) {
+        if (typeName == null) {
+            throw new DomainException("Request type is required");
+        }
         RequestType type = REQUEST_TYPES.get(typeName);
         if (type == null) {
-            throw new IllegalArgumentException("Unknown request type: " + typeName);
+            throw new DomainException("Unknown request type: " + typeName);
         }
         return type;
     }

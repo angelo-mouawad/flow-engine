@@ -1,127 +1,149 @@
 package be.ucll.model;
 
-import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import be.ucll.exception.DomainException;
-import be.ucll.model.enums.RequestStatus;
-import be.ucll.model.enums.RequestTypeEnum;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import be.ucll.exception.DomainException;
+import be.ucll.model.enums.RequestStatus;
+import be.ucll.model.enums.RequestTypeEnum;
 
 @Document(collection = "RequestSubmission")
 public class RequestSubmission {
 
     @Id
     private String id;
-
-    private Map<String, RequestStatus> approvals = new HashMap<>();
-
-    private RequestStatus status;
-    private RequestData requestData;
-
-    @JsonIgnore
+    private String flowInstanceId;
     private Request request;
-
+    private RequestData requestData;
+    private RequestStatus status;
+    private Map<String, RequestStatus> approvals = new HashMap<>();
     private LocalDateTime submittedAt;
     private LocalDateTime processedAt;
 
-    public RequestSubmission(RequestData requestData, Request request, RequestStatus status){
-        setData(requestData);
-        setRequest(request);
-        setStatus(status);
-        setSubmittedAt(LocalDateTime.now());
+    @PersistenceCreator
+    protected RequestSubmission() {
     }
 
-    public void approve(String user, RequestStatus status){
-        if(!approvals.containsKey(user))
-            throw new DomainException(user + "is not in the list of needed approvals");
+    public RequestSubmission(RequestData requestData, Request request, String flowInstanceId, RequestStatus status) {
+        if (request == null) {
+            throw new DomainException("A submission needs the request it belongs to");
+        }
+        this.request = request;
+        this.requestData = requestData == null ? new RequestData() : requestData;
+        this.flowInstanceId = flowInstanceId;
+        this.submittedAt = LocalDateTime.now();
 
-        approvals.put(user, status);
+        if (request.isApprovable()) {
+            request.getApprovableBy().forEach(email -> approvals.put(escape(email), RequestStatus.PENDING));
+        }
 
-        int min = request.getMinApprovals();
-        int size = approvals.size();
+        this.status = status == null ? RequestStatus.PENDING : status;
+        if (this.status != RequestStatus.PENDING) {
+            this.processedAt = submittedAt;
+        }
+    }
 
-        if(getApprovalStatusTotal(RequestStatus.APPROVED) >= min){
-            setStatus(RequestStatus.APPROVED);
-        }else if (size - getApprovalStatusTotal(RequestStatus.DECLINED) < min) {
-            setStatus(RequestStatus.DECLINED);
-        }    
+    public static String escape(String email) {
+        return email == null ? "" : email.trim().toLowerCase().replace('.', '_');
+    }
+
+    public void decide(String user, RequestStatus decision) {
+        if (decision != RequestStatus.APPROVED && decision != RequestStatus.DECLINED) {
+            throw new DomainException("A request can only be approved or declined");
+        }
+        if (status != RequestStatus.PENDING) {
+            throw new DomainException("This request has already been " + status.name().toLowerCase());
+        }
+
+        String key = escape(user);
+        RequestStatus current = approvals.get(key);
+        if (current == null) {
+            throw new DomainException(user + " is not an approver for this request");
+        }
+        if (current != RequestStatus.PENDING) {
+            throw new DomainException(user + " has already responded to this request");
+        }
+
+        approvals.put(key, decision);
+
+        int required = request.getMinApprovals();
+        int stillPossible = approvals.size() - countApprovals(RequestStatus.DECLINED);
+
+        if (countApprovals(RequestStatus.APPROVED) >= required) {
+            resolve(RequestStatus.APPROVED);
+        } else if (stillPossible < required) {
+            resolve(RequestStatus.DECLINED);
+        }
+    }
+
+    private void resolve(RequestStatus outcome) {
+        status = outcome;
+        processedAt = LocalDateTime.now();
+    }
+
+    public int countApprovals(RequestStatus value) {
+        return Collections.frequency(approvals.values(), value);
+    }
+
+    public boolean isPendingFor(String user) {
+        return status == RequestStatus.PENDING && approvals.get(escape(user)) == RequestStatus.PENDING;
+    }
+
+    public boolean isResolved() {
+        return status == RequestStatus.APPROVED || status == RequestStatus.DECLINED;
     }
 
     public String getId() {
-        return id.toString();
+        return id;
     }
 
-    public int getApprovalStatusTotal(RequestStatus status){
-        return Collections.frequency(approvals.values(), status);
-    }
-
-    public void setApprovals() {
-
-        if(!request.isApprovable()){
-            return;
-        } 
-
-        for (String email: request.getApprovableBy()) {
-            email = email.replace('.', '_');
-            approvals.put(email, RequestStatus.PENDING);
-        }
+    public String getFlowInstanceId() {
+        return flowInstanceId;
     }
 
     public RequestStatus getStatus() {
         return status;
     }
 
-    public boolean isPendingForUser(String user){
-        if (!approvals.containsKey(user)) 
-            return false;
-
-        return approvals.get(user) == RequestStatus.PENDING;
-    }
-
-    public void setStatus(RequestStatus status) {
-        this.status = status;
-    }
-
-    public boolean isApprovable() {
-        return request.isApprovable();
-    }
-
-    public RequestData getData() {
+    @JsonProperty("data")
+    public RequestData getRequestData() {
         return requestData;
     }
 
-    public void setData(RequestData requestData) {
-        this.requestData = requestData;
-    }
-
+    @JsonProperty("approvals")
     public Map<String, RequestStatus> getApprovals() {
-        return approvals;
-    }
-    
-    public void setRequest(Request request) {
-        this.request = request;
-        if (request.isApprovable()) {
-            setApprovals();
-            setStatus(RequestStatus.PENDING);
-        }else{
-            setStatus(RequestStatus.APPROVED);
-        } 
+        Map<String, RequestStatus> readable = new LinkedHashMap<>();
+        for (String email : request.getApprovableBy()) {
+            RequestStatus value = approvals.get(escape(email));
+            if (value != null) {
+                readable.put(email, value);
+            }
+        }
+        return readable;
     }
 
+    @JsonIgnore
     public Request getRequest() {
         return request;
     }
 
-    public int getRequestStep(){
+    public String getRequestName() {
+        return request.getName();
+    }
+
+    public int getRequestStep() {
         return request.getStep();
     }
 
@@ -129,34 +151,22 @@ public class RequestSubmission {
         return request.getRequestTypeName();
     }
 
-    public LocalDateTime getSubmittedAt() {
-        return submittedAt;
+    public int getMinApprovals() {
+        return request.getMinApprovals();
     }
 
-    public void setSubmittedAt(LocalDateTime submittedAt) {
-        this.submittedAt = submittedAt;
+    public LocalDateTime getSubmittedAt() {
+        return submittedAt;
     }
 
     public LocalDateTime getProcessedAt() {
         return processedAt;
     }
 
-    public void setProcessedAt(LocalDateTime processedAt) {
-        this.processedAt = processedAt;
-    }
-
-    public String getFlowInstanceId() {
-        return request.getFlowInstanceId();
-    }
-
     public LocalDateTime getCreatedAt() {
-
-        if (id == null) 
-            throw new DomainException("Flow Definition not yet Created");
-
-        return new ObjectId(id).getDate()
-            .toInstant()
-            .atZone(ZoneOffset.UTC)
-            .toLocalDateTime();
+        if (id == null || !ObjectId.isValid(id)) {
+            return submittedAt;
+        }
+        return LocalDateTime.ofInstant(new ObjectId(id).getDate().toInstant(), ZoneOffset.UTC);
     }
 }

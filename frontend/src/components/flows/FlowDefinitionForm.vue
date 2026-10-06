@@ -13,6 +13,7 @@ import type {
 } from "../../types";
 import { useThemeStore } from "../../stores/themeStore";
 import { useUserStore } from "../../stores/userStore";
+import { errorMessage } from "../../services/api";
 
 const router = useRouter();
 
@@ -183,11 +184,33 @@ const validateFlowDefinition = (): boolean => {
     return false;
   }
 
+  const approvalWithoutRequests = steps.value.some(
+    (step) => step.processType === "APPROVAL" && (!step.requestSteps || step.requestSteps.length === 0)
+  );
+  if (approvalWithoutRequests) {
+    stepsError.value = "Every APPROVAL process must point at at least one request";
+    return false;
+  }
+
+  const notificationWithoutRecipients = steps.value.some((step) => {
+    if (step.processType !== "NOTIFICATION") return false;
+    if (step.toNotify && step.toNotify.length > 0) return false;
+    const linked = typeof step.requestStep === "number" ? steps.value[step.requestStep] : undefined;
+    return !(linked && linked.processType === "REQUEST" && linked.approvable && linked.approvableBy.length > 0);
+  });
+  if (notificationWithoutRecipients) {
+    stepsError.value =
+      "Every NOTIFICATION needs recipients, or must be linked to a request that has approvers";
+    return false;
+  }
+
   return true;
 };
 
+const isSaving = ref(false);
+
 const saveFlow = async () => {
-  if (!validateFlowDefinition()) {
+  if (isSaving.value || !validateFlowDefinition()) {
     return;
   }
 
@@ -230,8 +253,15 @@ const saveFlow = async () => {
     }),
   };
 
-  await FlowDefinitionService.addNewFlowDefinition(payload);
-  router.push("/flow-definitions");
+  isSaving.value = true;
+  try {
+    await FlowDefinitionService.addNewFlowDefinition(payload);
+    router.push("/flow-definitions");
+  } catch (err) {
+    stepsError.value = errorMessage(err, "Could not save the flow definition");
+  } finally {
+    isSaving.value = false;
+  }
 };
 
 const userStore = useUserStore();
@@ -756,21 +786,9 @@ watch(
           >
             Cancel
           </button>
-
-          <button
-            type="button"
-            class="font-medium py-2 px-6 border rounded-md shadow-sm transition-colors"
-            :class="
-              isDarkMode
-                ? 'bg-[#242628] border-[#2c2f31] text-white hover:bg-[#2f3234]'
-                : 'bg-gray-200 border-gray-300 text-gray-700 hover:bg-gray-300'
-            "
-          >
-            Save as Draft
-          </button>
-
           <button
             @click="saveFlow"
+            :disabled="isSaving"
             type="button"
             class="font-semibold py-2 px-6 border rounded-md shadow-sm transition-colors"
             :class="

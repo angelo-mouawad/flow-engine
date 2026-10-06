@@ -1,29 +1,35 @@
 package be.ucll.model.strategies.notification;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
-import org.springframework.stereotype.Component;
-
+import be.ucll.exception.DomainException;
 import be.ucll.model.enums.NotificationTypeEnum;
 
-@Component
-public class NotificationTypeFactory {
-    private static final Map<NotificationTypeEnum, NotificationType> NOTIFICATION_TYPES = new HashMap<>();
-    
+public final class NotificationTypeFactory {
+
+    private static final Map<NotificationTypeEnum, NotificationType> NOTIFICATION_TYPES =
+            new EnumMap<>(NotificationTypeEnum.class);
+
     static {
-        NOTIFICATION_TYPES.put(
-                NotificationTypeEnum.EMAIL_NOTIFICATION, 
-                new EmailNotificationType());
-        NOTIFICATION_TYPES.put(
-                NotificationTypeEnum.POPUP_NOTIFICATION, 
-                new PopUpNotificationType());
+        register(new EmailNotificationType());
+        register(new PopUpNotificationType());
     }
-    
+
+    private NotificationTypeFactory() {
+    }
+
+    private static void register(NotificationType type) {
+        NOTIFICATION_TYPES.put(type.getTypeName(), type);
+    }
+
     public static NotificationType fromTypeName(NotificationTypeEnum typeName) {
+        if (typeName == null) {
+            throw new DomainException("Notification type is required");
+        }
         NotificationType type = NOTIFICATION_TYPES.get(typeName);
         if (type == null) {
-            throw new IllegalArgumentException("Unknown notification type: " + typeName);
+            throw new DomainException("Unknown notification type: " + typeName);
         }
         return type;
     }

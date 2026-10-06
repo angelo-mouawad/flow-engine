@@ -1,16 +1,19 @@
 package be.ucll.model;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static be.ucll.model.TestProcesses.approvableAbsence;
+import static be.ucll.model.TestProcesses.approvalOf;
+import static be.ucll.model.TestProcesses.popupFor;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
 
 import be.ucll.exception.DomainException;
 import be.ucll.model.enums.FlowStatus;
@@ -18,224 +21,58 @@ import be.ucll.model.enums.RequestTypeEnum;
 
 class FlowInstanceTest {
 
-    private FlowDefinition mockFlowDefinition;
-    private Map<RequestTypeEnum, Map<String, Object>> testData;
-    
-    @BeforeEach
-    void setUp() {
-        mockFlowDefinition = mock(FlowDefinition.class);
-        when(mockFlowDefinition.getId()).thenReturn("flow-def-123");
-        
-        Process process1 = mock(Process.class);
-        Process process2 = mock(Process.class);
-        when(mockFlowDefinition.getProcesses()).thenReturn(List.of(process1, process2));
-        
-        testData = new HashMap<>();
-        Map<String, Object> innerData = new HashMap<>();
-        innerData.put("startDate", "2025-11-10");
-        innerData.put("endDate", "2025-11-19");
-        innerData.put("submittedBy", "lais@glakit.be");
-        innerData.put("reason", "sickness");
-        testData.put(RequestTypeEnum.ABSENCE_REQUEST, innerData);
+    private final FlowDefinition definition = new FlowDefinition("Absence", "Report an absence", Set.of(),
+            List.of(approvableAbsence(1), approvalOf(0), popupFor(0)));
+
+    private FlowInstance instance() {
+        return new FlowInstance(definition, "Absence for Lais", "Lais@Glackit.be",
+                Map.of(RequestTypeEnum.ABSENCE_REQUEST, Map.of("Reason", "sick")), null);
     }
 
     @Test
-    @DisplayName("Should create valid FlowInstance with all required fields")
-    void testValidFlowInstanceCreation() {
-        FlowInstance instance = new FlowInstance(
-            mockFlowDefinition, 
-            "Test Flow", 
-            "user@glakit.be", 
-            testData,
-            "http://example.com");
-        
-        assertEquals("Test Flow", instance.getTitle());
-        assertEquals("user@glakit.be", instance.getTriggeredBy());
-        assertEquals("http://example.com", instance.getCallingURL());
-        assertEquals(FlowStatus.ACTIVE, instance.getFlowStatus());
-        assertEquals(0, instance.getStep());
-        assertNotNull(instance.getUpdatedAt());
-        assertEquals(testData, instance.getData());
+    void startsActiveAtTheFirstProcess() {
+        FlowInstance flow = instance();
+
+        assertEquals(FlowStatus.ACTIVE, flow.getFlowStatus());
+        assertEquals(0, flow.getStep());
+        assertInstanceOf(Request.class, flow.getCurrentProcess());
+        assertEquals("lais@glackit.be", flow.getTriggeredBy());
+        assertNotNull(flow.getCreatedAt());
     }
 
     @Test
-    @DisplayName("Should throw DomainException when FlowDefinition is null")
-    void testNullFlowDefinition() {
-        DomainException exception = assertThrows(DomainException.class, () -> {
-            new FlowInstance(
-                    null, 
-                    "Test Flow", 
-                    "user@glakit.be", 
-                    testData,
-                    "http://example.com");
-        });
-        
-        assertEquals("Flow Instance requires a definition", exception.getMessage());
+    void walksThroughProcessesAndEndsWithNull() {
+        FlowInstance flow = instance();
+
+        flow.nextProcess();
+        assertInstanceOf(Approval.class, flow.getCurrentProcess());
+        flow.nextProcess();
+        assertInstanceOf(Notification.class, flow.getCurrentProcess());
+        flow.nextProcess();
+        assertNull(flow.getCurrentProcess());
     }
 
     @Test
-    @DisplayName("Should throw DomainException when title is blank")
-    void testBlankTitle() {
-        DomainException exception = assertThrows(DomainException.class, () -> {
-            new FlowInstance(
-                    mockFlowDefinition, 
-                    "   ", 
-                    "user@glakit.be", 
-                    testData,
-                    "http://example.com"); 
-        });
-        
-        assertEquals("FlowInstance Title cannot be empty", exception.getMessage());
+    void returnsDataPerRequestType() {
+        assertEquals("sick", instance().getDataFor(RequestTypeEnum.ABSENCE_REQUEST).get("Reason"));
+        assertNull(instance().getDataFor(RequestTypeEnum.MEETING_REQUEST));
     }
 
     @Test
-    @DisplayName("Should throw DomainException when title is empty")
-    void testEmptyTitle() {
-        DomainException exception = assertThrows(DomainException.class, () -> {
-            new FlowInstance(
-                    mockFlowDefinition, 
-                    "", 
-                    "user@glakit.be", 
-                    testData,
-                    "http://example.com"); 
-        });
-        
-        assertEquals("FlowInstance Title cannot be empty", exception.getMessage());
+    void blankCallbackUrlIsStoredAsNull() {
+        FlowInstance flow = new FlowInstance(definition, "t", "a@b.be", null, "  ");
+        assertNull(flow.getCallbackUrl());
     }
 
     @Test
-    @DisplayName("Should handle null triggeredBy gracefully")
-    void testNullTriggeredBy() {
-        FlowInstance instance = new FlowInstance(
-            mockFlowDefinition, 
-            "Test Flow", 
-            null,
-            testData,
-            "http://example.com"
-        );
-        
-        assertNull(instance.getTriggeredBy());
+    void rejectsMissingDefinitionTitleOrTrigger() {
+        assertThrows(DomainException.class, () -> new FlowInstance(null, "t", "a@b.be", null, null));
+        assertThrows(DomainException.class, () -> new FlowInstance(definition, " ", "a@b.be", null, null));
+        assertThrows(DomainException.class, () -> new FlowInstance(definition, "t", null, null, null));
     }
 
     @Test
-    @DisplayName("Should increment step correctly with nextProcess")
-    void testNextProcess() {
-        FlowInstance instance = new FlowInstance(
-            mockFlowDefinition, 
-            "Test Flow", 
-            "user@glakit.be", 
-            testData,
-            "http://example.com");
-        
-        assertEquals(0, instance.getStep());
-        
-        instance.nextProcess();
-        assertEquals(1, instance.getStep());
-        
-        instance.nextProcess();
-        assertEquals(2, instance.getStep());
-    }
-
-    @Test
-    @DisplayName("Should return current process correctly")
-    void testGetCurrentProcess() {
-        Process process1 = mock(Process.class);
-        Process process2 = mock(Process.class);
-        when(mockFlowDefinition.getProcesses()).thenReturn(List.of(process1, process2));
-        
-        FlowInstance instance = new FlowInstance(
-            mockFlowDefinition, 
-            "Test Flow", 
-            "user@glakit.be", 
-            testData,
-            "http://example.com");
-        
-        assertEquals(process1, instance.getCurrentProcess());
-        
-        instance.nextProcess();
-        assertEquals(process2, instance.getCurrentProcess());
-    }
-
-    @Test
-    @DisplayName("Should return null when step exceeds process count")
-    void testGetCurrentProcessWhenExceedingSteps() {
-        FlowInstance instance = new FlowInstance(
-            mockFlowDefinition, 
-            "Test Flow", 
-            "user@glakit.be", 
-            testData,
-            "http://example.com");
-        
-        instance.nextProcess();
-        instance.nextProcess();
-        
-        assertNull(instance.getCurrentProcess());
-    }
-
-    @Test
-    @DisplayName("Should add submission correctly")
-    void testAddSubmission() {
-        FlowInstance instance = new FlowInstance(
-            mockFlowDefinition, 
-            "Test Flow", 
-            "user@glakit.be", 
-            testData,
-            "http://example.com");
-        
-        RequestSubmission submission = mock(RequestSubmission.class);
-        
-        assertEquals(0, instance.getSubmissions().size());
-        
-        instance.addSubmission(submission);
-        assertEquals(1, instance.getSubmissions().size());
-        assertTrue(instance.getSubmissions().contains(submission));
-    }
-
-    @Test
-    @DisplayName("Should update flow status correctly")
-    void testSetFlowStatus() {
-        FlowInstance instance = new FlowInstance(
-            mockFlowDefinition, 
-            "Test Flow", 
-            "user@glakit.be", 
-            testData,
-            "http://example.com");
-        
-        assertEquals(FlowStatus.ACTIVE, instance.getFlowStatus());
-        
-        instance.setFlowStatus(FlowStatus.PENDING);
-        assertEquals(FlowStatus.PENDING, instance.getFlowStatus());
-    }
-
-    @Test
-    @DisplayName("Should update timestamp correctly")
-    void testSetUpdatedAt() {
-        FlowInstance instance = new FlowInstance(
-            mockFlowDefinition, 
-            "Test Flow", 
-            "user@glakit.be", 
-            testData,
-            "http://example.com");
-        
-        LocalDateTime originalTime = instance.getUpdatedAt();
-        LocalDateTime newTime = LocalDateTime.now().plusHours(1);
-        
-        instance.setUpdatedAt(newTime);
-        
-        assertNotEquals(originalTime, instance.getUpdatedAt());
-        assertEquals(newTime, instance.getUpdatedAt());
-    }
-
-    @Test
-    @DisplayName("Should return flowDefinitionId correctly")
-    void testGetFlowDefinitionId() {
-        FlowInstance instance = new FlowInstance(
-            mockFlowDefinition, 
-            "Test Flow", 
-            "user@glakit.be", 
-            testData,
-            "http://example.com");
-        
-        assertEquals("flow-def-123", instance.getFlowDefinitionId());
+    void getProcessRejectsUnknownSteps() {
+        assertThrows(DomainException.class, () -> instance().getProcess(5));
     }
 }

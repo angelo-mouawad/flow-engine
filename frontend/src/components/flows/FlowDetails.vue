@@ -32,8 +32,11 @@ function startEdit() {
   isEditing.value = true;
 }
 import { useRouter } from "vue-router";
+import { errorMessage } from "../../services/api";
+import { formatDateTime, formatTriggerName } from "../../utils/format";
 
 const router = useRouter();
+const saveError = ref<string | null>(null);
 
 
 async function saveChanges() {
@@ -45,6 +48,7 @@ async function saveChanges() {
     description: descriptionInput.value,
   };
 
+  saveError.value = null;
   try {
     if (props.selectedDefinition.id === undefined) {
       throw new Error("Selected definition has no ID");
@@ -57,23 +61,10 @@ async function saveChanges() {
     isEditing.value = false;
     router.push("/flow-definitions");
   } catch (err) {
-    console.error("Failed to save flow definition:", err);
+    saveError.value = errorMessage(err, "Failed to save flow definition");
   }
 }
-const formatDate = (dateValue?: string | Date) => {
-  if (!dateValue) return "—";
-  try {
-    return new Date(dateValue).toLocaleString("en-GB", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return String(dateValue);
-  }
-};
+const formatDate = (value?: string | null) => formatDateTime(value);
 
 const themeStore = useThemeStore();
 const isDarkMode = computed(() => themeStore.isDarkMode);
@@ -86,13 +77,6 @@ const avatarColors = [
   "bg-lime-500 text-white",
 ];
 
-const formatTriggerName = (email?: string) => {
-  if (!email) return "";
-  const local = email.split("@")[0] ?? email;
-  const parts = local.split(/[\.\-_]/).filter(Boolean);
-  const name = parts.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
-  return name || email;
-};
 
 const initials = (email?: string) => {
   const name = formatTriggerName(email);
@@ -122,7 +106,7 @@ const remainingFor = (list?: string[] | null) => Math.max(0, (list ?? []).length
       >
         name
       </p>
-      <p class="text-lg font-semibold mt-1">{{ props.selectedDefinition?.title || '—' }}</p>
+      <p class="text-lg font-semibold mt-1">{{ props.selectedDefinition?.title || '-' }}</p>
     </div>
 
     <div
@@ -229,7 +213,7 @@ const remainingFor = (list?: string[] | null) => Math.max(0, (list ?? []).length
             +{{ remainingFor(process.approvableBy) }} more
           </span>
         </div>
-        <span v-else class="text-lg font-semibold mt-1">—</span>
+        <span v-else class="text-lg font-semibold mt-1">-</span>
       </div>
     </div>
   </div>
@@ -291,7 +275,7 @@ const remainingFor = (list?: string[] | null) => Math.max(0, (list ?? []).length
             +{{ remainingCount }} more
           </span>
         </template>
-        <span v-else class="text-lg font-semibold mt-1 opacity-70">—</span>
+        <span v-else class="text-lg font-semibold mt-1 opacity-70">-</span>
       </div>
     </div>
 
@@ -325,6 +309,7 @@ const remainingFor = (list?: string[] | null) => Math.max(0, (list ?? []).length
     </div>
   </div>
 
+  <p v-if="saveError" class="text-center text-sm text-red-600 mt-2">{{ saveError }}</p>
   <div class="flex items-center justify-center gap-3">
     <button
       v-if="!isEditing"

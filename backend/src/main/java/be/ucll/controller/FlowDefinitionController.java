@@ -1,27 +1,30 @@
 package be.ucll.controller;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
 import be.ucll.controller.dto.FlowDefinitionInput;
 import be.ucll.model.FlowDefinition;
 import be.ucll.service.FlowDefinitionService;
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @RestController
 @RequestMapping("/flowDefinition")
 public class FlowDefinitionController {
 
-    private FlowDefinitionService flowDefinitionService;
+    private final FlowDefinitionService flowDefinitionService;
 
-    @Autowired
     public FlowDefinitionController(FlowDefinitionService flowDefinitionService) {
         this.flowDefinitionService = flowDefinitionService;
     }
@@ -37,26 +40,19 @@ public class FlowDefinitionController {
     }
 
     @PostMapping
-    public FlowDefinition addFlowDefinition(@RequestBody @Valid FlowDefinitionInput input) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public FlowDefinition addFlowDefinition(@Valid @RequestBody FlowDefinitionInput input) {
         return flowDefinitionService.addFlowDefinition(input);
     }
 
     @PutMapping("/{id}")
-    public FlowDefinition updateFlowDefinition(@RequestBody @Valid FlowDefinitionInput updatedFlowDefinition, @PathVariable String id) {
-        return flowDefinitionService.updateFlowDefinition(updatedFlowDefinition, id);
+    public FlowDefinition updateFlowDefinition(@PathVariable String id, @Valid @RequestBody FlowDefinitionInput input) {
+        return flowDefinitionService.updateFlowDefinition(input, id);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFlowDefinition(@PathVariable String id) {
         flowDefinitionService.deleteFlowDefinition(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, String>> handleDomainException(RuntimeException ex, WebRequest request) {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("Error: ", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(errorResponse);
     }
 }

@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from "vue";
-import { useRoleStore } from "../../stores/roleStore";
 import { useThemeStore } from "../../stores/themeStore";
 import { useUserStore } from "../../stores/userStore";
 
-const roleStore = useRoleStore();
 const userStore = useUserStore();
 const themeStore = useThemeStore();
 
@@ -34,11 +32,6 @@ const currentUserRole = computed(() => userStore.currentUser?.role ?? "User");
 
 const setUser = (name: string) => {
   userStore.login(name);
-
-  if (userStore.currentUser) {
-    roleStore.setRole(userStore.currentUser.role);
-  }
-
   isOpen.value = false;
   window.location.reload();
 }

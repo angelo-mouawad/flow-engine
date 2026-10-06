@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import type { FlowDefinition, FlowInstance } from "../../types";
+import type { FlowInstance } from "../../types";
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import FlowInstanceService from "../../services/FlowInstanceService";
 import { useThemeStore } from "../../stores/themeStore";
 import { useUserStore } from "../../stores/userStore";
 import deleteIcon from "/images/delete1.png.webp";
-import FlowDefinitionService from "../../services/FlowDefinitionService";
 
 const props = withDefaults(
   defineProps<{
@@ -44,12 +43,13 @@ const sortFlowInstances = (
       const order: Record<string, number> = {
         ACTIVE: 0,
         PENDING: 1,
-        FAILED: 2,
+        FAILURE: 2,
+        SUCCESS: 3,
       };
       result = (order[a.flowStatus] ?? 99) - (order[b.flowStatus] ?? 99);
     } else if (key === "flowDefinition") {
-      const titleA = a.flowDefinition?.title.toLowerCase() ?? "";
-      const titleB = b.flowDefinition?.title.toLowerCase() ?? "";
+      const titleA = (a.flowDefinitionTitle ?? "").toLowerCase();
+      const titleB = (b.flowDefinitionTitle ?? "").toLowerCase();
       if (titleA < titleB) result = -1;
       if (titleA > titleB) result = 1;
     } else if (key === "updatedAt") {
@@ -69,18 +69,7 @@ const fetchFlowInstances = async () => {
   loading.value = true;
   error.value = null;
   try {
-    const [instanceRes, definitionRes] = await Promise.all([
-      FlowInstanceService.getFlowInstances(),
-      FlowDefinitionService.getFlowDefinitions(),
-    ]);
-
-    const instances = (await instanceRes) as FlowInstance[];
-    const definitions = (await definitionRes) as FlowDefinition[];
-    flowInstances.value = instances.map((inst) => ({
-      ...inst,
-      flowDefinition:
-        definitions.find((d) => d.id === inst.flowDefinitionId) ?? null,
-    }));
+    flowInstances.value = await FlowInstanceService.getFlowInstances();
 
     sortFlowInstances(sortKey.value);
   } catch (e) {
@@ -296,8 +285,7 @@ const filteredFlowInstances = computed(() => {
                 'bg-[#10b981]': inst.flowStatus.toLowerCase() === 'active',
                 'bg-[#84cc16]': inst.flowStatus.toLowerCase() === 'success',
                 'bg-[#f59e0b]': inst.flowStatus.toLowerCase() === 'pending',
-                'bg-[#ef4444]': inst.flowStatus.toLowerCase() === 'failed',
-                'bg-[#3b82f6]': inst.flowStatus.toLowerCase() === 'paused',
+                'bg-[#ef4444]': inst.flowStatus.toLowerCase() === 'failure',
               }"
             ></span>
             <span
@@ -316,7 +304,7 @@ const filteredFlowInstances = computed(() => {
           class="px-4 py-2"
           :class="isDarkMode ? 'text-gray-300' : 'text-gray-600'"
         >
-          {{ inst.flowDefinition?.title }}
+          {{ inst.flowDefinitionTitle ?? "-" }}
         </td>
         <td
           class="px-4 py-2"

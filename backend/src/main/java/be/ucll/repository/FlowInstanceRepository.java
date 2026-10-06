@@ -1,11 +1,8 @@
 package be.ucll.repository;
 
-import be.ucll.model.FlowInstance;
-
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.Optional;
+import be.ucll.model.FlowInstance;
 
 public interface FlowInstanceRepository extends MongoRepository<FlowInstance, String> {
-    public Optional<FlowInstance> findById(String id);
 }

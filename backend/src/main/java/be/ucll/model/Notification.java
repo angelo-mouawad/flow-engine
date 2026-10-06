@@ -1,11 +1,12 @@
 package be.ucll.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import be.ucll.exception.DomainException;
 import be.ucll.model.enums.NotificationTypeEnum;
 import be.ucll.model.enums.ProcessType;
 import be.ucll.model.strategies.notification.NotificationType;
@@ -13,69 +14,52 @@ import be.ucll.model.strategies.notification.NotificationTypeFactory;
 
 public class Notification extends Process {
 
-    @JsonIgnore
-    private NotificationType notificationType;
+    private NotificationTypeEnum notificationType;
+    private List<String> toNotify = List.of();
+    private Integer requestStep;
 
-    @JsonProperty("notificationType")
-    private NotificationTypeEnum notificationTypeName;
+    protected Notification() {
+    }
 
-    private List<String> toNotify = new ArrayList<>();
-    private int requestStep;
-
-    @JsonIgnore
-    private Request request;
-
-    public Notification() { super(); }
-
-    public Notification(String name, NotificationTypeEnum notificationTypeName, List<String> toNotify, int requestStep) {
+    @JsonCreator
+    public Notification(@JsonProperty("name") String name,
+                        @JsonProperty("notificationType") NotificationTypeEnum notificationType,
+                        @JsonProperty("toNotify") List<String> toNotify,
+                        @JsonProperty("requestStep") Integer requestStep) {
         super(name, ProcessType.NOTIFICATION);
-        setNotificationTypeName(notificationTypeName);
-        // setNotificationType(notificationTypeName);
-        setToNotify(toNotify);
+        if (notificationType == null) {
+            throw new DomainException("Every notification process needs a notification type");
+        }
+        this.notificationType = notificationType;
+        this.toNotify = List.copyOf(Request.normaliseEmails(toNotify));
         this.requestStep = requestStep;
     }
 
-    public List<String> getToNotify() {
-        if ((toNotify == null || toNotify.isEmpty()) && this.request != null) {
-            return List.of(this.request.getApprovableBy());
+    public List<String> recipientsFor(Request request) {
+        if (!toNotify.isEmpty()) {
+            return toNotify;
         }
-
-        return toNotify;
+        return request == null ? List.of() : request.getApprovableBy();
     }
 
-    public int getRequestStep() {
-        return this.requestStep;
+    public String messageFor(Request request, String flowTitle) {
+        return getStrategy().generateMessage(request, flowTitle);
     }
 
     @JsonIgnore
-    public String getMessage(){
-        return notificationType.generateMessage(request);
+    public NotificationType getStrategy() {
+        return NotificationTypeFactory.fromTypeName(notificationType);
     }
 
-    public NotificationType getNotificationType() {
+    public NotificationTypeEnum getNotificationType() {
         return notificationType;
     }
 
-    public NotificationTypeEnum getNotificationTypeName() {
-        return notificationTypeName;
+    public List<String> getToNotify() {
+        return toNotify;
     }
 
-    public void setRequest(Request request) {
-        this.request = request;
+    public Integer getRequestStep() {
+        return requestStep;
     }
-
-    public void setToNotify(List<String> toNotify) {
-        if (toNotify == null) return;
-
-        this.toNotify = toNotify;
-    }
-
-    @JsonProperty("notificationType")
-    public void setNotificationTypeName(NotificationTypeEnum notificationTypeName) {
-        this.notificationTypeName = notificationTypeName;
-        if (notificationTypeName != null) {
-            this.notificationType = NotificationTypeFactory.fromTypeName(notificationTypeName);
-        }
-    }
-
 }

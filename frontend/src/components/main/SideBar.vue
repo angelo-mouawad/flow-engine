@@ -1,39 +1,40 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useUserStore } from "../../stores/userStore";
 
-const user = ref<any>(null)
-const stored = sessionStorage.getItem("user")
-
-if (stored) {
-  user.value = JSON.parse(stored)
-}
-
-const isManager = () => {
-  return user.value?.role === "Manager";
-}
-
+const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
+
+const managerMenu = [
+  { label: "HOME", path: "/" },
+  { label: "FLOW DEFINITIONS", path: "/flow-definitions" },
+  { label: "FLOW INSTANCES", path: "/flow-instances" },
+  { label: "MANAGE REQUESTS", path: "/pending-requests" },
+];
+const userMenu = [
+  { label: "HOME", path: "/" },
+  { label: "FLOW INSTANCES", path: "/flow-instances" },
+];
+
+const menu = computed(() => (userStore.isManager ? managerMenu : userMenu));
+const menuItems = computed(() => menu.value.map((item) => item.label));
+const paths = computed(() => menu.value.map((item) => item.path));
+
 const activeIndex = computed(() => {
-  const normalised = `/${route.path.split("/")[1]}`;
-  return paths.indexOf(normalised);
+  const normalised = `/${route.path.split("/")[1] ?? ""}`;
+  return paths.value.indexOf(normalised);
 });
 const isReady = ref<boolean>(false);
-const managerMenuItems = ["HOME", "FLOW DEFINITIONS", "FLOW INSTANCES", "MANAGE REQUESTS", "SETTINGS"];
-const userMenuItems = ["HOME", "FLOW INSTANCES", "SETTINGS"];
 const yellowBar =
   "before:content-[''] before:absolute before:left-0 before:top-0 before:h-full before:w-2 before:bg-sidebarprimary";
-const managerPaths = ["/", "/flow-definitions", "/flow-instances", "/pending-requests", "/settings"];
-const userPaths = ["/", "/flow-instances", "/settings"];
-
-const menuItems = isManager() ? managerMenuItems : userMenuItems;
-const paths = isManager() ? managerPaths : userPaths;
 
 const burgerOpen = ref(false);
 
 const selectOption = (index: number) => {
-  router.push(paths[index] as string);
+  const target = paths.value[index];
+  if (target) router.push(target);
   burgerOpen.value = false;
 };
 

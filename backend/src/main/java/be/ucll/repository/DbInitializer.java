@@ -1,132 +1,113 @@
 package be.ucll.repository;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import be.ucll.controller.dto.FlowData;
-import be.ucll.model.*;
+import be.ucll.model.Approval;
+import be.ucll.model.FlowDefinition;
+import be.ucll.model.Notification;
+import be.ucll.model.Request;
 import be.ucll.model.enums.NotificationTypeEnum;
 import be.ucll.model.enums.RequestTypeEnum;
 import be.ucll.service.FlowRunnerService;
 
 @Component
 @Profile("dev")
-public class DbInitializer{
+public class DbInitializer {
 
-    private FlowInstanceRepository flowInstanceRepository;
-    private FlowDefinitionRepository flowDefinitionRepository;
-    private RequestSubmissionRepository requestSubmissionRepository;
-    private FlowRunnerService flowRunnerService;
+    private static final Logger log = LoggerFactory.getLogger(DbInitializer.class);
 
-    @Autowired
-    public DbInitializer(FlowRunnerService flowRunnerService, 
-            RequestSubmissionRepository requestSubmissionRepository, 
-            FlowDefinitionRepository flowDefinitionRepository, 
-            FlowInstanceRepository flowInstanceRepository) {
-        this.flowRunnerService = flowRunnerService;
-        this.flowInstanceRepository = flowInstanceRepository;
+    private static final Set<String> EVERYONE = Set.of(
+            "adam@glackit.be", "samip@glackit.be", "annie@glackit.be",
+            "lais@glackit.be", "mouad@glackit.be", "angelo@glackit.be");
+    private static final List<String> MANAGERS = List.of("adam@glackit.be", "samip@glackit.be");
+
+    private final FlowDefinitionRepository flowDefinitionRepository;
+    private final FlowRunnerService flowRunnerService;
+
+    public DbInitializer(FlowDefinitionRepository flowDefinitionRepository, FlowRunnerService flowRunnerService) {
         this.flowDefinitionRepository = flowDefinitionRepository;
-        this.requestSubmissionRepository = requestSubmissionRepository;
+        this.flowRunnerService = flowRunnerService;
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    public void initialize(){
+    public void initialize() {
+        try {
+            if (flowDefinitionRepository.count() > 0) {
+                log.info("Database already has flow definitions, skipping seed data");
+                return;
+            }
+            seed();
+            log.info("Seeded example flow definitions and instances");
+        } catch (RuntimeException e) {
+            log.warn("Could not seed example data: {}", e.getMessage());
+        }
+    }
 
-      flowDefinitionRepository.deleteAll();
-      flowInstanceRepository.deleteAll();
-      requestSubmissionRepository.deleteAll();
+    private void seed() {
+        FlowDefinition absenceFlow = flowDefinitionRepository.save(new FlowDefinition(
+                "Absence Reporting",
+                "Collect an absence request and wait for two managers to approve it",
+                EVERYONE,
+                List.of(
+                        new Request("Absence", RequestTypeEnum.ABSENCE_REQUEST, true, MANAGERS, 2),
+                        new Approval("Manager approval", Set.of(0)),
+                        new Notification("Notify Adam", NotificationTypeEnum.POPUP_NOTIFICATION,
+                                List.of("adam@glackit.be"), 0))));
 
-      Request absence = new Request("Absence", RequestTypeEnum.ABSENCE_REQUEST, true, new String[]{"adam@glackit.be", "samip@glackit.be"}, 2);
-      Request absence2 = new Request("Absence no approval",  RequestTypeEnum.ABSENCE_REQUEST, false, new String[]{}, 0);
-      Request clockin = new Request("clockIN", RequestTypeEnum.CLOCKIN_REQUEST, true, new String[]{"adam@glackit.be", "samip@glackit.be"}, 2);
-      Approval approval = new Approval("Approval", Set.of(0));
-      Approval approval2 = new Approval("Approval", Set.of(2));
-      Notification notification = new Notification("Notification", NotificationTypeEnum.POPUP_NOTIFICATION, List.of("adam@glackit.be"), 0);
+        FlowDefinition clockInFlow = flowDefinitionRepository.save(new FlowDefinition(
+                "Clock-in Review",
+                "Auto approve clock-ins inside office hours and escalate the rest",
+                EVERYONE,
+                List.of(
+                        new Request("Clock-in", RequestTypeEnum.CLOCKIN_REQUEST, true, MANAGERS, 1),
+                        new Approval("Manager approval", Set.of(0)),
+                        new Notification("Notify managers", NotificationTypeEnum.POPUP_NOTIFICATION,
+                                List.of(), 0))));
 
-      Set<String> triggers = new HashSet<>(Set.of(
-                  "adam@glackit.be",
-                  "samip@glackit.be",
-                  "annie@glackit.be",
-                  "lais@glackit.be",
-                  "mouad@glackit.be",
-                  "angelo@glackit.be"
-                  ));
+        FlowDefinition combinedFlow = flowDefinitionRepository.save(new FlowDefinition(
+                "Absence and Clock-in",
+                "Record an absence without approval, then review a clock-in",
+                EVERYONE,
+                List.of(
+                        new Request("Absence without approval", RequestTypeEnum.ABSENCE_REQUEST, false, List.of(), 0),
+                        new Notification("Notify Adam", NotificationTypeEnum.POPUP_NOTIFICATION,
+                                List.of("adam@glackit.be"), 0),
+                        new Request("Clock-in", RequestTypeEnum.CLOCKIN_REQUEST, true, MANAGERS, 2),
+                        new Approval("Manager approval", Set.of(2)))));
 
-      Set<String> seniors = new HashSet<>(Set.of(
-                  "adam@glackit.be",
-                  "samip@glackit.be",
-                  "annie@glackit.be"
-                  ));
+        Map<String, Object> absence = Map.of(
+                "Start_Date", "2025-11-10",
+                "End_Date", "2025-11-19",
+                "Reason", "sickness",
+                "Submitted_By", "lais@glackit.be");
 
-      FlowDefinition fd1 = new FlowDefinition(
-              "Absence Reporting", 
-              "Receive absence requests for processsing", 
-              triggers,
-              List.of(absence, approval, notification));
+        Map<String, Object> lateClockIn = Map.of(
+                "Date", "2025-11-19",
+                "Start_Time", "2025-11-19T15:30:00+01:00",
+                "End_Time", "2025-11-19T20:30:00+01:00",
+                "Submitted_By", "lais@glackit.be");
 
-      FlowDefinition fd2 = new FlowDefinition(
-              "Absence Reporting alternate", 
-              "Receive absence requests for processsing", 
-              triggers,
-              List.of(clockin, approval, notification));
+        flowRunnerService.instantiateFlow(absenceFlow.getId(), new FlowData(
+                "Absence for Lais", "lais@glackit.be",
+                Map.of(RequestTypeEnum.ABSENCE_REQUEST, absence), null));
 
-      FlowDefinition fd3 = new FlowDefinition(
-              "Absence Reporting alternate", 
-              "Receive absence requests for processsing", 
-              triggers,
-              List.of(absence2, notification, clockin, approval2));
+        flowRunnerService.instantiateFlow(clockInFlow.getId(), new FlowData(
+                "Late clock-in for Lais", "lais@glackit.be",
+                Map.of(RequestTypeEnum.CLOCKIN_REQUEST, lateClockIn), null));
 
-      List<FlowDefinition> fds = List.of(fd1, fd2, fd3);
-
-      flowDefinitionRepository.saveAll(fds);
-
-      /*
-       *"ABSENCE_REQUEST": {
-       *    "Start_Date": "2025-11-10",
-       *    "End_Date": "2025-11-19",
-       *    "Submitted_By": "lais@glakit.be",
-       *    "Reason": "sickness",
-       *} 
-       */
-      Map<String, Object> data = new HashMap<>();
-      data.put("Start_Date", "2025-11-10");
-      data.put("End_Date", "2025-11-19");
-      data.put("Submitted_By", "lais@glakit.be");
-      data.put("Reason", "sickness");
-
-      Map<String, Object> data2 = new HashMap<>();
-      data2.put("Start_Time", "2025-12-19T15:30:00+01:00");
-      data2.put("End_Time", "2025-12-19T20:30:00+01:00");
-      data2.put("Date", "2025-11-19");
-      data2.put("Submitted_By", "lais@glakit.be");
-
-      Map<RequestTypeEnum, Map<String, Object>> rqdata = new HashMap<>();
-      rqdata.put(absence.getRequestTypeName(), data);
-
-      Map<RequestTypeEnum, Map<String, Object>> rqdata2 = new HashMap<>();
-      rqdata2.put(clockin.getRequestTypeName(), data2);
-
-      Map<RequestTypeEnum, Map<String, Object>> rqdata3 = new HashMap<>();
-      rqdata3.put(absence2.getRequestTypeName(), data);
-      rqdata3.put(clockin.getRequestTypeName(), data2);
-
-      FlowData flowData = new FlowData("hamid senior absence approval", "lais@glackit.be",rqdata);
-      FlowData flowData2 = new FlowData("hamid clockin approval",  "lais@glackit.be", rqdata2);
-      FlowData flowData3 = new FlowData("hamid clockin approval",  "adam@glackit.be", rqdata3);
-
-      String url = "http://test.be";
-
-      flowRunnerService.instantiateFlow(fd1.getId(), url, flowData);
-      flowRunnerService.instantiateFlow(fd2.getId(), url, flowData2);
-      flowRunnerService.instantiateFlow(fd3.getId(), url, flowData3);
+        flowRunnerService.instantiateFlow(combinedFlow.getId(), new FlowData(
+                "Absence and clock-in for Lais", "lais@glackit.be",
+                Map.of(RequestTypeEnum.ABSENCE_REQUEST, absence,
+                        RequestTypeEnum.CLOCKIN_REQUEST, lateClockIn), null));
     }
 }
