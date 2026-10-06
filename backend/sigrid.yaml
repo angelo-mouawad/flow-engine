@@ -1,0 +1,25 @@
+# Sigrid CI Configuration for Petanque Application
+# Based on GitHub technology detection and Sigrid documentation
+# https://docs.sigrid-says.com/reference/analysis-scope-configuration.html
+
+# Languages that should be analyzed
+languages:
+  - name: java
+  - name: docker
+  - name: typeScript
+  - name: javascript
+  - name: powershell
+  - name: script
+  - name: css
+  - name: mysql
+
+# Enable Open Source Health analysis
+dependencychecker: 
+  blocklist: ["NONE"]
+
+# Enable Security analysis
+thirdpartyfindings:
+  enabled: true
+
+# Enable experimental features
+experimental: true

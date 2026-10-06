@@ -1,0 +1,48 @@
+package be.ucll.controller;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
+
+import be.ucll.controller.dto.FlowData;
+import be.ucll.service.FlowRunnerService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping("/trigger")
+public class TriggerController {
+    
+    private FlowRunnerService flowRunnerService;
+
+    @Autowired
+    public TriggerController(FlowRunnerService flowRunnerService){
+        this.flowRunnerService = flowRunnerService;
+    }
+
+    @PostMapping("/{id}")
+    public void triggerFlow(@PathVariable String id, @RequestBody @Valid FlowData flowData, HttpServletRequest request){
+        StringBuffer url = request.getRequestURL();
+        String uri = request.getRequestURI();
+        String baseUrl = url.substring(0, url.indexOf(uri));
+        flowRunnerService.instantiateFlow(id, baseUrl, flowData); 
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, String>> handleDomainException(RuntimeException ex, WebRequest request) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("Error: ", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+}
