@@ -2,14 +2,16 @@ package be.ucll.model;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -24,11 +26,15 @@ public class RequestSubmission {
 
     @Id
     private String id;
+    /** Optimistic lock: two approvers deciding at the same moment can no longer overwrite each other's vote. */
+    @Version
+    @JsonIgnore
+    private Long version;
     private String flowInstanceId;
     private Request request;
     private RequestData requestData;
     private RequestStatus status;
-    private Map<String, RequestStatus> approvals = new HashMap<>();
+    private List<ApprovalVote> votes = new ArrayList<>();
     private LocalDateTime submittedAt;
     private LocalDateTime processedAt;
 
@@ -46,17 +52,16 @@ public class RequestSubmission {
         this.submittedAt = LocalDateTime.now();
 
         if (request.isApprovable()) {
-            request.getApprovableBy().forEach(email -> approvals.put(escape(email), RequestStatus.PENDING));
+            request.getApprovableBy().stream()
+                    .map(ApprovalVote::normalise)
+                    .distinct()
+                    .forEach(email -> votes.add(new ApprovalVote(email, RequestStatus.PENDING)));
         }
 
         this.status = status == null ? RequestStatus.PENDING : status;
         if (this.status != RequestStatus.PENDING) {
             this.processedAt = submittedAt;
         }
-    }
-
-    public static String escape(String email) {
-        return email == null ? "" : email.trim().toLowerCase().replace('.', '_');
     }
 
     public void decide(String user, RequestStatus decision) {
@@ -67,19 +72,16 @@ public class RequestSubmission {
             throw new DomainException("This request has already been " + status.name().toLowerCase());
         }
 
-        String key = escape(user);
-        RequestStatus current = approvals.get(key);
-        if (current == null) {
-            throw new DomainException(user + " is not an approver for this request");
-        }
-        if (current != RequestStatus.PENDING) {
+        ApprovalVote vote = voteOf(user)
+                .orElseThrow(() -> new DomainException(user + " is not an approver for this request"));
+        if (vote.getStatus() != RequestStatus.PENDING) {
             throw new DomainException(user + " has already responded to this request");
         }
 
-        approvals.put(key, decision);
+        vote.setStatus(decision);
 
         int required = request.getMinApprovals();
-        int stillPossible = approvals.size() - countApprovals(RequestStatus.DECLINED);
+        int stillPossible = votes.size() - countApprovals(RequestStatus.DECLINED);
 
         if (countApprovals(RequestStatus.APPROVED) >= required) {
             resolve(RequestStatus.APPROVED);
@@ -93,12 +95,17 @@ public class RequestSubmission {
         processedAt = LocalDateTime.now();
     }
 
+    private Optional<ApprovalVote> voteOf(String user) {
+        return votes.stream().filter(vote -> vote.isFor(user)).findFirst();
+    }
+
     public int countApprovals(RequestStatus value) {
-        return Collections.frequency(approvals.values(), value);
+        return (int) votes.stream().filter(vote -> vote.getStatus() == value).count();
     }
 
     public boolean isPendingFor(String user) {
-        return status == RequestStatus.PENDING && approvals.get(escape(user)) == RequestStatus.PENDING;
+        return status == RequestStatus.PENDING
+                && voteOf(user).map(vote -> vote.getStatus() == RequestStatus.PENDING).orElse(false);
     }
 
     public boolean isResolved() {
@@ -122,14 +129,12 @@ public class RequestSubmission {
         return requestData;
     }
 
+    /** Each approver's answer, keyed by email in the order the definition lists them. */
     @JsonProperty("approvals")
     public Map<String, RequestStatus> getApprovals() {
         Map<String, RequestStatus> readable = new LinkedHashMap<>();
         for (String email : request.getApprovableBy()) {
-            RequestStatus value = approvals.get(escape(email));
-            if (value != null) {
-                readable.put(email, value);
-            }
+            voteOf(email).ifPresent(vote -> readable.putIfAbsent(email, vote.getStatus()));
         }
         return readable;
     }

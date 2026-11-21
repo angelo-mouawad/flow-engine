@@ -75,8 +75,17 @@ class RequestSubmissionTest {
     }
 
     @Test
-    void escapingSwapsDotsForUnderscores() {
-        assertEquals("first_last@glackit_be", RequestSubmission.escape("First.Last@glackit.be"));
+    void emailsThatOnlyDifferInDotsAndUnderscoresStaySeparateApprovers() {
+        Request request = new Request("Absence", RequestTypeEnum.ABSENCE_REQUEST, true,
+                List.of("a.b@glackit.be", "a_b@glackit.be"), 2);
+        RequestSubmission submission = pending(request);
+
+        submission.decide("a.b@glackit.be", RequestStatus.APPROVED);
+
+        assertEquals(RequestStatus.PENDING, submission.getStatus());
+        assertTrue(submission.isPendingFor("a_b@glackit.be"));
+        assertEquals(Map.of("a.b@glackit.be", RequestStatus.APPROVED, "a_b@glackit.be", RequestStatus.PENDING),
+                submission.getApprovals());
     }
 
     @Test
