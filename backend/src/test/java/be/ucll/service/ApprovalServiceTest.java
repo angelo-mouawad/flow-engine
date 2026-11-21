@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.OptimisticLockingFailureException;
 
 import be.ucll.exception.DomainException;
 import be.ucll.exception.NotFoundException;
@@ -74,6 +76,32 @@ class ApprovalServiceTest {
         RequestSubmission result = approvalService.handleRequest("req", RequestStatus.APPROVED, "adam@glackit.be");
 
         assertEquals(RequestStatus.APPROVED, result.getStatus());
+    }
+
+    @Test
+    void aVoteSavedAtTheSameMomentIsRetriedOnTopOfTheOtherOne() {
+        // Each read returns a fresh copy, as the database would after the other approver's save.
+        when(repository.findById("req")).thenAnswer(call -> Optional.of(pending(2)));
+        when(repository.save(any(RequestSubmission.class)))
+                .thenThrow(new OptimisticLockingFailureException("stale"))
+                .thenAnswer(call -> call.getArgument(0));
+
+        RequestSubmission result = approvalService.handleRequest("req", RequestStatus.APPROVED, "adam@glackit.be");
+
+        assertEquals(RequestStatus.APPROVED, result.getApprovals().get("adam@glackit.be"));
+        verify(repository, times(2)).findById("req");
+        verify(repository, times(2)).save(any(RequestSubmission.class));
+    }
+
+    @Test
+    void givesUpAfterRepeatedConflicts() {
+        when(repository.findById("req")).thenAnswer(call -> Optional.of(pending(2)));
+        when(repository.save(any(RequestSubmission.class))).thenThrow(new OptimisticLockingFailureException("stale"));
+
+        assertThrows(OptimisticLockingFailureException.class,
+                () -> approvalService.handleRequest("req", RequestStatus.APPROVED, "adam@glackit.be"));
+        verify(repository, times(ApprovalService.MAX_ATTEMPTS)).save(any(RequestSubmission.class));
+        verify(flowRunnerService, never()).resumeFlow(any());
     }
 
     @Test

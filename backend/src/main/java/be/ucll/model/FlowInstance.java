@@ -9,6 +9,7 @@ import java.util.Map;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -22,6 +23,10 @@ public class FlowInstance {
 
     @Id
     private String id;
+    /** Optimistic lock: a save based on a stale copy fails instead of overwriting newer progress. */
+    @Version
+    @JsonIgnore
+    private Long version;
     private String title;
     private String triggeredBy;
     private String callbackUrl;
