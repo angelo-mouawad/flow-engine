@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +27,8 @@ public class CallbackService {
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
+    // Two constructors, so Spring needs to be told which one to use. The package-private one is for tests.
+    @Autowired
     public CallbackService(ObjectMapper objectMapper) {
         this(HttpClient.newBuilder().connectTimeout(TIMEOUT).build(), objectMapper);
     }
