@@ -1,4 +1,4 @@
-export type Status = "PENDING" | "ACTIVE" | "SUCCESS" | "FAILURE";
+export type Status = "PENDING" | "ACTIVE" | "SUCCESS" | "FAILURE" | "DECLINED";
 export type RequestStatus = "PENDING" | "APPROVED" | "DECLINED" | "CANCELLED";
 export type ProcessType = "REQUEST" | "NOTIFICATION" | "APPROVAL";
 export type RequestType = "ABSENCE_REQUEST" | "CLOCKIN_REQUEST" | "TASK_CHANGE_REQUEST" | "MEETING_REQUEST";

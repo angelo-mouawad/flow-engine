@@ -44,7 +44,8 @@ const sortFlowInstances = (
         ACTIVE: 0,
         PENDING: 1,
         FAILURE: 2,
-        SUCCESS: 3,
+        DECLINED: 3,
+        SUCCESS: 4,
       };
       result = (order[a.flowStatus] ?? 99) - (order[b.flowStatus] ?? 99);
     } else if (key === "flowDefinition") {

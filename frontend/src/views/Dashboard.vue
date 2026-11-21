@@ -25,6 +25,7 @@ const stats = computed(() => {
     PENDING: 0,
     FAILURE: 0,
     SUCCESS: 0,
+    DECLINED: 0,
   };
 
   flowInstances.value.forEach((instance) => {
@@ -37,6 +38,7 @@ const stats = computed(() => {
     pending: statuses.PENDING,
     failed: statuses.FAILURE,
     success: statuses.SUCCESS,
+    declined: statuses.DECLINED,
   };
 });
 
@@ -129,6 +131,7 @@ onUnmounted(() => {
           <StatsCard label="Pending" :value="stats.pending.toString()" color="#f59e0b" class="flex-shrink-0 w-44" />
           <StatsCard label="Failed" :value="stats.failed.toString()" color="#ef4444" class="flex-shrink-0 w-44" />
           <StatsCard label="Success" :value="stats.success.toString()" color="#84cc16" class="flex-shrink-0 w-44" />
+          <StatsCard label="Declined" :value="stats.declined.toString()" color="#8b5cf6" class="flex-shrink-0 w-44" />
         </div>
       </div>
     </div>

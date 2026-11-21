@@ -8,26 +8,27 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const statusConfig: Record<Status, { textColor: string; bgColor: string; label: string; }> = {
+// The dot colours match the stats cards on the dashboard.
+const statusConfig: Record<Status, { dotColor: string; label: string; }> = {
   ACTIVE: {
-    textColor: 'text-status-active',
-    bgColor: 'bg-statuc-active',
+    dotColor: 'bg-emerald-500',
     label: 'Active',
   },
   PENDING: {
-    textColor: 'text-status-pending',
-    bgColor: 'bg-status-pending',
+    dotColor: 'bg-amber-500',
     label: 'Pending'
   },
   SUCCESS: {
-    textColor: 'text-status-success',
-    bgColor: 'bg-status-success',
+    dotColor: 'bg-lime-500',
     label: 'Success'
   },
   FAILURE: {
-    textColor: 'text-status-failure',
-    bgColor: 'bg-status-failure',
+    dotColor: 'bg-red-500',
     label: 'Failed'
+  },
+  DECLINED: {
+    dotColor: 'bg-violet-500',
+    label: 'Declined'
   }
 }
 
@@ -37,8 +38,7 @@ const config = computed(() => statusConfig[props.status] ?? statusConfig.ACTIVE)
 
 <template>
   <div class="flex items-center gap-2">
-    <span 
-      :class="['w-2 h-2 rounded-full', config.textColor]"></span>
-    <span :class="['font-medium', config.bgColor]">{{ config.label }}</span>
+    <span :class="['w-2 h-2 rounded-full', config.dotColor]" aria-hidden="true"></span>
+    <span class="font-medium">{{ config.label }}</span>
   </div>
 </template>
