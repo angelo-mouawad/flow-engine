@@ -57,6 +57,12 @@ public class RequestService {
                         && requestSteps.contains(submission.getRequestStep()));
     }
 
+    public boolean hasDeclinedSubmission(String flowInstanceId, Collection<Integer> requestSteps) {
+        return requestSubmissionRepository.findByFlowInstanceId(flowInstanceId).stream()
+                .anyMatch(submission -> submission.getStatus() == RequestStatus.DECLINED
+                        && requestSteps.contains(submission.getRequestStep()));
+    }
+
     public void deleteForFlowInstance(String flowInstanceId) {
         requestSubmissionRepository.deleteByFlowInstanceId(flowInstanceId);
     }

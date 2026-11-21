@@ -4,5 +4,7 @@ public enum FlowStatus {
     ACTIVE,
     PENDING,
     SUCCESS,
-    FAILURE
+    FAILURE,
+    /** An approval the flow waited on was declined, so the flow stopped there. */
+    DECLINED
 }

@@ -20,6 +20,7 @@ public class CallbackService {
     public static final String PENDING = "pending";
     public static final String COMPLETED = "completed";
     public static final String FAILED = "failed";
+    public static final String DECLINED = "declined";
 
     private static final Logger log = LoggerFactory.getLogger(CallbackService.class);
     private static final Duration TIMEOUT = Duration.ofSeconds(5);

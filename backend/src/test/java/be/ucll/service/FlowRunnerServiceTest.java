@@ -139,6 +139,8 @@ class FlowRunnerServiceTest {
         FlowInstance instance = new FlowInstance(flow, "Absence for Lais", "lais@glackit.be", ABSENCE_DATA, null);
         instance.nextProcess();
         instance.setFlowStatus(FlowStatus.PENDING);
+        when(flowInstanceRepository.existsById("inst")).thenReturn(true);
+        when(flowInstanceRepository.claimPending("inst")).thenReturn(true);
         when(flowInstanceRepository.findById("inst")).thenReturn(Optional.of(instance));
         saveReturnsArgument();
         when(requestService.hasPendingSubmission(isNull(), eq(Set.of(0)))).thenReturn(false);
@@ -156,6 +158,8 @@ class FlowRunnerServiceTest {
         FlowInstance instance = new FlowInstance(flow, "Absence for Lais", "lais@glackit.be", ABSENCE_DATA, null);
         instance.nextProcess();
         instance.setFlowStatus(FlowStatus.PENDING);
+        when(flowInstanceRepository.existsById("inst")).thenReturn(true);
+        when(flowInstanceRepository.claimPending("inst")).thenReturn(true);
         when(flowInstanceRepository.findById("inst")).thenReturn(Optional.of(instance));
         saveReturnsArgument();
         when(requestService.hasPendingSubmission(isNull(), eq(Set.of(0)))).thenReturn(true);
@@ -167,14 +171,74 @@ class FlowRunnerServiceTest {
     }
 
     @Test
-    void resumeIgnoresFlowsThatAreNotPending() {
-        FlowInstance instance = new FlowInstance(definition(List.of(plainAbsence())), "t", "lais@glackit.be", null, null);
-        instance.setFlowStatus(FlowStatus.SUCCESS);
-        when(flowInstanceRepository.findById("inst")).thenReturn(Optional.of(instance));
+    void resumeStopsWhenTheFlowIsNotWaitingOrAnotherCallerClaimedIt() {
+        when(flowInstanceRepository.existsById("inst")).thenReturn(true);
+        when(flowInstanceRepository.claimPending("inst")).thenReturn(false);
 
         runner.resumeFlow("inst");
 
+        verify(flowInstanceRepository, never()).findById(any());
         verify(flowInstanceRepository, never()).save(any());
+        verify(requestService, never()).hasPendingSubmission(any(), any());
+    }
+
+    @Test
+    void resumeOfAnUnknownFlowIsNotFound() {
+        when(flowInstanceRepository.existsById("missing")).thenReturn(false);
+
+        assertThrows(NotFoundException.class, () -> runner.resumeFlow("missing"));
+        verify(flowInstanceRepository, never()).claimPending(any());
+    }
+
+    @Test
+    void aDeclinedRequestStopsTheFlowInsteadOfCompletingIt() {
+        FlowDefinition flow = definition(List.of(approvableAbsence(1), approvalOf(0), popupFor(0)));
+        FlowInstance instance = new FlowInstance(flow, "Absence for Lais", "lais@glackit.be", ABSENCE_DATA, CALLBACK);
+        instance.nextProcess();
+        instance.setFlowStatus(FlowStatus.PENDING);
+        when(flowInstanceRepository.existsById("inst")).thenReturn(true);
+        when(flowInstanceRepository.claimPending("inst")).thenReturn(true);
+        when(flowInstanceRepository.findById("inst")).thenReturn(Optional.of(instance));
+        saveReturnsArgument();
+        when(requestService.hasDeclinedSubmission(isNull(), eq(Set.of(0)))).thenReturn(true);
+
+        runner.resumeFlow("inst");
+
+        assertEquals(FlowStatus.DECLINED, instance.getFlowStatus());
+        assertEquals(1, instance.getStep());
+        verify(notificationService, never()).send(any(), any(), anyString());
+        verify(callbackService).send(eq(CALLBACK), isNull(), eq(CallbackService.DECLINED));
+        verify(callbackService, never()).send(any(), any(), eq(CallbackService.COMPLETED));
+    }
+
+    @Test
+    void recoveryResumesFlowsWhoseApprovalWasAlreadyDecided() {
+        FlowDefinition flow = definition(List.of(approvableAbsence(1), approvalOf(0)));
+        FlowInstance stalled = new FlowInstance(flow, "Absence for Lais", "lais@glackit.be", ABSENCE_DATA, null);
+        stalled.nextProcess();
+        stalled.setFlowStatus(FlowStatus.PENDING);
+        when(flowInstanceRepository.findByFlowStatus(FlowStatus.PENDING)).thenReturn(List.of(stalled));
+        when(requestService.hasPendingSubmission(isNull(), eq(Set.of(0)))).thenReturn(false);
+        when(flowInstanceRepository.existsById(isNull())).thenReturn(true);
+        when(flowInstanceRepository.claimPending(isNull())).thenReturn(true);
+        when(flowInstanceRepository.findById(isNull())).thenReturn(Optional.of(stalled));
+        saveReturnsArgument();
+
+        assertEquals(1, runner.recoverStalledFlows());
+        assertEquals(FlowStatus.SUCCESS, stalled.getFlowStatus());
+    }
+
+    @Test
+    void recoveryLeavesFlowsThatAreStillWaitingOnSomeone() {
+        FlowDefinition flow = definition(List.of(approvableAbsence(1), approvalOf(0)));
+        FlowInstance waiting = new FlowInstance(flow, "Absence for Lais", "lais@glackit.be", ABSENCE_DATA, null);
+        waiting.nextProcess();
+        waiting.setFlowStatus(FlowStatus.PENDING);
+        when(flowInstanceRepository.findByFlowStatus(FlowStatus.PENDING)).thenReturn(List.of(waiting));
+        when(requestService.hasPendingSubmission(isNull(), eq(Set.of(0)))).thenReturn(true);
+
+        assertEquals(0, runner.recoverStalledFlows());
+        verify(flowInstanceRepository, never()).claimPending(any());
     }
 
     @Test

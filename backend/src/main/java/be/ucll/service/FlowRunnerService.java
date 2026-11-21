@@ -27,6 +27,9 @@ public class FlowRunnerService {
 
     private static final Logger log = LoggerFactory.getLogger(FlowRunnerService.class);
 
+    /** What the runner does after looking at a step. */
+    private enum Outcome { CONTINUE, WAIT, DECLINED }
+
     private final FlowInstanceRepository flowInstanceRepository;
     private final FlowDefinitionRepository flowDefinitionRepository;
     private final RequestService requestService;
@@ -60,56 +63,101 @@ public class FlowRunnerService {
                 flowData.data(),
                 flowData.callbackUrl()));
 
-        run(instance);
+        instance = run(instance);
         return new TriggerResponse(instance.getId(), instance.getFlowStatus());
     }
 
+    /**
+     * Picks a waiting flow back up. The PENDING to ACTIVE switch is one atomic update, so when two
+     * approvals land at the same moment only one of them continues the flow and the other stops here.
+     */
     public void resumeFlow(String flowInstanceId) {
-        FlowInstance instance = flowInstanceRepository.findById(flowInstanceId)
-                .orElseThrow(() -> new NotFoundException("Flow instance " + flowInstanceId + " does not exist"));
-
-        if (instance.getFlowStatus() != FlowStatus.PENDING) {
-            log.info("Flow instance {} is {}, nothing to resume", flowInstanceId, instance.getFlowStatus());
+        if (!flowInstanceRepository.existsById(flowInstanceId)) {
+            throw new NotFoundException("Flow instance " + flowInstanceId + " does not exist");
+        }
+        if (!flowInstanceRepository.claimPending(flowInstanceId)) {
+            log.info("Flow instance {} is not waiting, or another request is already resuming it", flowInstanceId);
             return;
         }
-
-        instance.setFlowStatus(FlowStatus.ACTIVE);
-        flowInstanceRepository.save(instance);
+        // Reload after the claim so the copy we run carries the version the claim just wrote.
+        FlowInstance instance = flowInstanceRepository.findById(flowInstanceId)
+                .orElseThrow(() -> new NotFoundException("Flow instance " + flowInstanceId + " does not exist"));
         run(instance);
     }
 
-    private void run(FlowInstance instance) {
+    /**
+     * Finds flows left waiting on approvals that were already decided, for example because the server
+     * stopped between saving a decision and resuming the flow, and continues them.
+     */
+    public int recoverStalledFlows() {
+        int resumed = 0;
+        for (FlowInstance instance : flowInstanceRepository.findByFlowStatus(FlowStatus.PENDING)) {
+            if (instance.getCurrentProcess() instanceof Approval approval
+                    && !requestService.hasPendingSubmission(instance.getId(), approval.getRequestSteps())) {
+                try {
+                    resumeFlow(instance.getId());
+                    resumed++;
+                } catch (RuntimeException e) {
+                    log.warn("Could not recover flow instance {}: {}", instance.getId(), e.getMessage());
+                }
+            }
+        }
+        return resumed;
+    }
+
+    private FlowInstance run(FlowInstance instance) {
         try {
             Process current;
             while ((current = instance.getCurrentProcess()) != null) {
-                if (mustWaitAt(instance, current)) {
-                    instance.setFlowStatus(FlowStatus.PENDING);
-                    flowInstanceRepository.save(instance);
-                    callbackService.send(instance.getCallbackUrl(), instance.getId(), CallbackService.PENDING);
-                    return;
+                switch (handle(instance, current)) {
+                    case WAIT -> {
+                        instance.setFlowStatus(FlowStatus.PENDING);
+                        instance = flowInstanceRepository.save(instance);
+                        callbackService.send(instance.getCallbackUrl(), instance.getId(), CallbackService.PENDING);
+                        return instance;
+                    }
+                    case DECLINED -> {
+                        instance.setFlowStatus(FlowStatus.DECLINED);
+                        instance = flowInstanceRepository.save(instance);
+                        log.info("Flow instance {} stopped at step {}: a request it waited on was declined",
+                                instance.getId(), instance.getStep());
+                        callbackService.send(instance.getCallbackUrl(), instance.getId(), CallbackService.DECLINED);
+                        return instance;
+                    }
+                    case CONTINUE -> {
+                        instance.nextProcess();
+                        instance = flowInstanceRepository.save(instance);
+                    }
                 }
-                instance.nextProcess();
-                flowInstanceRepository.save(instance);
             }
 
             instance.setFlowStatus(FlowStatus.SUCCESS);
-            flowInstanceRepository.save(instance);
+            instance = flowInstanceRepository.save(instance);
             callbackService.send(instance.getCallbackUrl(), instance.getId(), CallbackService.COMPLETED);
+            return instance;
         } catch (RuntimeException e) {
             markFailed(instance, e);
             throw e;
         }
     }
 
-    private boolean mustWaitAt(FlowInstance instance, Process process) {
+    private Outcome handle(FlowInstance instance, Process process) {
         return switch (process) {
             case Request request -> {
                 Map<String, Object> data = instance.getDataFor(request.getRequestTypeName());
                 RequestSubmission submission = requestService.processRequest(request, data, instance.getId());
                 log.debug("Request {} in flow {} submitted as {}", request.getLabel(), instance.getId(), submission.getStatus());
-                yield false;
+                yield Outcome.CONTINUE;
             }
-            case Approval approval -> requestService.hasPendingSubmission(instance.getId(), approval.getRequestSteps());
+            case Approval approval -> {
+                // A declined request ends the flow; it must never be treated as if it were approved.
+                if (requestService.hasDeclinedSubmission(instance.getId(), approval.getRequestSteps())) {
+                    yield Outcome.DECLINED;
+                }
+                yield requestService.hasPendingSubmission(instance.getId(), approval.getRequestSteps())
+                        ? Outcome.WAIT
+                        : Outcome.CONTINUE;
+            }
             case Notification notification -> {
                 Request request = null;
                 if (notification.getRequestStep() != null
@@ -117,7 +165,7 @@ public class FlowRunnerService {
                     request = target;
                 }
                 notificationService.send(notification, request, instance.getTitle());
-                yield false;
+                yield Outcome.CONTINUE;
             }
             default -> throw new DomainException("Unsupported process at step " + process.getStep());
         };
