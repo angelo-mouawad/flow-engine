@@ -14,9 +14,9 @@ A **flow definition** is a template: a title, who is allowed to trigger it, and 
 | `APPROVAL` | Pauses the flow until the request it points at has been resolved. |
 | `NOTIFICATION` | Pushes a message over WebSocket to a list of recipients. |
 
-Triggering a definition creates a **flow instance**, which is one live run with its own status and step counter. The runner walks the processes in order until it either finishes (`SUCCESS`), hits an approval it has to wait on (`PENDING`), or fails (`FAILURE`).
+Triggering a definition creates a **flow instance**, which is one live run with its own status and step counter. The runner walks the processes in order until it either finishes (`SUCCESS`), hits an approval it has to wait on (`PENDING`), reaches an approval whose request was declined (`DECLINED`), or fails (`FAILURE`).
 
-When an approver approves or declines from the UI, the submission is updated and the flow resumes from where it stopped.
+When an approver approves or declines from the UI, the submission is updated and the flow resumes from where it stopped. A declined request stops the flow at its approval step: the steps after it never run, and the flow is never reported as completed.
 
 Four request types ship with it: absence, clock-in, task change, and meeting. Each has its own validation rules. Clock-in is the interesting one, since it auto approves anything inside office hours and only escalates the rest.
 
@@ -26,7 +26,7 @@ There are two notification types. Pop-up notifications go out over WebSocket. Em
 
 ## Stack
 
-**Backend** is Java 21 and Spring Boot 3.3, storing flow definitions, instances, and submissions in MongoDB. STOMP over SockJS handles notifications, and the API is documented with springdoc OpenAPI.
+**Backend** is Java 21 and Spring Boot 3.5, storing flow definitions, instances, and submissions in MongoDB. STOMP over SockJS handles notifications, and the API is documented with springdoc OpenAPI.
 
 **Frontend** is Vue 3 with the Composition API, TypeScript, Vite, Pinia, and Tailwind 4. Vue Flow renders the process diagrams.
 
@@ -133,7 +133,7 @@ Errors come back in a consistent shape, with a `400` for anything invalid and a 
 { "status": 400, "error": "Start date cannot be after end date for absence request", "timestamp": "..." }
 ```
 
-If you add a `callbackUrl` to the trigger body, the engine posts `{ "flowId": "...", "status": "..." }` back to it as the flow moves through `pending`, `completed`, and `failed`. Callbacks are sent in the background with a short timeout. A callback that fails is logged and ignored, so an unreachable listener never breaks a run.
+If you add a `callbackUrl` to the trigger body, the engine posts `{ "flowId": "...", "status": "..." }` back to it as the flow moves through `pending`, `completed`, `declined`, and `failed`. Callbacks are sent in the background with a short timeout. A callback that fails is logged and ignored, so an unreachable listener never breaks a run.
 
 ## Layout
 
@@ -165,7 +165,11 @@ Request types and notification types are both **strategies** behind a factory, s
 
 The flow runner is deliberately dumb about time. It runs synchronously until it hits something it cannot decide on its own, then stores its position and returns. Resuming is just picking the instance back up and carrying on, which keeps the whole thing restart safe without a scheduler.
 
-Mongo does not allow dots in document keys, so approver emails are stored with dots swapped for underscores. That escaping is contained inside `RequestSubmission`, and every lookup normalises first, so callers can pass a plain email and never think about it.
+Saving a decision and resuming its flow are two separate writes, so a crash in between could leave a flow waiting on an approval that is already decided. On startup the engine looks for those flows and resumes them.
+
+Two people acting at the same moment cannot corrupt a flow. Instances and submissions carry a version, so a save based on a stale copy is rejected instead of silently overwriting newer data. A vote that loses that race is reapplied on the fresh copy. Resuming switches the flow from `PENDING` to `ACTIVE` in a single atomic update, so when two approvals land together only one of them continues the flow.
+
+Approver votes are stored as a list of `{email, status}`. Emails are normalised (trimmed and lower cased) before every lookup, so callers can pass a plain email. Data written by older versions, which kept votes in a map keyed by the email with dots swapped for underscores and had no versions, is converted automatically at startup.
 
 ## Tests
 
